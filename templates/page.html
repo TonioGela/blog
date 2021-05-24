@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "macros.html" as macros %}
+
+{% block content %}
+<nav id="overlord" class="overlord" >
+  {{ macros::mini_logo(classes="", title=config.title, siteurl=config.base_url, logourl=config.extra.profile) }}
+  {% include "languages.html" %}
+</nav>
+
+<section class="post_container">
+  <article>
+    {% block post %}
+      <h1 class="article_title"><a href="{{page.permalink}}" id="article_link">{{ page.title }}</a></h1>
+      {{ macros::frontmatter(classes="frontmatter_page", date=page.date, word_count=page.word_count, read_time=page.reading_time) }}
+      {{ page.content | safe }}
+      {% endblock post %}
+  </article>
+</section>
+{% if config.extra.comments %}
+<script src="https://utteranc.es/client.js"
+        repo="{{config.extra.comments.repo}}"
+        {% if config.extra.comments.issue_number %}
+        issue-number="{{config.extra.comments.issue_number}}"
+        {% else %}
+        issue-term="{{config.extra.comments.term}}"
+        {% endif %}
+        {% if config.extra.comments.label %}
+        label="{{config.extra.comments.label}}"
+        {% endif %}
+        theme="{{config.extra.comments.theme}}"
+        crossorigin="anonymous"
+        async>
+</script>
+{% endif %}
+{% endblock content %}

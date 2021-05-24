@@ -1,0 +1,76 @@
+{% macro theme_selector(themes) %}
+<select id="theme_selector" size=1>
+    <option value="{{themes[0]}}" selected>{{themes[0]}}</option>
+    {% for theme in themes | slice(start=1) %}
+    <option value="{{theme}}">{{theme}}</option>
+    {% endfor %}
+</select>
+{% endmacro theme_selector %}
+
+{% macro mini_logo(classes, title, siteurl, logourl) %}
+<figure class="mini_logo {{ classes }}">
+    <a href="{{siteurl}}" style="background-image: url({{siteurl}}/{{logourl}})"></a>
+</figure>
+<h5>
+    <a href="{{siteurl}}">{{title}}</a>
+</h5>
+{% endmacro mini_logo %}
+
+{% macro social(display, icon, uri, icon_class, classes, blank) %}
+<li>
+    <a {% if classes %}class="{{ classes }}"{% endif %} href="{{ uri }}" {% if blank %}target="_blank"{% endif %}>
+        <i class="{{ icon_class }} fa-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
+    </a>
+</li>
+{% endmacro %}
+
+{% macro social_common(classes, icon_class) %}
+{% set extra = config.extra %}
+{% for social in extra.socials %}
+{{ self::social(
+        display=social.display | default(value=""),
+        icon=social.icon,
+        uri=social.uri,
+        icon_class=social.icon_class | default(value=icon_class),
+        classes=classes,
+        blank=social.blank | default(value=true)
+) }}
+{% endfor %}
+
+{% if config.generate_feed %}
+{{ self::social(
+        display="",
+        icon="rss",
+        uri=get_url(path=config.feed_file | default(value="atom.xml"), lang=lang),
+        icon_class="fas",
+        classes=classes,
+        blank=true
+) }}
+{% endif %}
+{% endmacro social_common %}
+
+<!-- classes=any extra styling, bsize=buttonsize -->
+{% macro social_list(classes, bsize) %}
+<ul class="social_list {{classes}}">
+    {{ self::social_common(classes="button " ~ bsize ~ " font_faint", icon_class="fab") }}
+</ul>
+{% endmacro social_list %}
+
+{% macro frontmatter(classes, date, word_count, read_time) %}
+<ul class="frontmatter {{classes}}" id="frontmatter">
+    <li>
+        <time class="article_time" datetime="{{date}}">{{ date | date(format="%B %d, %Y") }}</time>
+    </li>
+    <span class="dotDivider"></span>
+    <li> {{word_count}} words </li>
+    <span class="dotDivider" ></span>
+    <li> {{read_time}} min </li>
+</ul>
+{% endmacro frontmatter %}
+
+{% macro country_flag(language) %}
+{% if language == "en" %}
+{% set language = "us" %}
+{% endif %}
+<img src="https://www.countryflags.io/{{language}}/flat/64.png"/>
+{% endmacro country_flag %}
