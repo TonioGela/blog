@@ -5,6 +5,10 @@ category = "test"
 language="en"
 +++
 
+{% quote(author="Foo") %}
+A quote
+{% end %}
+
 ![](magic.gif) <!-- if you use the <slug>/index.md trick, this path is relative -->
 
 [my link](@/pages/about_me.md) <!-- internal link use @ -->

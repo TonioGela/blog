@@ -22,10 +22,7 @@
          \/____/                  \|___|
 
 */
-@import 'menu';
-@import 'vars';
 @import 'macros';
-@import 'shortcodes';
 
 html, body {
     background-color: $background;
@@ -99,8 +96,8 @@ hr {
 article {
     a {
         text-decoration: underline;
-        text-decoration-color: $outline;
-        text-decoration-thickness: 2px;
+        text-decoration-color: $accent2;
+        text-decoration-thickness: 1.5px;
         color: $text;
     }
     a:link {
@@ -477,4 +474,18 @@ nav.pagination {
 
 .utterances {
     max-width: $width;
+}
+
+.youtube {
+    > iframe {
+        width: 100%;
+        height: 340px;
+    }
+}
+
+.vimeo {
+    > iframe {
+        width: 100%;
+        height: 340px;
+    }
 }
