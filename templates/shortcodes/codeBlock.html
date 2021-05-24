@@ -1,0 +1,10 @@
+<div class="code-window">
+    <div class="code-title" {% if color %}{% if color=="green" %}style="background-color:#a3be8c;color:#1a2539;" {% else
+        %}{% if color=="blue" %}style="background-color:#6d98ba;color:black;" {% else %}{% if color=="yellow"
+        %}style="background-color:#ffb17a;color:black;" {% endif %}{% endif %}{% endif %}{% endif %}><span
+            class="dot-red"></span>
+        <span class="dot-yellow"></span>
+        <span class="dot-green"></span> {{ title }}
+    </div>
+    <div class="code-body">{{ body | markdown | safe }}</div>
+</div>

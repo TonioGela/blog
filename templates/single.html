@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% import "macros.html" as macros %}
+
+{% block description %}
+<meta name="description" content="{{ page.extra.description }}">
+<meta property="og:description" content="{{ page.extra.description }}">
+<meta property="twitter:description" content="{{ page.extra.description }}">
+{% endblock description %}
+
+{% block content %}
+<nav id="overlord" class="overlord">
+  {{ macros::mini_logo(classes="", title=config.title, siteurl=config.base_url, logourl=config.extra.profile) }}
+</nav>
+
+<section class="post_container">
+  <article>
+    {% block post %}
+    <h1 class="article_title"><a href="{{page.permalink}}" id="article_link">{{ page.title }}</a></h1>
+    {{ page.content | safe }}
+    {% endblock post %}
+  </article>
+</section>
+{% endblock content %}

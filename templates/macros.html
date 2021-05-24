@@ -1,0 +1,67 @@
+{% macro mini_logo(classes, title, siteurl, logourl) %}
+<figure class="mini_logo {{ classes }}">
+    <a href="{{siteurl}}" style="background-image: url({{siteurl}}/{{logourl}})" aria-label="Homepage"></a>
+</figure>
+<h5>
+    <a href="{{siteurl}}" aria-label="Homepage">{{title}}</a>
+</h5>
+{% endmacro mini_logo %}
+
+{% macro social(display, icon, uri, classes, blank) %}
+<li>
+    <a rel="me" {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {%
+        endif %}>
+        <i class="icon-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
+    </a>
+</li>
+{% endmacro %}
+
+{% macro social_common(classes) %}
+{% set extra = config.extra %}
+{% for social in extra.socials %}
+{{ self::social(
+display=social.display | default(value=""),
+icon=social.icon,
+uri=social.uri,
+classes=classes,
+blank=social.blank | default(value=true)
+) }}
+{% endfor %}
+
+{% if config.generate_feed %}
+
+{% set feed_path = config.feed_filename | default(value="rss.xml") %}
+{% if lang == "en" %}
+{% set feed_uri = feed_path %}
+{% else %}
+{% set feed_uri = lang ~ "/" ~ feed_path %}
+{% endif %}
+
+{{ self::social(
+display="",
+icon="rss",
+uri=feed_uri,
+classes=classes,
+blank=true
+) }}
+{% endif %}
+{% endmacro social_common %}
+
+<!-- classes=any extra styling, bsize=buttonsize -->
+{% macro social_list(classes, bsize) %}
+<ul class="social_list {{classes}}">
+    {{ self::social_common(classes="button " ~ bsize ~ " font_faint") }}
+</ul>
+{% endmacro social_list %}
+
+{% macro frontmatter(classes, date, word_count, read_time) %}
+<ul class="frontmatter {{classes}}" id="frontmatter">
+    <li>
+        <time class="article_time" datetime="{{date}}">{{ date | date(format="%B %d, %Y") }}</time>
+    </li>
+    <li class="dotDivider"></li>
+    <li> {{word_count}} words </li>
+    <li class="dotDivider"></li>
+    <li> {{read_time}} min </li>
+</ul>
+{% endmacro frontmatter %}

@@ -1,0 +1,57 @@
+{% import "macros.html" as macros %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% block head %}
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="robots" content="index, follow">
+  <meta name="revisit-after" content="3 days">
+  <meta name="author" content="{{ config.extra.author }}">
+  {% if page.title %}
+  <title>{{ page.title }} | {{ config.title }}</title>
+  <meta name="title" content="{{ page.title }} | {{ config.title }}">
+  <meta property="og:title" content="{{ page.title }} | {{ config.title }}">
+  <meta property="twitter:title" content="{{ page.title }} | {{ config.title }}">
+  {% else %}
+  <title>{{ config.title }}</title>
+  <meta name="title" content="{{ config.title }}">
+  <meta property="og:title" content="{{ config.title }}">
+  <meta property="twitter:title" content="{{ config.title }}">
+  {% endif %}
+  {% if page.extra.description %}
+  <meta name="description" content="{{ page.extra.description | markdown | striptags }}">
+  <meta property="og:description" content="{{ page.extra.description | markdown | striptags }}">
+  <meta property="twitter:description" content="{{ page.extra.description | markdown | striptags }}">
+  {% else %}
+  <meta name="description" content="{{ config.description | markdown | striptags }}">
+  <meta property="og:description" content="{{ config.description | markdown | striptags }}">
+  <meta property="twitter:description" content="{{ config.description | markdown | striptags }}">
+  {% endif %}
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{current_url}}">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:url" content="{{current_url}}">
+  <meta name="twitter:site" content="@toniogela" />
+  <meta name="twitter:creator" content="@toniogela" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3">
+  {% block rss %}
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path="rss.xml", trailing_slash=false) }}">
+  {% endblock %}
+  <link rel="shortcut icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
+  <link rel="preload" as="style" href="{{ config.base_url }}/colors.css" />
+  <link rel="preload" as="image" href="{{ config.base_url }}/{{config.extra.profile}}">
+  {% block custom_preload %}{% endblock custom_preload %}
+  <link rel="preconnect" href="https://giscus.app" crossorigin>
+  <link rel="stylesheet" href="{{ config.base_url }}/colors.css" />
+  <script async="true" defer="true" src="{{ config.base_url }}/instantpage-5.1.0.js" type="module"></script>
+  {% endblock head %}
+</head>
+
+<body data-instant-allow-external-links>
+  {% block content %} {% endblock content %}
+</body>
+
+</html>

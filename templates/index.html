@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "macros.html" as macros %}
+
+{% block custom_preload %}
+<link rel="preload" as="font" type="font/woff2" href="{{ config.base_url }}/toniogela.woff2" crossorigin>
+{% endblock custom_preload %}
+
+{% block content %}
+<header class="header">
+    {% block header %}
+    <figure class="user_logo">
+        <a href="{{config.base_url}}" style="background-image: url({{config.base_url}}/{{config.extra.profile}}"
+            aria-label="Homepage"></a>
+    </figure>
+    <h2 class="site_title">{{config.title}}</h2>
+    <div>{{config.description | markdown(inline=true) | safe }}</div>
+    {{ macros::social_list(classes="header_list", bsize="small") }}
+    {% endblock header %}
+</header>
+
+<section class="post_list">
+    {% for page in paginator.pages %}
+    <article id="{{page.title}}" class="post_list_item">
+        <h1 class="article_title">
+            <a href="{{page.permalink}}" id="article_link">{{page.title}}</a>
+        </h1>
+        {{ macros::frontmatter(
+        classes="",
+        date=page.date | default(value=""),
+        word_count=page.word_count,
+        read_time=page.reading_time
+        ) }}
+        <p class="article_content">{{ page.extra.description | default(value=page.content | striptags | truncate) |
+            markdown | safe
+            }}</p>
+        <a class="button small" href="{{page.permalink}}">Continue Reading →</a>
+    </article>
+    {% endfor %}
+</section>
+{% endblock content %}

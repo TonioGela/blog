@@ -1,0 +1,16 @@
+{% import "macros.html" as macros %}
+
+{% block language_selector %}
+<div id="languageSelector">
+    <ul>
+        {% for l in ["en", "it"] %}
+        {% if l == "en" %}{% set slug = "" %}{% else %}{% set slug = l %}{% endif %}
+        <li>
+            {% if l != lang %}<a href="{{config.base_url}}/{{slug}}">{% endif %}
+                {{ l }}
+                {% if l != lang %}</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

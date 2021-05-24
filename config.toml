@@ -1,0 +1,42 @@
+base_url = "https://toniogela.dev"
+default_language = "en"
+compile_sass = true
+generate_feed = true
+feed_limit = 1000
+feed_filename = "rss.xml"
+title = "TonioGela's"
+description = "\"In order to understand recursion, one must first understand recursion\""
+build_search_index = false
+
+[markdown]
+highlight_code = true
+extra_syntaxes_and_themes = ["syntaxes"]
+highlight_theme = "base16-ocean-dark"
+render_emoji = true
+
+[extra]
+profile = "avatar.webp"
+author = "Antonio Gelameris"
+
+[[extra.socials]]
+icon = "github"
+uri = "https://github.com/TonioGela"
+
+[[extra.socials]]
+icon = "mastodon"
+uri = "https://hachyderm.io/@toniogela"
+
+[[extra.socials]]
+icon = "terminal"
+display = "about me"
+uri = "/about"
+blank = false
+
+[[extra.socials]]
+icon = "linkedin"
+uri = "https://www.linkedin.com/in/toniogela/"
+
+[extra.comments] # Optional
+repo = "TonioGela/toniogela.dev-comments"
+theme = "github-dark"
+term = "url"
