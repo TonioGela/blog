@@ -1,0 +1,31 @@
+{% import "macros.html" as macros %}
+
+{% block language_selector %}
+{% set languages = config.languages | map(attribute="code") %}
+{% set default_language = config.default_language %}
+{% if languages | length %}
+<div id="languageSelector">
+    <ul>
+        {% for l in languages | concat(with=default_language) | sort %}
+
+        {% if l == default_language %}
+            {% set slug = "" %}
+        {% else %}
+            {% set slug = l %}
+        {% endif %}
+
+        <li>
+            {% if l != lang %}<a href="{{config.base_url}}/{{slug}}">{% endif %}
+                {% if config.extra.country_flags %}
+                {{ macros::country_flag(language=l) }}
+                {% else %}
+                {{ l }}
+                {% endif %}
+            {% if l != lang %}</a>{% endif %}
+        </li>
+        {% endfor %}
+
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

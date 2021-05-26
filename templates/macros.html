@@ -29,10 +29,18 @@
 {% endfor %}
 
 {% if config.generate_feed %}
+
+{% set feed_path = config.feed_file | default(value="atom.xml") %}
+{% if lang == config.default_language %}
+    {% set feed_uri = feed_path %}
+{% else %}
+    {% set feed_uri = lang ~ "/" ~ feed_path %}
+{% endif %}
+
 {{ self::social(
-        display="",
+        display=lang,
         icon="rss",
-        uri=get_url(path=config.feed_file | default(value="atom.xml"), lang=lang),
+        uri=feed_uri,
         icon_class="fas",
         classes=classes,
         blank=true

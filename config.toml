@@ -2,6 +2,9 @@ base_url = "https://blog.toniogela.dev"
 title = "TonioGela's"
 description="\"In order to understand recursion, one must first understand recursion\""
 default_language = "en"
+languages = [
+    {code = "it", feed = true}
+]
 
 generate_feed = true
 feed_limit = 1000
@@ -38,7 +41,7 @@ uri = "https://www.linkedin.com/in/toniogela/"
 [extra.comments] # Optional
 repo = "TonioGela/toniogela.dev-comments"
 theme = "github-dark"
-term = "title"
+term = "url"
 
 [extra.font_awesome]
 kit = "e307e34624"
