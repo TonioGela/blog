@@ -68,7 +68,6 @@ The last time you used [ShellCheck] to check the scripts, the linter exploded an
 
 ## Just to the rescue
 
-
 [Just]: https://github.com/casey/just
 [Decline]: https://ben.kirw.in/decline/
 [Ciris]: https://cir.is/

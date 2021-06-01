@@ -75,6 +75,18 @@ pre {
     padding: 0.65em;
     overflow-x: auto;
     white-space: pre;
+    code {
+        background-color: unset;
+        padding: unset;
+        border-radius: unset;
+    }
+}
+
+
+code {
+    background-color: #2e3440;
+    padding: 0.15em;
+    border-radius: 0.15em;
 }
 
 blockquote {
@@ -291,6 +303,16 @@ a#article_link:hover {
 h1.article_title:hover + ul#frontmatter {
     opacity:1;
     transition: opacity 0.30s ease-in;
+}
+
+.anchor {
+    margin-left: 0.5em;
+    font-size: 0.6em;
+    vertical-align: middle;
+    &:hover {
+        color: $accent;
+        transition: all 0.35s ease-in;
+    }
 }
 
 h1.article_title {
