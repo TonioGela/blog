@@ -15,6 +15,10 @@ I'm a former physicist, so I sometimes bother people claiming it, and half Itali
 
 **Fun fact**: I knit and crochet :yarn: sometimes nerdy stuff like [Haskell hats](https://twitter.com/VadimBakaev/status/1392210564882046978)
 
+**Not-so-fun fact**: I own a really serious :cat: called Galileo
+
+{{ resize_image(path="pages/about_me/galileo.png", width=100, height=100, op="fit") }}
+
 If you want to get in touch with me, the best place is probably {{ resize_image(path="pages/about_me/twitter.png", width=15, height=15, op="fit") }} [Twitter](https://twitter.com/toniogela), but if you're Italian you might want to consider the {{ resize_image(path="pages/about_me/slack.png", width=15, height=15, op="fit") }} [Scala Italy Slack](scalaitaly.slack.com)
 
 If you're interested, here's my [resume](/resume.pdf)
