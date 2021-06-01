@@ -11,3 +11,5 @@ There's still plenty of customization to do and things to set up, like comments 
 This blog will be about [Scala](https://www.scala-lang.org), a bit of [Rust](https://www.rust-lang.org/) (I'm in on its learning path), many command-line tools to automatize every aspect of a developer's life, cats :cat: in various forms (like the [statically checked one](https://typelevel.org/cats/)) and a lot of other boring stuff. 
 
 Cheers!
+
+P.s. If you're interested there's an [italian version](https://toniogela.dev/it/) of this blog too
