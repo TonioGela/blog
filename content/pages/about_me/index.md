@@ -11,11 +11,11 @@ I began this blog mainly for **two** reasons:
 - I might occasionally have something to say about languages and tools I use every day
 - I don't care if anyone reads it or not
 
-I'm a former physicist, so I sometimes bother people claiming it, and half Italian half Greek, so I often bother people
+I'm a former **physicist**, so I sometimes bother people claiming it, and half **Italian** half **Greek**, so I often bother people
 
-**Fun fact**: I knit and crochet :yarn: sometimes nerdy stuff like [Haskell hats](https://twitter.com/VadimBakaev/status/1392210564882046978)
+**Fun fact**: I **knit** and **crochet** :yarn: sometimes nerdy stuff like [Haskell hats](https://twitter.com/VadimBakaev/status/1392210564882046978)
 
-**Not-so-fun fact**: I own a really serious :cat: called Galileo
+**Also-fun fact**: I own a really serious :cat: called Galileo
 
 {{ resize_image(path="pages/about_me/galileo.png", width=100, height=100, op="fit") }}
 

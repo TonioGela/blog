@@ -68,7 +68,115 @@ The last time you used [ShellCheck] to check the scripts, the linter exploded an
 
 ## Just to the rescue
 
+As its Github [README] states Just _is handy way to save and run project-specific commands_ called **recipes**, stored in a file called `justfile` with a syntax inspired by **Make**.
+
+Here's a tiny example:
+```make
+build:
+    cc *.c -o main
+
+# test everything
+test-all: build
+    ./test --all
+
+# run a specific test
+test TEST: build
+    ./test --test {{TEST}}
+```
+
+Just searches for a `justfile` in the current directory written in its particular syntax, so let's begin creating one with an hello world recipe and let's try to run it:
+
+```make
+hello-world:
+    echo "Hello World!"
+```
+```
+$ just hello-world
+echo "Hello World!"
+Hello World!
+```
+
+As you can see just **shows the command** that is about to run before running it, while we can't say the same for global or used defined `alias`es in various shells (unless using something like `set -x` for bash). If you want to suppress this behaviour you can put a `@` in front of the command to hide.
+
+```make
+hello-world:
+    @echo "Hello World!"
+```
+```
+$ just hello-world
+Hello World!
+```
+
+Let's try to create a second recipe with an argument.
+
+```make
+hello-world:
+    @echo "Hello World!"
+
+salute guy:
+    @echo "Hello {{guy}}!"
+```
+```
+$ just salute
+error: Recipe `salute` got 0 arguments but takes 1
+usage:
+    just salute guy
+
+$ just salute Tonio
+Hello Tonio!
+
+$ just --dry-run salute Tonio
+echo "Hello Tonio"
+```
+
+The recipe cannot obviously run without an argument, since that argument is referred in the body of the recipe using just syntax `{{ argument_or_variable_name }}`. If you want to "debug" the recipe that will run with the provided arguments you can use the `--dry-run` command-line flag. This can come handy if a command is long and complex and you have, for example, to schedule it in your crontab file. Just copy it from there.
+
+Arguments are really powerful, since they can have **default values** and can be **variadic** (both in the form `zero or more` or `one or more`):
+
+```make
+hello target="World":
+    @echo "Hello {{target}}!"
+
+hello-all +targets="Tim": # One or more, with default
+    @echo "Hello to everyone: {{targets}}!"
+
+hello-any *targets: # Zero or more
+    @echo "Hello {{targets}}!"
+```
+```
+$ just hello
+Hello World!
+
+$ just hello-all
+Hello to everyone: Tim!
+
+$ just hello-all "Tim" "Martha" "Lisa"
+Hello to everyone: Tim Martha Lisa!
+
+$ just hello-any
+Hello !
+
+$ just hello-any "Bob" "Lucas"
+Hello Bob Lucas!
+```
+
+We know enough syntax, let's try to build a meaningful example for our **messed-up work machine** and let's try new features **just** if we need them (no pun intended :smile:).
+
+variabili e templating
+set shell cosí tutti usano lo stesso interprete
+ricette che dipendono le une dalle altre e esempio vero con tail
+commenti come documentazione e list unsorted con default nascosto
+shell completion
+
+conditionals, loops `for i in variad argument?`
+altri interpreti
+variabili ambiente esportate
+choose
+chiamabile da altro percorso
+
+
 [Just]: https://github.com/casey/just
+[README]: https://github.com/casey/just#just
 [Decline]: https://ben.kirw.in/decline/
 [Ciris]: https://cir.is/
 [ShellCheck]: https://www.shellcheck.net/
