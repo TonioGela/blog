@@ -2,6 +2,8 @@
 title = "Bleep bleep bloop"
 date = 2021-05-26
 language="it"
+[extra]
+description = "Pallido tentativo di blog multilingue"
 +++
 
 Questo é un pallido tentativo di multilinguismo, forse c'é spazio (e spero interesse) che qualche contenuto di sto blog sia in italiano.

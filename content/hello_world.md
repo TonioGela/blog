@@ -2,6 +2,8 @@
 title = "Hello World"
 date = 2021-05-24
 language="en"
+[extra]
+description = "How about a blog?"
 +++
 
 Hello hooman, this is the very beginning of this blog. :tada:

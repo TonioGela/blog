@@ -2,8 +2,9 @@
 title = "Just use just"
 date = 2021-06-02
 slug="just"
-draft=true
 language="en"
+[extra]
+description = "Fast, well designed and documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output."
 +++
 
 OMG, the blog is live! :scream: And this is the first article! :scream:

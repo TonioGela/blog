@@ -5,34 +5,44 @@
 <head>
   {% block head %}
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-
-  <!-- SEO -->
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="robots" content="index, follow">
+  <meta name="revisit-after" content="3 days">
+  <meta name="author" content="{{ config.extra.author }}">
   {% if page.title %}
-  <title> {{ page.title }} | {{ config.title }} </title>
+  <title>{{ page.title }} | {{ config.title }}</title>
+  <meta name="title" content="{{ page.title }} | {{ config.title }}">
+  <meta property="og:title" content="{{ page.title }} | {{ config.title }}">
+  <meta property="twitter:title" content="{{ page.title }} | {{ config.title }}">
   {% else %}
-  <title> {{ config.title }} </title>
+  <title>{{ config.title }}</title>
+  <meta name="title" content="{{ config.title }}">
+  <meta property="og:title" content="{{ config.title }}">
+  <meta property="twitter:title" content="{{ config.title }}">
   {% endif %}
-
-  <!-- Enable responsiveness on mobile devices-->
+  {% if page.extra.description %}
+  <meta name="description" content="{{ page.extra.description }}">
+  <meta property="og:description" content="{{ page.extra.description }}">
+  <meta property="twitter:description" content="{{ page.extra.description }}">
+  {% else %}
+  <meta name="description" content="{{ config.description }}">
+  <meta property="og:description" content="{{ config.description }}">
+  <meta property="twitter:description" content="{{ config.description }}">
+  {% endif %}
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{current_url}}">
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:url" content="{{current_url}}">
+  <meta name="twitter:site" content="@toniogela" />
+  <meta name="twitter:creator" content="@toniogela" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-
-  <!-- favicon -->
   <link rel="shortcut icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
   <link rel="icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
-
-  <!-- js -->
   <script src="https://kit.fontawesome.com/{{ config.extra.font_awesome.kit }}.js" crossorigin="anonymous"></script>
-
-  <!--  css -->
   <link id="themeCSS" rel="stylesheet" href="{{ config.base_url }}/colors.css" />
-
-  <!-- fonts -->
-  <!-- preload  -->
   <link rel="preload"
     href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway"
     as="style">
-  <!-- load -->
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css?family=Montserrat:200,300,300i,400,500,500i,600,700,800,900|Raleway">
   {% endblock head %}
