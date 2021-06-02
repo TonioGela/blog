@@ -162,6 +162,12 @@ Hello Bob Lucas!
 
 We know enough syntax, let's try to build a meaningful example for our **messed-up work machine** and let's try new features **just** if we need them (no pun intended :smile:).
 
+Di che é hipster ed é fatto in rust
+
+Cita il plugin di VsCode
+
+Passa articolo in Grammarly
+
 variabili e templating
 set shell cosí tutti usano lo stesso interprete
 ricette che dipendono le une dalle altre e esempio vero con tail

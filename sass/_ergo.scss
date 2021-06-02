@@ -80,14 +80,18 @@ pre {
         background-color: unset;
         padding: unset;
         border-radius: unset;
+        color: unset;
+        border: unset;
     }
 }
 
 
 code {
-    background-color: #2e3440;
-    padding: 0.15em;
-    border-radius: 0.15em;
+    background-color: $code-non-pre-background;
+    padding: 2px 3px 1px;
+    border-radius: 3px;
+    color: $accent2;
+    border: 1px solid darken($code-non-pre-background, 15%);
 }
 
 blockquote {
