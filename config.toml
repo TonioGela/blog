@@ -5,6 +5,7 @@ default_language = "en"
 languages = [
     {code = "it", feed = true}
 ]
+extra_syntaxes = ["syntaxes"]
 
 generate_feed = true
 feed_limit = 1000

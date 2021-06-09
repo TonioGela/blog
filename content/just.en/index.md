@@ -72,7 +72,7 @@ The last time you used [ShellCheck] to check the scripts, the linter exploded, a
 As its Github [README] states, Just _is a handy way to save and run project-specific commands_ called **recipes**, stored in a file called `justfile` with a syntax inspired by **Make**.
 
 Here's a tiny example:
-```make
+```just
 build:
     cc *.c -o main
 
@@ -87,7 +87,7 @@ test TEST: build
 
 Just searches for a `justfile` in the current directory written in its particular syntax, so let's begin creating one with an hello world recipe and let's try to run it:
 
-```make
+```just
 hello-world:
     echo "Hello World!"
 ```
@@ -104,7 +104,7 @@ Hello World!
 
 As you can see, just **shows the command** that is about to run before running it, while we can't say the same for global or user-defined `alias`es in various shells (unless using something like `set -x` for bash). If you want to suppress this behaviour, you can put a `@` in front of the command to hide.
 
-```make
+```just
 hello-world:
     @echo "Hello World!"
 ```
@@ -119,7 +119,7 @@ Hello World!
 
 Let's try to create a second recipe with an argument.
 
-```make
+```just
 hello-world:
     @echo "Hello World!"
 
@@ -147,7 +147,7 @@ The recipe cannot obviously run without an argument since that argument is refer
 
 Arguments are really powerful since they can have **default values** and can be **variadic** (both in the form `zero or more` or `one or more`):
 
-```make
+```just
 hello target="World":
     @echo "Hello {{target}}!"
 
@@ -186,7 +186,7 @@ If we inspect the history of our machine, we'll notice that most of the commands
 
 In the meantime, we can standardize how `foo` is called, how the outputs are redirected, and its execution detached to avoid interactive sessions that might early terminate if you close a terminal session.
 
-```make
+```just
 foo_version    := "0.3.0"
 foo_executable := "/home/power_user/foo-" + foo_version + "/bin/foo"
 conf_file      := "/home/power_user/foo.conf"
@@ -209,7 +209,7 @@ schedule operation:
 
 That's better. We've used **variables** to avoid repetitions, templatized every recipe and added comments. It would be nice, though, to directly tail the `log_file` once a recipe is launched and avoid repetitions even more.
 
-```make
+```just
 foo_version    := "0.3.0"
 foo_executable := "/home/power_user/foo-" + foo_version + "/bin/foo"
 conf_file      := "/home/power_user/foo.conf"
@@ -263,7 +263,7 @@ Mixing and stirring _commands_, _recipes_, _just features_ you'll probably come 
 <details>
     <summary>justfile</summary>
 
-```make
+```just
 set shell := ["bash", "-uc"]
 
 # Foo
