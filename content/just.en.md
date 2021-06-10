@@ -370,11 +370,13 @@ Obviously, [just] doesn't automatically solve every problem you might encounter 
 - It integrates with `fzf` to [choose](https://github.com/casey/just#conditional-expressions) argument-less recipes interactively
 - Recipes can depend on other recipes, like `tests` on `build` as in the [first example](#just-to-the-rescue)
 - It can generate its own shell completion scripts using `just --completions <shell_name>`
-- It can be used as [an interpreter](https://github.com/casey/just#just-scripts), turning `justfile`s in runnable just script simply prepending `#!/usr/bin/env just --justfile`. This can be handy if you maybe want to use it with `crontab`.
+- It can be used as [an interpreter](https://github.com/casey/just#just-scripts), turning `justfile`s in runnable just script simply prepending `#!/usr/bin/env just --justfile` (This can be handy if you maybe want to use it with `crontab`)
 
 and **HIPSTER ALERT**:
 - It has its own [Github Action](https://github.com/extractions/setup-just)
-- [Syntax Highlight](https://github.com/casey/just#editor-support) for Vim, Emacs and Visual Studio Code is already available (I'll try to port it to a `sublime-syntax` to use it in this page with the [syntax highlighting](https://www.getzola.org/documentation/content/syntax-highlighting/) system of Zola)
+- [Syntax Highlight](https://github.com/casey/just#editor-support) for Vim, Emacs and Visual Studio Code is already available 
+    - (I'll try to port it to a `sublime-syntax` to use it in this page with the [syntax highlighting](https://www.getzola.org/documentation/content/syntax-highlighting/) system of Zola)
+    - `[EDIT]` I ported it! You can see it [here](https://github.com/casey/just#sublime-text)
 
 Creating practical recipes, installing the prebuilt binaries, and the command-line completion scripts can probably convince people to use it. If not, try documenting your software, using examples in the `justfile` that's sitting in the home of the repo, or try harder using
 
@@ -392,6 +394,8 @@ as the `/etc/motd` for the prod machines.
 ##### More Tools!
 
 In the following weeks, I'll try to write about other **command-line** tools I use every day (at least I'll try :sweat_smile:), so follow me on [Twitter] to get updates or subscribe to [RSS].
+
+`[EDIT]` I've been mentioned by [@casey](https://github.com/casey), just's developer, both [on twitter](https://twitter.com/rodarmor/status/1402822761639153668) and in [the official docs](https://github.com/casey/just#examples) as an example :) Thanks @casey!
 
 <details>
     <summary>SPOILER: next tool</summary>
