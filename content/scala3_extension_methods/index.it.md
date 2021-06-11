@@ -10,7 +10,7 @@ description = "Affrontiamo un argomento molto semplice: gli extension methods di
 **Premessa**: se questo post non vi dovesse piacere, se scrivessi da schifo in italiano (probabilità > 90%), se leggere di Scala in italiano vi sembrasse inutile o noioso, sappiate che:
 
 - non mi interessa
-- maschero la mia insicurezza nello scrivere in italiano aggiungendo un sacco di sarcasmo e battute nei post
+- maschero la mia insicurezza nello scrivere aggiungendo un sacco di sarcasmo e <strike>stronzate</strike> battute nei post
 - non mi interessa
 - é stata tutta un'idea di [@mfirry](https://twitter.com/mfirry), quindi incolpate lui :heart:.
 
@@ -22,11 +22,9 @@ Soprendentemente se parlerò di Scala a partire da giugno 2021 parleró di Scala
 
 una notizia che apparentemente ha rallegrato gli animi di almeno 7 persone. Dopo [8 lunghi anni](https://www.scala-lang.org/blog/2021/05/14/scala3-is-here.html) di attesa possiamo finalmente (tra le altre cose) creare e usare **extension methods** a nostro piacimento senza dover creare (manualmente) delle classi implicite che _wrappano_ (`sondaggio: come si traduce in italiano?`) la classe originale.
 
-
-
 ## Extension methods in Scala 2
 
-Come i più di voi, ma non tutti, sapranno, Scala oltre ad essere un linguaggio funzionale (haskeller muti) é anche un linguaggio ad oggetti, quindi esattamente come accade in altri linguaggi ad oggetti, é possibile definire `metodi` all'interno di `classi` per poi poterli richiamare sulle `istanze` di queste ultime. Oppure, in salsa funzionale e prendendomi molte licenze poetiche, é possibile definire `funzioni` associate ad un `tipo` per poterle poi richiamare a partire da un `valore` di quello specifico tipo (se definite in una `classe`) o a partire dal tipo stesso (se definite in un `object`).
+Come i più di voi, ma non tutti, sapranno, Scala oltre ad essere un linguaggio funzionale (haskeller muti) é anche un linguaggio ad oggetti, quindi esattamente come accade in altri linguaggi ad oggetti, é possibile definire `metodi` all'interno di `classi` per poi poterli richiamare sulle `istanze` di queste ultime. Oppure, in salsa funzionale e prendendomi molte licenze poetiche: é possibile definire `funzioni` associate ad un `tipo` per poterle poi richiamare a partire da un `valore` di quello specifico tipo (se definite in una `classe`) o a partire dal tipo stesso (se definite in un `object`).
 
 ```scala3
 class Person(val name: String) {
@@ -43,4 +41,9 @@ Fin'ora nulla di complicato né di nuovo; se abbiamo bisogno di una funzione da 
 
 Tuttavia nel caso in cui il tipo di cui stiamo creando un valore non fosse definito _all'interno della nostra codebase_ ma fosse, ad esempio, una definizione proveniente da una libreria, associare una nuova funzione in questa maniera ci sarebbe impossibile. 
 
-Anzi, a dir la verità, nel caso in cui una definizione di tipo fosse all'interno della nostra codebase e fosse molto "__endemica__" alterarne la firma sarebbe sicuramente un'operazione da affrontare con molta cautela. Una modifica non retrocompatibile alla definizione di quel tipo ci costringerebbe a molte "fix" puntuali in tutti i vari siti di chiamata.
+Anzi, a dir la verità, nel caso in cui una definizione di tipo fosse all'interno della nostra codebase e fosse molto "__endemica__" alterarne la firma sarebbe sicuramente un'operazione da affrontare con molta cautela. Una modifica non retrocompatibile alla definizione di quel tipo ci costringerebbe a molte "fix" puntuali in tutti i vari siti di chiamata. Ma questo é [OOP](https://it.wikipedia.org/wiki/Programmazione_orientata_agli_oggetti), non devo/voglio insegnarlo e comunque il [GoF](https://it.wikipedia.org/wiki/Gang_of_Four_(scrittori)) é stato scritto nel 1995 quindi abbiamo tutti avuto tempo di leggerlo.
+
+
+## Extension methods in Scala 3
+
+Cita documentazione

@@ -4,7 +4,7 @@ date = 2021-06-02
 slug="just"
 language="en"
 [extra]
-description = "Fast, well designed and documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output."
+description = "Fast, well designed and well documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output, variadic arguments, custom interpreters and much more."
 +++
 
 OMG, the blog is live! :scream: And this is the first article! :scream:
