@@ -1,6 +1,3 @@
 <blockquote>
-  {{body}}<br />
-  {% if author %}
-  -- {{ author }}
-  {% endif %}
+  {{ body | markdown | safe }}{% if author %}{{ author | markdown | safe }}{% endif %}
 </blockquote>

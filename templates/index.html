@@ -26,7 +26,8 @@
         word_count=page.word_count,
         read_time=page.reading_time
         ) }}
-        <p class="article_content">{{ page.extra.description | default(value=page.content | striptags | truncate) | safe
+        <p class="article_content">{{ page.extra.description | default(value=page.content | striptags | truncate) |
+            markdown | safe
             }}</p>
         <a class="button small" href="{{page.permalink}}">Continue Reading →</a>
     </article>
