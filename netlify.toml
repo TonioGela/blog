@@ -4,3 +4,9 @@ command = "zola build"
 
 [build.environment]
 ZOLA_VERSION = "0.13.0"
+
+[context.production]
+  command = "zola build --base-url https://blog.toniogela.dev"
+
+[context.drafts]
+  command = "zola build --drafts --base-url https://blog.toniogela.dev"
