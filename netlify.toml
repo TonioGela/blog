@@ -9,4 +9,4 @@ ZOLA_VERSION = "0.13.0"
   command = "zola build --base-url https://toniogela.dev"
 
 [context.drafts]
-  command = "zola build --drafts --base-url https://toniogela.dev"
+  command = "zola build --drafts --base-url https://drafts--toniogela.netlify.app"
