@@ -32,16 +32,14 @@ Ciancio alle bande, parliamo dunque <strike>dei metodi estesivi</strike> degli *
 
 Come i più di voi, ma forse non tutti, sapranno, Scala oltre ad essere un linguaggio funzionale (haskeller muti) é anche un linguaggio ad oggetti, quindi esattamente come accade in altri linguaggi ad oggetti, é possibile definire `metodi` all'interno di `classi` per poi poterli richiamare sulle `istanze` di queste ultime. Oppure, in salsa funzionale e prendendomi un'**ENORME** licenza poetica: é possibile definire `funzioni` associate ad un `tipo` per poterle poi richiamare a partire da un `valore` di quello specifico tipo (se definite in una `classe`) o a partire dal tipo stesso (se definite in un `object`).
 
-```scala
+```scala mdoc
 class Person(val name: String) {
    def present(): Unit = println(s"Hello I'm ${name}")
 }
 
 val galileo = new Person("Galileo")
-// galileo: Person = repl.MdocSession$App$Person@2e3f324e
 
 galileo.present()
-// Hello I'm Galileo
 ```
 
 Fin'ora nulla di complicato né di nuovo; se abbiamo bisogno di una funzione da poter chiamare su un un tipo `T` o su un valore `t` di tipo `T` possiamo definirla rispettivamente in `object T` o in `class T` e accedervi tramite `.`.
@@ -54,7 +52,7 @@ A dir la verità, nel caso in cui una definizione di tipo fosse all'interno dell
 
 La maniera canonica di incapsulare della business logic che necessita di un valore `T`, qualora noi non si possa accedere alla definizione di `T` per poterla modificare, é quella di creare una funzione che abbia tra i suoi parametri anche `T`.
 
-```scala
+```scala mdoc
 object Person {
    def presentWithDetails(p: Person, details:String): Unit = {
       println(s"Hello, I'm ${p.name} ${details}")
@@ -62,7 +60,6 @@ object Person {
 }
 
 Person.presentWithDetails(galileo, "and I'm very glad to meet you.")
-// Hello, I'm Galileo and I'm very glad to meet you.
 ```
 
 Tuttavia questa metodologia costringe all'utilizzo di un po' di boilerplate visto che la funzione va chiamata staticamente: si può usare `import Person._` per importare tutte le funzioni definite nello stesso oggetto o la si può invocare "_namespaced_" anteponendo il nome dell'oggetto in cui é definita.
@@ -81,19 +78,33 @@ object Person {
 
 che é possibile importare ovunque si voglia utilizzare la nuova "**sintassi**".
 
+```scala mdoc:invisible:reset-object
+class Person(val name: String) {
+   def present(): Unit = println(s"Hello I'm ${name}")
+}
 
-```scala
+val galileo = new Person("Galileo")
+
+object Person {
+   implicit class PersonSyntax(private val p:Person) extends AnyVal {
+      def presentWithDetails(details:String): Unit = {
+         println(s"Hello, I'm ${p.name} ${details}")
+      }
+   }
+}
+```
+
+```scala mdoc
 import Person.PersonSyntax
 
 galileo.presentWithDetails("and I'm very glad to meet you.")
-// Hello, I'm Galileo and I'm very glad to meet you.
 ```
 
 Notare che nel boilerplate é consigliato rendere il parametro del costruttore privato e per evitare allocazioni inutili [quasi sempre](https://docs.scala-lang.org/overviews/core/value-classes.html#when-allocation-is-necessary) rendere la classe una value class, entrambe cose di cui ci si può scordare.
 
 In Scala 2 le implicit class sono utilizzate da sempre per legare tramite "sintassi" le funzionalità aggiuntive definite nell'istanza di una `typeclass` al tipo stesso. Più semplicemente, nel classico esempio del semigruppo:
 
-```scala
+```scala mdoc
 trait Semigroup[A] {
   def append(x: A, y: A): A
 }
@@ -109,12 +120,11 @@ object Semigroup {
 implicit val semigroupInt: Semigroup[Int] = new Semigroup[Int] {
   def append(x: Int, y: Int) = x + y
 }
-// semigroupInt: Semigroup[Int] = repl.MdocSession$App2$$anon$1@4b4a2fa8
 
 import Semigroup._
 
 1 |+| 2
-// res4: Int = 3
+// 3
 ```
 
 In questo caso, sia la dipendenza implicita da `Semigroup[T]` che l'effettiva chiamata a funzione `Semigroup[T].append` sono "nascoste" in una classe implicita, ma possiamo accedervi utilizzando il metodo `|+|` direttamente sull'istanza di `T` se in scope abbiamo un'istanza di `Semigroup[T]`.
