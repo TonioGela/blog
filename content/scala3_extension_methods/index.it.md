@@ -16,21 +16,21 @@ description = "Affrontiamo un argomento molto semplice: gli extension methods di
 
 ---
 
-Soprendentemente se parlerò di Scala a partire da giugno 2021 parleró di Scala 3. Era infatti il 13 maggio quando shitpostavo su {{ resize_image(path="pages/about_me/slack.png", width=15, height=15, op="fit") }} [Scala Italy](https://scalaitaly.slack.com)
+Soprendentemente se parlerò di Scala a partire da giugno 2021 parleró di Scala 3. Era infatti il 13 maggio quando postavo su {{ resize_image(path="pages/about_me/slack.png", width=15, height=15, op="fit") }} [Scala Italy](https://scalaitaly.slack.com)
 
 {{ centered(path="annuncio.png") }}
 
-una notizia che apparentemente ha rallegrato gli animi di almeno 7 persone. Dopo [8 lunghi anni](https://www.scala-lang.org/blog/2021/05/14/scala3-is-here.html) di attesa possiamo finalmente (tra le altre cose) creare e usare **extension methods** a nostro piacimento senza dover creare (manualmente) delle classi implicite che _wrappano_ (`sondaggio: come si traduce in italiano?`) la classe originale.
+una notizia che apparentemente ha rallegrato gli animi di almeno 7 persone. Dopo [8 lunghi anni](https://www.scala-lang.org/blog/2021/05/14/scala3-is-here.html) di attesa possiamo finalmente (tra le altre cose) creare e usare **extension methods** a nostro piacimento senza dover creare (manualmente) delle classi implicite che incapsulano la classe originale.
 
-Nonostante mi venga notare quasi quotidianamente che abuso di parole anglosassoni, ci tengo a dire che la scelta di non tradurre determinati termini tecnici mi é sembrata doverosa. Un'italianizzazione di nomi quali `extension methods` appare un po' forzata e produce risultati dal sapore decisamente _vintage_.
+Nonostante mi venga fatto notare quasi quotidianamente che abuso di parole anglosassoni, ci tengo a dire che la scelta di non tradurre determinati termini tecnici mi é sembrata doverosa. Un'italianizzazione di nomi quali `extension methods` appare un po' forzata e produce risultati dal sapore decisamente _vintage_.
 
 {{ center_into(path="metodi_estesivi.png", width=550) }}
 
-Ciancio alle bande, parliamo dunque <strike>dei metodi estesivi</strike> degli **extension methods**.
+Bando alle ciance, parliamo dunque <strike>dei metodi estesivi</strike> degli **extension methods**.
 
 ## Extension methods in Scala 2
 
-Come i più di voi, ma forse non tutti, sapranno, Scala oltre ad essere un linguaggio funzionale (haskeller muti) é anche un linguaggio ad oggetti, quindi esattamente come accade in altri linguaggi ad oggetti, é possibile definire `metodi` all'interno di `classi` per poi poterli richiamare sulle `istanze` di queste ultime. Oppure, in salsa funzionale e prendendomi un'**ENORME** licenza poetica: é possibile definire `funzioni` associate ad un `tipo` per poterle poi richiamare a partire da un `valore` di quello specifico tipo (se definite in una `classe`) o a partire dal tipo stesso (se definite in un `object`).
+Come i più di voi, ma forse non tutti, sapranno, Scala oltre ad essere un linguaggio funzionale é anche un linguaggio ad oggetti, quindi esattamente come accade in altri linguaggi ad oggetti, é possibile definire `metodi` all'interno di `classi` per poi poterli richiamare sulle `istanze` di queste ultime. Oppure, in salsa funzionale e prendendomi un'**ENORME** licenza poetica: é possibile definire `funzioni` associate ad un `tipo` per poterle poi richiamare a partire da un `valore` di quello specifico tipo (se definite in una `classe`) o a partire dal tipo stesso (se definite in un `object`).
 
 ```scala
 class Person(val name: String) {
@@ -44,7 +44,7 @@ galileo.present()
 // Hello I'm Galileo
 ```
 
-Fin'ora nulla di complicato né di nuovo; se abbiamo bisogno di una funzione da poter chiamare su un un tipo `T` o su un valore `t` di tipo `T` possiamo definirla rispettivamente in `object T` o in `class T` e accedervi tramite `.`.
+Finora nulla di complicato né di nuovo; se abbiamo bisogno di una funzione da poter chiamare su un un tipo `T` o su un valore `t` di tipo `T` possiamo definirla rispettivamente in `object T` o in `class T` e accedervi tramite `.`.
 
 Tuttavia nel caso in cui il tipo di cui stiamo creando un valore non fosse definito _all'interno della nostra codebase_ ma fosse, ad esempio, una definizione proveniente da una **libreria**, associare una nuova funzione in questa maniera ci sarebbe impossibile. 
 
