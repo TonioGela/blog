@@ -20,6 +20,7 @@ render_emoji = true
 [extra]
 profile = "avatar.jpg"
 author = "Antonio Gelameris"
+google_analytics_id = "G-JJW5KRXYVV"
 
 [[extra.socials]]
 icon = "twitter"
