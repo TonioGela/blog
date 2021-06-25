@@ -260,7 +260,7 @@ In fact, it's possible to define [shebang recipes](https://github.com/casey/just
 
 Mixing and stirring _commands_, _recipes_, _just features_ you'll probably come up with something similar to this **prod-like example**:
 
-{% codeBlock(title="Justfile") %}
+{% codeBlock(title="Justfile", color="blue") %}
 ```just
 set shell := ["bash", "-uc"]
 
