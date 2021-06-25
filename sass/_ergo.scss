@@ -71,6 +71,57 @@ p,li,ul {
     line-height: 1.7;
 }
 
+
+
+.code-window {
+    border: 1px solid darken($code-non-pre-background, 15%);
+    border-radius: 3px;
+    
+    .code-title {
+        .dot-red {
+            height: 0.6em;
+            width: 0.6em;
+            background-color: #ff605c;
+            border-radius: 50%;
+            border: 1px solid darken($code-non-pre-background, 15%);
+            display: inline-block;
+        }
+
+        .dot-yellow {
+            height: 0.6em;
+            width: 0.6em;
+            background-color: #ffbd44;
+            border-radius: 50%;
+            border: 1px solid darken($code-non-pre-background, 15%);
+            display: inline-block;
+        }
+
+        .dot-green {
+            height: 0.6em;
+            width: 0.6em;
+            background-color: #00ca4e;
+            border-radius: 50%;
+            border: 1px solid darken($code-non-pre-background, 15%);
+            display: inline-block;
+        }
+
+        padding: 0.65em;
+        border-top-left-radius: 0.25em;
+        border-top-right-radius: 0.25em;
+        background-color: $accent;
+        // color: black;
+        font-size: 0.8em;
+    }
+
+    .code-body {
+        pre {
+            margin: 0;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+    }
+}
+
 pre {
     border-radius: 0.25em;
     padding: 0.65em;

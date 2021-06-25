@@ -260,9 +260,7 @@ In fact, it's possible to define [shebang recipes](https://github.com/casey/just
 
 Mixing and stirring _commands_, _recipes_, _just features_ you'll probably come up with something similar to this **prod-like example**:
 
-<details>
-    <summary>justfile</summary>
-
+{% codeBlock(title="Justfile") %}
 ```just
 set shell := ["bash", "-uc"]
 
@@ -351,7 +349,7 @@ _mysql_command_to username password query output_file:
 _run_detached command argument:
     nohup {{foo_executable}} {{command}} {{argument}} {{conf_file}} &>> {{log_file}} &
 ```
-</details>
+{% end %}
 
 ---
 
