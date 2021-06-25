@@ -76,6 +76,7 @@ p,li,ul {
 .code-window {
     border: 1px solid darken($code-non-pre-background, 15%);
     border-radius: 3px;
+    margin: 1em 0;
     
     .code-title {
         .dot-red {
@@ -109,7 +110,6 @@ p,li,ul {
         border-top-left-radius: 0.25em;
         border-top-right-radius: 0.25em;
         background-color: $accent;
-        // color: black;
         font-size: 0.8em;
     }
 

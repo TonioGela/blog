@@ -171,3 +171,30 @@ import Show.ops._
 ## Extension methods in Scala 3
 
 Cita documentazione https://dotty.epfl.ch/docs/reference/contextual/extension-methods.html
+
+{% codeBlock(title="This code will be in Scala 3", color="blue") %}
+```scala3
+case class Circle(x: Double, y: Double, radius: Double)
+
+extension (c: Circle)
+  def circumference: Double = c.radius * math.Pi * 2
+```
+{% end %}
+
+{% codeBlock(title="This code will be in Scala 3", color="green") %}
+```scala3
+case class Circle(x: Double, y: Double, radius: Double)
+
+extension (c: Circle)
+  def circumference: Double = c.radius * math.Pi * 2
+```
+{% end %}
+
+{% codeBlock(title="This code will be in Scala 3", color="yellow") %}
+```scala3
+case class Circle(x: Double, y: Double, radius: Double)
+
+extension (c: Circle)
+  def circumference: Double = c.radius * math.Pi * 2
+```
+{% end %}
