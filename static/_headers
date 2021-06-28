@@ -1,4 +1,4 @@
-/
+/*
   # Prevent browsers from incorrectly detecting non-scripts as scripts
   X-Content-Type-Options: nosniff
 
