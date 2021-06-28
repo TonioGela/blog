@@ -38,7 +38,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
   <link rel="shortcut icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
   <link rel="icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
-  <link id="themeCSS" rel="stylesheet" href="{{ config.base_url }}/colors.css" />
+  <link rel="preload" as="image" href="{{ config.base_url }}/avatar.jpg">
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com/" crossorigin>
   <link rel="preconnect" href="https://www.googletagmanager.com/" crossorigin>
@@ -46,10 +46,11 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,900;1,300;1,500&display=swap"
     rel="stylesheet">
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.google_analytics_id }}"></script>
-  <script src="{{ config.base_url }}/instantpage-5.1.0.js" type="text/javascript" async defer></script>
-  {% endblock head %}
   {% block extra_head %} {% endblock extra_head %}
+  <link rel="stylesheet" href="{{ config.base_url }}/colors.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.google_analytics_id }}"></script>
+  <script async defer src="{{ config.base_url }}/instantpage-5.1.0.js" type="text/javascript"></script>
+  {% endblock head %}
 </head>
 
 <body data-instant-allow-external-links>
