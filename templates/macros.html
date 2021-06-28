@@ -7,24 +7,23 @@
 </h5>
 {% endmacro mini_logo %}
 
-{% macro social(display, icon, uri, icon_class, classes, blank) %}
+{% macro social(display, icon, uri, classes, blank) %}
 <li>
     <a {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {% endif %}>
-        <i class="{{ icon_class }} fa-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
+        <i class="icon-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
     </a>
 </li>
 {% endmacro %}
 
-{% macro social_common(classes, icon_class) %}
+{% macro social_common(classes) %}
 {% set extra = config.extra %}
 {% for social in extra.socials %}
 {{ self::social(
-        display=social.display | default(value=""),
-        icon=social.icon,
-        uri=social.uri,
-        icon_class=social.icon_class | default(value=icon_class),
-        classes=classes,
-        blank=social.blank | default(value=true)
+display=social.display | default(value=""),
+icon=social.icon,
+uri=social.uri,
+classes=classes,
+blank=social.blank | default(value=true)
 ) }}
 {% endfor %}
 
@@ -32,18 +31,17 @@
 
 {% set feed_path = config.feed_file | default(value="atom.xml") %}
 {% if lang == config.default_language %}
-    {% set feed_uri = feed_path %}
+{% set feed_uri = feed_path %}
 {% else %}
-    {% set feed_uri = lang ~ "/" ~ feed_path %}
+{% set feed_uri = lang ~ "/" ~ feed_path %}
 {% endif %}
 
 {{ self::social(
-        display=lang,
-        icon="rss",
-        uri=feed_uri,
-        icon_class="fas",
-        classes=classes,
-        blank=true
+display=lang,
+icon="rss",
+uri=feed_uri,
+classes=classes,
+blank=true
 ) }}
 {% endif %}
 {% endmacro social_common %}
@@ -51,7 +49,7 @@
 <!-- classes=any extra styling, bsize=buttonsize -->
 {% macro social_list(classes, bsize) %}
 <ul class="social_list {{classes}}">
-    {{ self::social_common(classes="button " ~ bsize ~ " font_faint", icon_class="fab") }}
+    {{ self::social_common(classes="button " ~ bsize ~ " font_faint") }}
 </ul>
 {% endmacro social_list %}
 

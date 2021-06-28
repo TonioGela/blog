@@ -31,8 +31,7 @@ icon = "github"
 uri = "https://github.com/TonioGela"
 
 [[extra.socials]]
-icon = "address-card"
-icon_class = "far"
+icon = "address"
 display = "about me"
 uri = "/about"
 blank = false

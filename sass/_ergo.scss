@@ -27,7 +27,8 @@
 html, body {
     background-color: $background;
     color: $text;
-    font-family: 'Montserrat', 'Raleway', sans-serif;
+    font-family: 'Montserrat', sans-serif;
+    font-display: swap;
     font-weight: 400;
     z-index: 50;
     min-height: 100vh;

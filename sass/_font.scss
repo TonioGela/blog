@@ -1,0 +1,38 @@
+@font-face {
+    font-family: 'toniogela';
+    src:
+      url('toniogela.ttf') format('truetype'),
+      url('toniogela.woff') format('woff'),
+      url('toniogela.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: inline-block;
+  }
+  
+  i {
+    font-family: 'toniogela' !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .icon-linkedin:before {
+    content: "\e900";
+  }
+  .icon-rss:before {
+    content: "\e901";
+  }
+  .icon-address:before {
+    content: "\e902";
+  }
+  .icon-github:before {
+    content: "\e903";
+  }
+  .icon-twitter:before {
+    content: "\e904";
+  } 
