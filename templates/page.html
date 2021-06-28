@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% import "macros.html" as macros %}
 
+{% block extra_head %}
+{% if page.extra.preload %}
+{% for link in page.extra.preload %}
+<link rel="preload" as="image" href="{{page.permalink}}{{link}}">{% endfor %}
+{% endif %}
+{% endblock extra_head %}
+
 {% block content %}
 <nav id="overlord" class="overlord">
   {{ macros::mini_logo(classes="", title=config.title, siteurl=config.base_url, logourl=config.extra.profile) }}

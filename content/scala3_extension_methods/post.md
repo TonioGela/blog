@@ -5,6 +5,7 @@ language="it"
 draft=true
 [extra]
 description = "Affrontiamo un argomento molto semplice: gli extension methods di scala 3, o per meglio dire, la nuova sintassi per gli extension methods in Scala. Primo post in italiano e primo post su Scala 3."
+preload = ["annuncio.png","metodi_estesivi.png"]
 +++
 
 **Premessa**: se questo post non vi dovesse piacere, nel caso in cui il mio italiano scritto fosse pietoso (probabilità > 90%), se leggere di Scala in italiano vi sembrasse inutile o noioso, sappiate che:
