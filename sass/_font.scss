@@ -1,12 +1,12 @@
 @font-face {
     font-family: 'toniogela';
     src:
-      url('toniogela.ttf') format('truetype'),
+      url('toniogela.woff2') format('woff2'),
       url('toniogela.woff') format('woff'),
-      url('toniogela.woff2') format('woff2');
+      url('toniogela.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-    font-display: inline-block;
+    font-display: swap;
   }
   
   i {
