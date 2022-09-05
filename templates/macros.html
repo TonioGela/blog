@@ -30,7 +30,7 @@ blank=social.blank | default(value=true)
 {% if config.generate_feed %}
 
 {% set feed_path = config.feed_file | default(value="atom.xml") %}
-{% if lang == config.default_language %}
+{% if lang == "en" %}
 {% set feed_uri = feed_path %}
 {% else %}
 {% set feed_uri = lang ~ "/" ~ feed_path %}

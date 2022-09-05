@@ -1,15 +1,19 @@
 base_url = "https://toniogela.dev"
-title = "TonioGela's"
-description = "\"In order to understand recursion, one must first understand recursion\""
 default_language = "en"
-languages = [
-    {code = "it", feed = true}
-]
-
-generate_feed = true
-feed_limit = 1000
 compile_sass = true
 build_search_index = false
+
+[languages.en]
+title = "TonioGela's"
+description = "\"In order to understand recursion, one must first understand recursion\""
+generate_feed = true
+feed_limit = 1000
+
+[languages.it]
+title = "TonioGela's"
+description = "\"In order to understand recursion, one must first understand recursion\""
+generate_feed = true
+feed_limit = 1000
 
 [markdown]
 highlight_code = true

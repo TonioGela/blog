@@ -1,1 +1,2 @@
-<img src="{{ resize_image(path=path, width=width, height=height, op=op) }}" style="max-width:100%;" />
+{% set result = resize_image(path=path, width=width, height=height, op=op) %}
+<img src="{{ result.url }}" style="max-width:100%;" />
