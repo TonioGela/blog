@@ -361,15 +361,31 @@ h1.article_title:hover + ul#frontmatter {
     transition: opacity 0.30s ease-in;
 }
 
-.anchor {
-    margin-left: 0.5em;
-    font-size: 0.6em;
-    vertical-align: middle;
-    &:hover {
-        color: $accent;
-        transition: all 0.35s ease-in;
-    }
+a.anchor {
+    transition: all 0.35s ease-out;
+    text-decoration: none;
+    color: $title;
 }
+
+a.anchor:hover {
+    color: $accent;
+    transition: all 0.35s ease-in;
+}
+
+a.anchor:hover + ul#frontmatter {
+    opacity:1;
+    transition: opacity 0.30s ease-in;
+}
+
+// .anchor {
+//     margin-left: 0.5em;
+//     font-size: 0.6em;
+//     vertical-align: middle;
+//     &:hover {
+//         color: $accent;
+//         transition: all 0.35s ease-in;
+//     }
+// }
 
 h1.article_title {
     padding-right: 5px;

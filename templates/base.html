@@ -51,8 +51,9 @@
     rel="stylesheet">
   {% block extra_head %} {% endblock extra_head %}
   <link rel="stylesheet" href="{{ config.base_url }}/colors.css" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.google_analytics_id }}"></script>
-  <script async defer src="{{ config.base_url }}/instantpage-5.1.0.js" type="text/javascript"></script>
+  <script async="true"
+    src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.google_analytics_id }}"></script>
+  <script async="true" defer="true" src="{{ config.base_url }}/instantpage-5.1.0.js" type="module"></script>
   {% endblock head %}
 </head>
 
