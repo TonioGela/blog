@@ -393,7 +393,7 @@ as the `/etc/motd` for the prod machines.
 
 In the following weeks, I'll try to write about other **command-line** tools I use every day (at least I'll try :sweat_smile:), so follow me on [Twitter] to get updates or subscribe to [RSS].
 
-`[EDIT]` I've been mentioned by [@casey](https://github.com/casey), just's developer, both [on twitter](https://twitter.com/rodarmor/status/1402822761639153668) and in [the official docs](https://github.com/casey/just#examples) as an example :) Thanks @casey!
+`[EDIT]` I've been mentioned by [@casey](https://github.com/casey), just's developer [on twitter](https://twitter.com/rodarmor/status/1402822761639153668). Thanks @casey!
 
 <details>
     <summary>SPOILER: next tool</summary>

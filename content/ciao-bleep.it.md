@@ -1,6 +1,7 @@
 +++
 title = "Bleep bleep bloop"
 date = 2021-05-26
+slug = "ciao-bleep"
 language="it"
 [extra]
 description = "Questo é un pallido tentativo di blog multilingue. Proverò a parlare di Scala, di Rust, di tooling e verosimilmente me ne lamenterò. A voi potrebbe piacere anche se ancora non sapete perché."

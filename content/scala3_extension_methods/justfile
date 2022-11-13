@@ -1,4 +1,0 @@
-simulacrum := `cs fetch -p org.typelevel::simulacrum:1.0.0`
-
-mdoc:
-  mdoc --classpath {{simulacrum}} --in post.md --out index.it.md

@@ -17,8 +17,8 @@ feed_limit = 1000
 
 [markdown]
 highlight_code = true
-extra_syntaxes = ["syntaxes"]
-highlight_theme="base16-ocean-dark"
+extra_syntaxes_and_themes = ["syntaxes"]
+highlight_theme = "base16-ocean-dark"
 render_emoji = true
 
 [extra]
