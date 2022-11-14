@@ -16,4 +16,28 @@ description = "Writing a sudoku solver that brute forces a sudoku is an easy jun
 
 The Scala community has many fantastic tools and libraries to help us synthesise the solution and package our solver in an **ultra-fast native executable with instant startup times** using our favourite language and its expressivity. To implement our solution, I chose [scala-cli](https://scala-cli.virtuslab.org/) to structure the project and to compile it with [scala-native](https://scala-native.org/en/stable/), [decline](https://ben.kirw.in/decline/) to parse command line arguments and [cats](https://typelevel.org/cats/) for its purely functional approach.
 
+## Scala-CLI: your best command line buddy
+[Scala-cli](https://scala-cli.virtuslab.org/) is a recent command line tool by [VirtusLab](https://virtuslab.org/) that lets you interact with Scala in multiple ways. One of its most valuable features is the support to create single-file scripts that can use any Scala dependency and be packaged in various formats to run everywhere.
+
+Once [installed](https://scala-cli.virtuslab.org/install), lets write in a `.scala` file a simple hello world application
+
+{% codeBlock(title="Hello.scala") %}
+```scala
+object Hello {
+  def main(args: Array[String]): Unit = println("Hello from scala-cli")
+}
+{%end%}
+
+and run it using `scala-cli run Hello.scala`
+
+```zsh
+$ scala-cli run Hello.scala
+# Compiling project (Scala 3.2.0, JVM)
+# Compiled project (Scala 3.2.0, JVM)
+Hello from scala-cli
+```
+
+By default, it downloads stuff
+
+
 Top-down or bottom-up, using the functional style, you can do both.
