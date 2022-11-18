@@ -74,8 +74,17 @@ $ scala-cli run Hello.scala
 Maps in Scala have the shape Map[_, _]
 ```
 
+// Parla di setup-ide
+// Parla di fmt
 
 Through directives it's possible, among other things, to add java options, compiler flags, declare dependencies, to change the compilation target and decide whether to package the application producing a fat jar or a script that downloads all the required dependencies at its first usage. For a full reference see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
+
+
+// Stacca dicendo che le altre features le vediamo dopo.
+
+// Nuova sezione
+Lo famo in scala 3, usiamo piu' files, facciamo i test, usiamo anche il flag `--all` per printare tutte le soluzioni
+
 
 Top-down or bottom-up, using the functional style, you can do both.
 That's not a comprehensive guide of all the features that scala-cli has, ofc.
