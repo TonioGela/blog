@@ -19,7 +19,7 @@ The Scala community has many fantastic tools and libraries to help us synthesise
 ## Scala-CLI: your best command line buddy
 [Scala-cli](https://scala-cli.virtuslab.org/) is a recent command line tool by [VirtusLab](https://virtuslab.org/) that lets you interact with Scala in multiple ways. One of its most valuable features is the support to create single-file scripts that can use any Scala dependency and be packaged in various formats to run everywhere.
 
-Once [installed](https://scala-cli.virtuslab.org/install), lets write in a `.scala` file a simple hello world application
+Once [installed](https://scala-cli.virtuslab.org/install), let's write in a `.scala` file a simple hello world application
 
 {% codeBlock(title="Hello.scala") %}
 ```scala
@@ -30,14 +30,52 @@ object Hello {
 
 and run it using `scala-cli run Hello.scala`
 
-```zsh
+```sh
 $ scala-cli run Hello.scala
 # Compiling project (Scala 3.2.0, JVM)
 # Compiled project (Scala 3.2.0, JVM)
 Hello from scala-cli
 ```
 
-By default, it downloads stuff
+By default, scala-cli downloads the latest scala version and uses the available JVM installed on your system unless you specify otherwise.
 
+```sh
+$ scala-cli run Hello.scala --jvm "temurin:11" --scala "2.13.10"
+# Downloading JVM temurin:11
+# Compiling project (Scala 2.13.10, JVM)
+# Compiled project (Scala 2.13.10, JVM)
+Hello from scala-cli
+```
+
+The best way to alter the default behaviour through the various options scala-cli lets you customise is [using Directives](https://scala-cli.virtuslab.org/docs/guides/using-directives). 
+
+### Directives
+Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. Using directives it's possible to declare it as our script's dependency and to specify both the JVM and Scala version we intend to run our script with:
+
+{% codeBlock(title="Maps.scala") %}
+```scala
+//> using scala "2.13.10"
+//> using jvm "temurin:11"
+//> using lib "com.lihaoyi::pprint::0.6.6"
+
+object Hello {
+  def main(args: Array[String]): Unit =
+    println("Maps in Scala have the shape " + pprint.tprint[Map[_,_]])
+}
+```
+{% end %}
+
+Now it's possible to execute the script with no additional command line flags
+
+```sh
+$ scala-cli run Hello.scala
+# Compiling project (Scala 2.13.10, JVM)
+# Compiled project (Scala 2.13.10, JVM)
+Maps in Scala have the shape Map[_, _]
+```
+
+
+Through directives it's possible, among other things, to add java options, compiler flags, declare dependencies, to change the compilation target and decide whether to package the application producing a fat jar or a script that downloads all the required dependencies at its first usage. For a full reference see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
 
 Top-down or bottom-up, using the functional style, you can do both.
+That's not a comprehensive guide of all the features that scala-cli has, ofc.
