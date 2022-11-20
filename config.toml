@@ -12,7 +12,7 @@ feed_limit = 1000
 [languages.it]
 title = "TonioGela's"
 description = "\"In order to understand recursion, one must first understand recursion\""
-generate_feed = true
+generate_feed = false
 feed_limit = 1000
 
 [markdown]
