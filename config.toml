@@ -34,7 +34,6 @@ uri = "https://github.com/TonioGela"
 icon = "mastodon"
 uri = "https://hachyderm.io/@toniogela"
 
-
 [[extra.socials]]
 icon = "terminal"
 display = "about me"
@@ -44,7 +43,6 @@ blank = false
 [[extra.socials]]
 icon = "twitter"
 uri = "https://twitter.com/toniogela"
-
 
 [[extra.socials]]
 icon = "linkedin"
