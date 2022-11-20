@@ -72,7 +72,9 @@ p,li,ul {
     line-height: 1.7;
 }
 
-
+ul {
+    padding-left: 15px;
+}
 
 .code-window {
     border: 1px solid darken($code-non-pre-background, 15%);
@@ -146,10 +148,25 @@ code {
     border: 1px solid darken($code-non-pre-background, 15%);
 }
 
+@media (max-width: 480px) {
+    blockquote {
+        padding-right: 0px;
+        margin-right: 0px;
+        margin-left: 0px;
+    }
+    h1,h2,h3,h4,h5,h6 {
+        text-align: left;
+    }
+}
+
+@media (min-width: 480px) {
+    blockquote {
+        padding-right: 10px;
+    }
+}
+
 blockquote {
     padding-left: 10px;
-    padding-right: 10px;
-    margin-top: 20px;
     margin-top: 20px;
     margin-bottom: 20px;
     border-left: 8px solid $accent;
