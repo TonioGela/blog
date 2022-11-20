@@ -133,9 +133,95 @@ and then running `scala-cli fmt Maps.scala`. The command can run even without th
 
 # Modeling a Sudoku Board
 
-// Nuova sezione
-Lo famo in scala 3, usiamo piu' files, facciamo i test, usiamo anche il flag `--all` per printare tutte le soluzioni
+Since a sudoku consists in 9 lines of 9 digits from 1 to 9, one of the ways to encode and store the information in a case class is wrapping an `Array[Int]`. So in a newly created `Sudoku.scala` file we'll define
+
+{% codeBlock(title="Sudoku.scala") %}
+```scala3
+//> using scala "3.2.1"
+
+final case class Sudoku private (array: Array[Int])
+```
+{% end %}
+
+We made the constructor private in order to avoid that `Sudoku` gets instantiated outside its companion object, where we will soon create a "factory" method named `from`. 
+
+Since we plan to read sudokus from the command line, it's reasonable to imagine a factory method that accepts a `String` and returns a `Sudoku` or a **data structure** that may contain **either** a `Sudoku` or a way to signal an error (like an error `String` to log in case of validation errors).
+
+{% codeBlock(title="Sudoku.scala") %}
+```scala3
+//> using scala "3.2.1"
+
+final case class Sudoku private (array: Array[Int])
+
+object Sudoku {
+
+  def from(s: String): Either[String, Sudoku] = ???
+}
+```
+{% end %}
+
+To implement the method, we'll leverage some utility functions that [cats](https://typelevel.org/cats/) provide.
+
+{% codeBlock(title="Sudoku.scala") %}
+```scala3
+//> using scala "3.2.1"
+//> using lib "org.typelevel::cats-core::2.9.0"
+
+import cats.syntax.all._
+
+final case class Sudoku private (array: Array[Int])
+
+object Sudoku {
+
+  def from(s: String): Either[String, Sudoku] =
+    s.replaceAll("\\.", "0")
+      .asRight[String]
+      .ensure("The sudoku string doesn't contain only digits")(
+        _.forall(_.isDigit)
+      )
+      .map(_.toCharArray().map(_.asDigit))
+      .ensure("The sudoku string is not exactly 81 characters long")(
+        _.length === 81
+      )
+      .map(Sudoku.apply)
+}
+```
+{% end %}
+
+Let's examine the `from` function line by line:
+- `s.replaceAll("\\.", "0")` replaces the `.`s with `0`s to signal the lack of a digit using a value that belongs to type `Int`. Replacing `.` is necessary since we'll use [this generator](https://qqwing.com/generate.html) with "Output format: One line".
+- `.asRight[String]` is the first cats utility that we'll use. Defined as 
+  
+  ```scala 
+  def asRight[B]: Either[B, A] = Right(a)
+  ```
+
+  it is an extension method over `a: A`. It wraps the value in a `Right` but requires a type argument `B` to widen the result declaration to `Either[B,A]`. This way, the result will not have type `Right[String]` but `Either[String, String]`, letting us use other utility functions defined over `Either[_,_]`.
+- `.ensure("The sudoku string doesn't contain only digits")(_.forall(_.isDigit))` uses the extension method `ensure`, a guard function that filters either in the case is a `Right` and returns the content of the first parenthesis in case of errors. Its definition (where `eab` is the extended value) is
+  ```scala
+  def ensure(onFailure: => A)(condition: B => Boolean): Either[A, B] = eab match {
+    case Left(_)  => eab
+    case Right(b) => if (condition(b)) eab else Left(onFailure)
+  }
+  ```
+  In this particular case, we use to check that all the characters in the string (`forall`) are digits (`isDigit`) otherwise we return a `Left("The sudoku string doesn't contain only digits")` to signal the error, shortcircuiting all the following validations.
+- `.map(_.toCharArray().map(_.asDigit))` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the array. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
+- Using the same `ensure` function we check that the string has the correct length
+- Finally we map the `Either[String, Array[Int]]` in to a `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
+
+The main strength of the `from` function is that it won't let us create a `Sudoku` if the input **doesn't comply with a set of minimum requirements needed to fully and correctly describe a** `Sudoku`. This approach, sometimes called ["Parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/), might not seem a big deal but enables us to write functions and extension methods that use `Sudoku` as parameters and **are not required to perform any validation**. `Sudoku`s are now impossible to create if not using a valid input: we made invalid `Sudoku`s impossible to represent. 
 
 
-Top-down or bottom-up, using the functional style, you can do both.
-That's not a comprehensive guide of all the features that scala-cli has, ofc.
+# TODO
+
+// Add silly methods like getters to extension
+
+// Split in more files and show testing
+
+// Solve using both the `flatMap` solution, both the recursive one
+
+// Add `--all` flag to print all the solutions
+
+// Use native
+
+// OFC That's not a comprehensive guide of all the features that scala-cli has.
