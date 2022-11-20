@@ -9,7 +9,7 @@
 
 {% macro social(display, icon, uri, classes, blank) %}
 <li>
-    <a {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {% endif %}>
+    <a rel="me" {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {% endif %}>
         <i class="icon-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
     </a>
 </li>

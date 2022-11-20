@@ -6,7 +6,7 @@ build_search_index = false
 [languages.en]
 title = "TonioGela's"
 description = "\"In order to understand recursion, one must first understand recursion\""
-generate_feed = true
+generate_feed = false
 feed_limit = 1000
 
 [languages.it]
@@ -27,18 +27,24 @@ author = "Antonio Gelameris"
 google_analytics_id = "G-JJW5KRXYVV"
 
 [[extra.socials]]
-icon = "twitter"
-uri = "https://twitter.com/toniogela"
-
-[[extra.socials]]
 icon = "github"
 uri = "https://github.com/TonioGela"
 
 [[extra.socials]]
-icon = "address"
+icon = "mastodon"
+uri = "https://hachyderm.io/@toniogela"
+
+
+[[extra.socials]]
+icon = "terminal"
 display = "about me"
 uri = "/about"
 blank = false
+
+[[extra.socials]]
+icon = "twitter"
+uri = "https://twitter.com/toniogela"
+
 
 [[extra.socials]]
 icon = "linkedin"
