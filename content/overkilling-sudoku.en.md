@@ -14,7 +14,7 @@ description = "Writing a sudoku solver that brute forces a sudoku is an easy jun
 # Introduction
 [Sudoku](https://en.wikipedia.org/wiki/Sudoku) is a notorious combinatorial puzzle solvable with optimised and efficient algorithms. Today we won't focus on any of those techniques, but we'll leverage the computing power of our machines to brute-force the solution in a **functional immutable fashion.**
 
-The Scala community has many fantastic tools and libraries to help us synthesise the solution and package our solver in an **ultra-fast native executable with instant startup times** using our favourite language and its expressivity. To implement our solution, I chose [scala-cli](https://scala-cli.virtuslab.org/) to structure the project and to compile it with [scala-native](https://scala-native.org/en/stable/), [decline](https://ben.kirw.in/decline/) to parse command line arguments and [cats](https://typelevel.org/cats/) for its purely functional approach.
+The Scala ecosystem has many fantastic tools and libraries to help us synthesise the solution and package our solver in an **ultra-fast native executable with instant startup time** using our favourite language and its expressivity. To implement our solution, I chose [scala-cli](https://scala-cli.virtuslab.org/) to structure the project and to compile it with [scala-native](https://scala-native.org/en/stable/), [decline](https://ben.kirw.in/decline/) to parse command line arguments and [cats](https://typelevel.org/cats/) for its purely functional approach.
 
 ## Scala-CLI: your best command line buddy
 [Scala CLI](https://scala-cli.virtuslab.org/) is a recent command line tool by [VirtusLab](https://virtuslab.org/) that lets you interact with Scala in multiple ways. One of its most valuable features is the support to create single-file scripts that can use any Scala dependency and be packaged in various formats to run everywhere.
@@ -58,7 +58,7 @@ Let's say that for our script purposes, a library like [PPrint](https://github.c
 //> using jvm "temurin:11"
 //> using lib "com.lihaoyi::pprint::0.6.6"
 
-object Hello {
+object Maps {
   def main(args: Array[String]): Unit =
     println("Maps in Scala have the shape " + pprint.tprint[Map[_,_]])
 }
