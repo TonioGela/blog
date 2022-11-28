@@ -131,19 +131,19 @@ and then running `scala-cli fmt Maps.scala`. The command can run even without th
 
 **Now that we have a working IDE, we can begin modelling the problem and its solution.**
 
-# Modeling a Sudoku Board
+# Modelling a Sudoku Board
 
-Since a sudoku consists in 9 lines of 9 digits from 1 to 9, one of the ways to encode and store the information in a case class is wrapping an `Array[Int]`. So in a newly created `Sudoku.scala` file we'll define
+Since sudoku consists of 9 lines of 9 digits from 1 to 9, one of the ways to encode and store the information in a case class is wrapping a `Vector[Int]`. So in a newly created `Sudoku.`scala` file, we'll define
 
 {% codeBlock(title="Sudoku.scala") %}
 ```scala3
 //> using scala "3.2.1"
 
-final case class Sudoku private (array: Array[Int])
+final case class Sudoku private (data: Vector[Int])
 ```
 {% end %}
 
-We made the constructor private in order to avoid that `Sudoku` gets instantiated outside its companion object, where we will soon create a "factory" method named `from`. 
+We made the constructor private to avoid `Sudoku` getting instantiated outside its companion object, where we will soon create a "factory" method named `from`. 
 
 Since we plan to read sudokus from the command line, it's reasonable to imagine a factory method that accepts a `String` and returns a `Sudoku` or a **data structure** that may contain **either** a `Sudoku` or a way to signal an error (like an error `String` to log in case of validation errors).
 
@@ -151,7 +151,7 @@ Since we plan to read sudokus from the command line, it's reasonable to imagine 
 ```scala3
 //> using scala "3.2.1"
 
-final case class Sudoku private (array: Array[Int])
+final case class Sudoku private (data: Vector[Int])
 
 object Sudoku {
 
@@ -167,9 +167,9 @@ To implement the method, we'll leverage some utility functions that [cats](https
 //> using scala "3.2.1"
 //> using lib "org.typelevel::cats-core::2.9.0"
 
-import cats.syntax.all._
+import cats.syntax.all.*
 
-final case class Sudoku private (array: Array[Int])
+final case class Sudoku private (data: Vector[Int])
 
 object Sudoku {
 
@@ -179,7 +179,7 @@ object Sudoku {
       .ensure("The sudoku string doesn't contain only digits")(
         _.forall(_.isDigit)
       )
-      .map(_.toCharArray().map(_.asDigit))
+      .map(_.toCharArray().map(_.asDigit).toVector)
       .ensure("The sudoku string is not exactly 81 characters long")(
         _.length === 81
       )
@@ -204,13 +204,54 @@ Let's examine the `from` function line by line:
     case Right(b) => if (condition(b)) eab else Left(onFailure)
   }
   ```
-  In this particular case, we use to check that all the characters in the string (`forall`) are digits (`isDigit`) otherwise we return a `Left("The sudoku string doesn't contain only digits")` to signal the error, shortcircuiting all the following validations.
-- `.map(_.toCharArray().map(_.asDigit))` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the array. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
+  In this particular case, we use to check that all the characters in the string (`forall`) are digits (`isDigit`) otherwise, we return a `Left("The sudoku string doesn't contain only digits")` to signal the error, shortcircuiting all the following validations.
+- `.map(_.toCharArray().map(_.asDigit).toVector)` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the array. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
 - Using the same `ensure` function we check that the string has the correct length
-- Finally we map the `Either[String, Array[Int]]` in to a `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
+- Finally, we map the `Either[String, Array[Int]]` into an `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
 
-The main strength of the `from` function is that it won't let us create a `Sudoku` if the input **doesn't comply with a set of minimum requirements needed to fully and correctly describe a** `Sudoku`. This approach, sometimes called ["Parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/), might not seem a big deal but enables us to write functions and extension methods that use `Sudoku` as parameters and **are not required to perform any validation**. `Sudoku`s are now impossible to create if not using a valid input: we made invalid `Sudoku`s impossible to represent. 
+The main strength of the `from` function is that it won't let us create a `Sudoku` if the input **doesn't comply with a set of minimum requirements needed to fully and correctly describe a** `Sudoku`. This approach, sometimes called ["Parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/), might not seem a big deal. Still, it enables us to write functions and extension methods that use `Sudoku` as parameters and **are not required to perform any validation**. `Sudoku`s are now impossible to create without using a valid input: we made invalid `Sudoku`s impossible to represent. 
 
+## Adding utility methods
+
+Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class. We will add those methods as [extension methods](https://docs.scala-lang.org/scala3/book/ca-extension-methods.html) in the `Sudoku` object:
+
+// TODO explain why it's more functional than adding methods to the case class itself
+
+{% codeBlock(title="Sudoku.scala") %}
+```scala3
+//> using scala "3.2.1"
+//> using lib "org.typelevel::cats-core::2.9.0"
+
+import cats.syntax.all.*
+
+final case class Sudoku private (data: Vector[Int])
+
+object Sudoku {
+
+  def from(s: String): Either[String, Sudoku] = /* ... */
+
+  extension (s: Sudoku) {
+    def get(x: Int)(y: Int): Int = s.data(y * 9 + x)
+    def getRow(y: Int): Vector[Int] = s.data.slice(y * 9, (y + 1) * 9)
+    def getColumn(x: Int): Vector[Int] = (0 until 9).toVector.map(get(x))
+
+    def getCellOf(x: Int)(y: Int): Vector[Int] = {
+      def span(n: Int): Vector[Int] = {
+        val x: Int = (3 * (n / 3))
+        Vector(x, x + 1, x + 2)
+      }
+
+      for {
+        b <- span(y)
+        a <- span(x)
+      } yield get(a)(b)
+    }
+  }
+}
+```
+{% end %}
+
+This will let us call `sudoku.getRow(1)`
 
 # TODO
 
