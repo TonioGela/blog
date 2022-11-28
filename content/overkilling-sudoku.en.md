@@ -213,9 +213,8 @@ The main strength of the `from` function is that it won't let us create a `Sudok
 
 ## Adding utility methods
 
-Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class. We will add those methods as [extension methods](https://docs.scala-lang.org/scala3/book/ca-extension-methods.html) in the `Sudoku` object:
+Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class. We will add them in an [extension](https://docs.scala-lang.org/scala3/book/ca-extension-methods.html) over `Sudoku` in its companion object:
 
-// TODO explain why it's more functional than adding methods to the case class itself
 
 {% codeBlock(title="Sudoku.scala") %}
 ```scala3
@@ -251,7 +250,9 @@ object Sudoku {
 ```
 {% end %}
 
-This will let us call `sudoku.getRow(1)`
+Defining an **extension** over the `Sudoku` datatype will let us call the methods defined in it **as if they were methods of the** `Sudoku` **class itself**. 
+
+We prefer this approach because **keeping data separated from the logic** that manipulates them is a way to enforce some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). **Extending** is possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach is preferred in **functional** Scala codebases since it's straightforward to use extensions to define **custom syntax** when there are [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html) constraints over functions. I promise I'll **soon** write an article about typeclasses :smile:.
 
 # TODO
 
