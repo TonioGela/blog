@@ -267,9 +267,11 @@ object Sudoku {
 >
 > On the other hand, **defining new methods in the class** (or in a trait) is easier if you intend to add **new operations** to that specific type (or trait). Pros and cons of the _typeclass_ vs _inheritance_ approach to the [Wadler's expression problem](https://en.wikipedia.org/wiki/Expression_problem) will be discussed in a future article.
 
-# TODO
-
 // Split in more files and show testing
+
+// Add set, fitsInPlace, getZero and asPrettyString
+
+# TODO
 
 // Solve using both the `flatMap` solution, both the recursive one
 
