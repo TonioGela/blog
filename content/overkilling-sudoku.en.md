@@ -50,7 +50,7 @@ Hello from scala-cli
 The best way to alter the default behaviour through the various options Scala CLI lets you customise is [using Directives](https://scala-cli.virtuslab.org/docs/guides/using-directives).
 
 ### Directives
-Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. Using directives it's possible to declare it as our script's dependency and to specify both the JVM and Scala versions we intend to run our script with:
+Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. Using directives, it's possible to declare it as our script's dependency and to specify both the JVM and Scala versions we intend to run our script with:
 
 {% codeBlock(title="Maps.scala") %}
 ```scala
@@ -77,7 +77,7 @@ Maps in Scala have the shape Map[_, _]
 Through directives, it's possible, among other things, to add java options or compiler flags, declare tests, change the compilation target and decide whether to package the application producing a fat jar or a script that downloads all the required dependencies at its first usage. For a complete reference, see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
 
 ### Updating dependencies
-As some of you may have noticed, the pprint library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since Scala CLI exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
+As some of you may have noticed, the `pprint` library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since Scala CLI exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
 
 ```sh
 $ scala-cli dependency-update Maps.scala
@@ -133,7 +133,7 @@ and then running `scala-cli fmt Maps.scala`. The command can run even without th
 
 # Modelling a Sudoku Board
 
-Since sudoku consists of 9 lines of 9 digits from 1 to 9, one of the ways to encode and store the information in a case class is wrapping a `Vector[Int]`. So in a newly created `Sudoku.`scala` file, we'll define
+Since sudoku consists of 9 lines of 9 digits from 1 to 9, one of the ways to encode and store the information in a case class is wrapping a `Vector[Int]`. So in a newly created `Sudoku.scala` file, we'll define
 
 {% codeBlock(title="Sudoku.scala") %}
 ```scala3
@@ -213,8 +213,7 @@ The main strength of the `from` function is that it won't let us create a `Sudok
 
 ## Adding utility methods
 
-Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class. We will add them in an [extension](https://docs.scala-lang.org/scala3/book/ca-extension-methods.html) over `Sudoku` in its companion object:
-
+Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class.
 
 {% codeBlock(title="Sudoku.scala") %}
 ```scala3
@@ -223,44 +222,61 @@ Our `Sudoku` case class is pretty much useless without any function using it, so
 
 import cats.syntax.all.*
 
-final case class Sudoku private (data: Vector[Int])
+final case class Sudoku private (data: Vector[Int]) {
+
+  def get(x: Int)(y: Int): Int = data(y * 9 + x)
+
+  def getRow(y: Int): Vector[Int] = data.slice(y * 9, (y + 1) * 9)
+
+  def getColumn(x: Int): Vector[Int] = (0 until 9).toVector.map(get(x))
+
+  def getCellOf(x: Int)(y: Int): Vector[Int] = {
+    def span(n: Int): Vector[Int] = {
+      val x: Int = (3 * (n / 3))
+      Vector(x, x + 1, x + 2)
+    }
+
+    for {
+      b <- span(y)
+      a <- span(x)
+    } yield get(a)(b)
+  }
+}
 
 object Sudoku {
 
   def from(s: String): Either[String, Sudoku] = /* ... */
-
-  extension (s: Sudoku) {
-    def get(x: Int)(y: Int): Int = s.data(y * 9 + x)
-    def getRow(y: Int): Vector[Int] = s.data.slice(y * 9, (y + 1) * 9)
-    def getColumn(x: Int): Vector[Int] = (0 until 9).toVector.map(get(x))
-
-    def getCellOf(x: Int)(y: Int): Vector[Int] = {
-      def span(n: Int): Vector[Int] = {
-        val x: Int = (3 * (n / 3))
-        Vector(x, x + 1, x + 2)
-      }
-
-      for {
-        b <- span(y)
-        a <- span(x)
-      } yield get(a)(b)
-    }
-  }
 }
 ```
 {% end %}
 
-Defining an **extension** over the `Sudoku` datatype will let us call the methods defined in it **as if they were methods of the** `Sudoku` **class itself**. 
-
-We prefer this approach because **keeping data separated from the logic** that manipulates them is a way to enforce some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). **Extending** is possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach is preferred in **functional** Scala codebases since it's straightforward to use extensions to define **custom syntax** when there are [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html) constraints over functions. I promise I'll **soon** write an article about typeclasses :smile:.
+> We added these methods to the case class itself, but another option we could have chosen is to add this logic in an [extension](https://docs.scala-lang.org/scala3/book/ca-extension-methods.html). Creating an **extension** over the `Sudoku` datatype will let us call the methods defined in it **as if they were methods of the** `Sudoku` **class**.
+> ```scala3
+> object Sudoku {
+> 
+>   extension (s: Sudoku) {
+>     def get(x: Int)(y: Int): Int = /* ... */
+>     def getRow(y: Int): Vector[Int] = /* ... */
+>     /* ... */
+>   }
+> }
+> 
+> sudoku.get(0)(0)
+> ```
+> Extending may be preferable since it **keeps data separated from the logic** that manipulates them, enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` you get a **custom syntax over** `T` **for free**.
+>
+> On the other hand, **defining new methods in the class** (or in a trait) is easier if you intend to add **new operations** to that specific type (or trait). Pros and cons of the _typeclass_ vs _inheritance_ approach to the [Wadler's expression problem](https://en.wikipedia.org/wiki/Expression_problem) will be discussed in a future article.
 
 # TODO
-
-// Add silly methods like getters to extension
 
 // Split in more files and show testing
 
 // Solve using both the `flatMap` solution, both the recursive one
+
+```diff
+- def solve: Either[String, Sudoku] = Sudoku.slowSolve(this)
++ def solve: Either[String, Sudoku] = Sudoku.fastSolve(this)
+```
 
 // Add `--all` flag to print all the solutions
 
