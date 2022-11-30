@@ -22,15 +22,16 @@ The Scala ecosystem has many fantastic tools and libraries to help us synthesise
 Once [installed](https://scala-cli.virtuslab.org/install), let's write in a `.scala` file a simple hello world application:
 
 {% codeBlock(title="Hello.scala") %}
-```scala
+```scala3
 object Hello {
   def main(args: Array[String]): Unit = println("Hello from scala-cli")
 }
+```
 {%end%}
 
 and run it using `scala-cli run Hello.scala`
 
-```sh
+```cli
 $ scala-cli run Hello.scala
 # Compiling project (Scala 3.2.0, JVM)
 # Compiled project (Scala 3.2.0, JVM)
@@ -39,7 +40,7 @@ Hello from scala-cli
 
 Scala CLI default downloads the **latest scala version** and uses the available JVM installed on your system unless you specify otherwise.
 
-```sh
+```cli
 $ scala-cli run Hello.scala --jvm "temurin:11" --scala "2.13.10"
 # Downloading JVM temurin:11
 # Compiling project (Scala 2.13.10, JVM)
@@ -53,7 +54,7 @@ The best way to alter the default behaviour through the various options Scala CL
 Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. Using directives, it's possible to declare it as our script's dependency and to specify both the JVM and Scala versions we intend to run our script with:
 
 {% codeBlock(title="Maps.scala") %}
-```scala
+```scala3
 //> using scala "2.13.10"
 //> using jvm "temurin:11"
 //> using lib "com.lihaoyi::pprint::0.6.6"
@@ -67,7 +68,7 @@ object Maps {
 
 Now it's possible to execute the script with no additional command line flags
 
-```sh
+```cli
 $ scala-cli run Hello.scala
 # Compiling project (Scala 2.13.10, JVM)
 # Compiled project (Scala 2.13.10, JVM)
@@ -79,7 +80,7 @@ Through directives, it's possible, among other things, to add java options or co
 ### Updating dependencies
 As some of you may have noticed, the `pprint` library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since Scala CLI exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
 
-```sh
+```cli
 $ scala-cli dependency-update Maps.scala
 Updates
    * com.lihaoyi::pprint::0.6.6 -> 0.8.0
@@ -101,13 +102,13 @@ Writing Scala code without the help of a fully-fledged IDE is fine if you're wri
 
 The [setup-ide](https://scala-cli.virtuslab.org/docs/commands/setup-ide) command is run before every `run`, `compile` or `test` but it can be invoked manually like:
 
-```
-scala-cli setup-ide Maps.scala
+```cli
+$ scala-cli setup-ide Maps.scala
 ```
 
 resulting in the generation of 2 files that both Metals and IntelliJ use to provide all their functionalities.
 
-```
+```tree
 .
 ├── .bsp
 │  └── scala-cli.json
@@ -121,7 +122,7 @@ Opening the _enclosing folder_ in your **Metals**-enabled editor or importing it
 ### Formatting
 Our developer experience can't be complete without a properly configured formatter. Luckily Scala CLI supports [Scalafmt](https://scalameta.org/scalafmt/) configuration in the same format used in sbt, mill or similar, i.e. having a `.scalafmt.conf` file in the project's root folder
 
-```
+```tree
 ...
 ├── .scalafmt.conf
 └── Maps.scala
@@ -266,6 +267,29 @@ object Sudoku {
 > Extending may be preferable since it **keeps data separated from the logic** that manipulates them, enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` you get a **custom syntax over** `T` **for free**.
 >
 > On the other hand, **defining new methods in the class** (or in a trait) is easier if you intend to add **new operations** to that specific type (or trait). Pros and cons of the _typeclass_ vs _inheritance_ approach to the [Wadler's expression problem](https://en.wikipedia.org/wiki/Expression_problem) will be discussed in a future article.
+
+## Testing
+
+Now that we have some APIs over `Sudoku`, it makes sense to test them out before trying to solve the problem further. [Scala-cli supports testing](https://scala-cli.virtuslab.org/docs/commands/test) out of the box and detects test files in several ways. The easiest one to leverage is using the `.test.scala` extension, ideal when you have a single source file like `foo.scala` and its testing companion `foo.test.scala`.
+
+A more structured way to setup a project is to separate the source files from the test ones, maybe in different folder trees, using a slightly more complex project structure that [scala-cli supports](https://scala-cli.virtuslab.org/docs/reference/root-dir).
+
+```tree
+.
+├── project.scala
+├── src
+│  └── Sudoku.scala
+└── test
+   └── SudokuSpec.scala
+```
+
+{% codeBlock(title="Sudoku.scala") %}
+```scala3
+//> using scala "3.2.1"
+//> using lib "org.typelevel::cats-core::2.9.0"
+//> using lib "com.monovore::decline::2.3.1"
+```
+{% end %}
 
 // Split in more files and show testing
 

@@ -1,0 +1,17 @@
+%YAML 1.2
+---
+name: tree
+file_extensions: tree
+scope: main
+
+contexts:
+  main:
+    - include: symbols
+    - include: root
+
+  symbols:
+    - match: '[├|└|─|│]'
+      scope: string.quoted.double
+  root:
+    - match: \.+\n
+      scope: variable.parameter
