@@ -264,7 +264,7 @@ object Sudoku {
 > 
 > sudoku.get(0)(0)
 > ```
-> Extending may be preferable since it **keeps data separated from the logic** that manipulates them, enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` you get a **custom syntax over** `T` **for free**.
+> Extending may be preferable since it **keeps data separated from the logic** that manipulates them (enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` you get a **custom syntax over** `T` **for free**.
 >
 > On the other hand, **defining new methods in the class** (or in a trait) is easier if you intend to add **new operations** to that specific type (or trait). Pros and cons of the _typeclass_ vs _inheritance_ approach to the [Wadler's expression problem](https://en.wikipedia.org/wiki/Expression_problem) will be discussed in a future article.
 
@@ -283,15 +283,103 @@ A more structured way to setup a project is to separate the source files from th
    └── SudokuSpec.scala
 ```
 
-{% codeBlock(title="Sudoku.scala") %}
+This structure autodetects *test classes* using the files' relative path: if the file's path contains the string `"test"`, it will be treated as a test class. To test the application, we will declare **munit** in the `project.scala` file now containing all the directives previously in `Sudoku.scala`.
+
+{% codeBlock(title="project.scala") %}
 ```scala3
 //> using scala "3.2.1"
 //> using lib "org.typelevel::cats-core::2.9.0"
 //> using lib "com.monovore::decline::2.3.1"
+//> using lib "org.scalameta::munit::0.7.29"
 ```
 {% end %}
 
-// Split in more files and show testing
+{% codeBlock(title="src/Sudoku.scala") %}
+```scala3
+import cats.syntax.all.*
+
+final case class Sudoku private (data: Vector[Int]) { /* ... */ }
+
+object Sudoku { /* ... */ }
+```
+{% end %}
+
+{% codeBlock(title="test/SudokuSpec.scala") %}
+```scala3
+import munit.*
+import cats.syntax.all.*
+
+class SudokuSpec extends FunSuite {
+
+  // format: off
+  val maybeSudoku = Sudoku.from(
+    "435269781" +
+    "682571493" +
+    "197834562" +
+    "826195347" +
+    "374682915" +
+    "951743628" +
+    "519326874" +
+    "248957136" +
+    "763418259"
+  )
+  // format: on
+
+  val sudokuF: FunFixture[Sudoku] = FunFixture(_ => maybeSudoku.fold(failSuite(_), identity), _ => ())
+
+  /* Tests here! */
+
+}
+```
+{% end %}
+
+To easily have a `Sudoku` instance available for easy unit testing we used `FunFixture`. `FunFixture` is one of the [available fixtures](https://scalameta.org/munit/docs/fixtures.html) that munit provides to **acquire and release resources** and to share them between single tests or whole suites. We coded `sudokuF` to fail the entire suite if the `Sudoku` is trying to instantiate is invalid and to give it to the fixture user otherwise.
+
+Now we can define tests using the munit's simple syntax:
+
+```scala3
+sudokuF.test("Sudoku.get(x,y) should extract the number at (x,y) (0 based, from top left)") { sudoku =>
+  assertEquals(sudoku.get(0)(0), 4)
+  assertEquals(sudoku.get(1)(0), 3)
+  assertEquals(sudoku.get(2)(7), 8)
+}
+
+sudokuF.test("Sudoku.getRow(n) should extract nth row from top") { sudoku =>
+  assertEquals(sudoku.getRow(0), Vector(4, 3, 5, 2, 6, 9, 7, 8, 1))
+  assertEquals(sudoku.getRow(6), Vector(5, 1, 9, 3, 2, 6, 8, 7, 4))
+}
+
+sudokuF.test("Sudoku.getColumn(n) should extract nth column from left") { sudoku =>
+  assertEquals(sudoku.getColumn(0), Vector(4, 6, 1, 8, 3, 9, 5, 2, 7))
+  assertEquals(sudoku.getColumn(6), Vector(7, 4, 5, 3, 9, 6, 8, 1, 2))
+}
+
+sudokuF.test("Sudoku.getCellOf(n) should extract the correct cell") { sudoku =>
+  assert(sudoku.getCellOf(1)(1).forall((1 to 9).contains))
+  assert(sudoku.getCellOf(7)(3).forall((1 to 9).contains))
+}
+```
+
+and test our implementation using the `test` command of **scala-cli**:
+
+```cli
+$ scala-cli test .
+SudokuSpec:
+  + Sudoku.get(x,y) should extract the number at (x,y) (0 based, from top left) 0.037s
+  + Sudoku.getRow(n) should extract nth row from top 0.002s
+  + Sudoku.getColumn(n) should extract nth column from left 0.001s
+  + Sudoku.getCellOf(n) should extract the correct cell 0.003s
+```
+
+# Recursive immutable solution
+
+To solve the sudoku we will use a recursive algorithm:
+
+1. Given a sudoku, we will **search for a zero** in it
+2. If there's at least one, we will **find all the numbers that fit in that position** according to the constraints
+3. If there's at least a number that fits, we will **generate a new sudoku replacing the zero** with that number
+4. We will apply the 3 previous steps to **every sudoku** that we created so far **until there are no more zeros**
+5. We will end up with a **list of solved sudokus** that we will return to the user
 
 // Add set, fitsInPlace, getZero and asPrettyString
 
