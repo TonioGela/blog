@@ -98,7 +98,7 @@ $ head -3 Maps.scala
 
 ### IDE support
 
-Writing Scala code without the help of a fully-fledged IDE is fine if you're writing a "Hello world" application or similar, but for a _"complete programming experience"_ using one of the IDE alternatives, being IntelliJ or a Metals compatible one, is recommended. Scala CLI can help you set up your IDE of choice by generating the necessary files, providing you with full-blown IDE support. 
+Writing Scala code without the help of a fully-fledged IDE is okay if you're writing a "Hello world" application or similar, but for a _"complete programming experience"_ using one of the IDE alternatives, being IntelliJ or a Metals compatible one, is recommended. Scala CLI can help you set up your IDE of choice by generating the necessary files to provide full-blown IDE support. 
 
 The [setup-ide](https://scala-cli.virtuslab.org/docs/commands/setup-ide) command is run before every `run`, `compile` or `test` but it can be invoked manually like:
 
@@ -214,7 +214,7 @@ The main strength of the `from` function is that it won't let us create a `Sudok
 
 ## Adding utility methods
 
-Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to create methods to extract those pieces of information from the case class.
+Our `Sudoku` case class is pretty much useless without any function using it, so let's write a few methods that might help us solve the problem. Since each number in each cell is _row_, _column_ and _cell_ constrained, it makes sense to code a way to extract those pieces of information from the case class.
 
 {% codeBlock(title="Sudoku.scala") %}
 ```scala3
@@ -264,7 +264,7 @@ object Sudoku {
 > 
 > sudoku.get(0)(0)
 > ```
-> Extending may be preferable since it **keeps data separated from the logic** that manipulates them (enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` you get a **custom syntax over** `T` **for free**.
+> Extending may be preferable since it **keeps data separated from the logic** that manipulates them (enforcing some [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)), and since it's possible over datatypes **not part of your codebase**, like standard library types or datatypes coming from a library. This approach shines when the extension depends on a [typeclass](https://docs.scala-lang.org/scala3/book/ca-type-classes.html), since extending the typeclass for a new type `T` (i.e. adding a "*case*") you get a **custom syntax over** `T` **for free**.
 >
 > On the other hand, **defining new methods in the class** (or in a trait) is easier if you intend to add **new operations** to that specific type (or trait). Pros and cons of the _typeclass_ vs _inheritance_ approach to the [Wadler's expression problem](https://en.wikipedia.org/wiki/Expression_problem) will be discussed in a future article.
 
@@ -272,7 +272,7 @@ object Sudoku {
 
 Now that we have some APIs over `Sudoku`, it makes sense to test them out before trying to solve the problem further. [Scala-cli supports testing](https://scala-cli.virtuslab.org/docs/commands/test) out of the box and detects test files in several ways. The easiest one to leverage is using the `.test.scala` extension, ideal when you have a single source file like `foo.scala` and its testing companion `foo.test.scala`.
 
-A more structured way to setup a project is to separate the source files from the test ones, maybe in different folder trees, using a slightly more complex project structure that [scala-cli supports](https://scala-cli.virtuslab.org/docs/reference/root-dir).
+A more structured way to set up a project is to separate the source files from the test ones, maybe in different folder trees, using a slightly more complex project structure that [scala-cli supports](https://scala-cli.virtuslab.org/docs/reference/root-dir).
 
 ```tree
 .
@@ -283,7 +283,7 @@ A more structured way to setup a project is to separate the source files from th
    └── SudokuSpec.scala
 ```
 
-This structure autodetects *test classes* using the files' relative path: if the file's path contains the string `"test"`, it will be treated as a test class. To test the application, we will declare **munit** in the `project.scala` file now containing all the directives previously in `Sudoku.scala`.
+This structure autodetects *test classes* using the files' relative path: if the file's path contains the string `"test"`, it will be treated as a test class. To test the application, we will declare **munit** in the `project.scala` file that now contains all the directives previously in `Sudoku.scala`.
 
 {% codeBlock(title="project.scala") %}
 ```scala3
@@ -333,7 +333,7 @@ class SudokuSpec extends FunSuite {
 ```
 {% end %}
 
-To easily have a `Sudoku` instance available for easy unit testing we used `FunFixture`. `FunFixture` is one of the [available fixtures](https://scalameta.org/munit/docs/fixtures.html) that munit provides to **acquire and release resources** and to share them between single tests or whole suites. We coded `sudokuF` to fail the entire suite if the `Sudoku` is trying to instantiate is invalid and to give it to the fixture user otherwise.
+To easily have a `Sudoku` instance available for easy unit testing, we used `FunFixture`. `FunFixture` is one of the [available fixtures](https://scalameta.org/munit/docs/fixtures.html) that munit provides to **acquire and release resources** and to share them between single tests or whole suites. We coded `sudokuF` to fail the entire suite if the `Sudoku` is trying to instantiate is invalid and to give it to the fixture user otherwise.
 
 Now we can define tests using the munit's simple syntax:
 
@@ -373,27 +373,126 @@ SudokuSpec:
 
 # Recursive immutable solution
 
-To solve the sudoku we will use a recursive algorithm:
+To solve the sudoku, we will use a recursive brute-forcing algorithm:
 
-1. Given a sudoku, we will **search for a zero** in it
-2. If there's at least one, we will **find all the numbers that fit in that position** according to the constraints
-3. If there's at least a number that fits, we will **generate a new sudoku replacing the zero** with that number
-4. We will apply the 3 previous steps to **every sudoku** that we created so far **until there are no more zeros**
+1. Given a sudoku board, we will **search for a zero**
+2. For each zero, we will **find all the numbers that fit in that position** according to the constraints
+3. For each of those numbers, we will **generate a new sudoku replacing the zero** with it
+4. We will apply the three previous steps to **every sudoku** we have created so far **until there are no more zeros**
 5. We will end up with a **list of solved sudokus** that we will return to the user
 
-// Add set, fitsInPlace, getZero and asPrettyString
+We will need to implement a couple of methods over `Sudoku` to implement this solution:
 
-# TODO
+```scala3
+final case class Sudoku private (data: Vector[Int]) {
 
-// Solve using both the `flatMap` solution, both the recursive one
+  /* ... */
 
-```diff
-- def solve: Either[String, Sudoku] = Sudoku.slowSolve(this)
-+ def solve: Either[String, Sudoku] = Sudoku.fastSolve(this)
+  // None will signal the lack of zeros, so a complete sudoku.
+  // Since -1 means that indexWhere hasn't found zeros we remap 
+  // it to None using filterNot. 
+  def getZero: Option[(Int, Int)] = Option(data.indexWhere(_ === 0))
+    .filterNot(_ === -1)
+    .map(i => (i % 9, i / 9))
+
+  // This is the method that checks if the cell, row and
+  // column constraints are satisfied for a certain value
+  def fitsInPlace(x: Int, y: Int)(value: Int): Boolean =
+    !(getCellOf(x)(y).contains(value) || getRow(y).contains(value) || getColumn(x).contains(value))
+
+  def set(x: Int, y: Int)(value: Int): Sudoku = Sudoku(
+    data.updated(y * 9 + x, value)
+  )
+}
 ```
 
-// Add `--all` flag to print all the solutions
+Let's try to implement the solving algorithm using the newly created methods. The function should accept a `Sudoku` and return all the possible solved ones, so the method signature is easy to write:
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = ???
+```
+
+The first step is searching for zero, and we wrote a method for that:
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = s.getZero match {
+  case None => ???
+  case Some((x,y)) => ???
+}
+```
+
+Since `getZero` returns a `None` in the case there are no more zeros in the sudoku, it means that `s` is **solved**, so we can return it to the caller, wrapping it in a `List` to comply with the function signature:
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = s.getZero match {
+  case None => s :: Nil
+  case Some((x,y)) => ???
+}
+```
+
+In case `getZero` returns the coordinates of a zero, we have to calculate **all the possible numbers that fit in that cell** according to the constraints and return **the list of the corresponding sudoku boards** (with that zero replaced by a possible number). Since there are multiple ways to implement this logic, it makes sense to wrap it in a **standalone function** `calcStep`.
+
+Bear in mind that since this function returns a list of sudokus that satisfy some constraints, it may return an empty list. **So this function is in charge of skimming the unsolvable sudokus from the list**.
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = s.getZero match {
+  case None => s :: Nil
+  case Some((x,y)) => calcStep(x, y)(s)
+}
+
+def calcStep(x: Int, y: Int)(s: Sudoku): List[Sudoku] = 1
+  .to(9)
+  .filter(s.fitsInPlace(x, y))
+  .map(s.set(x, y))
+  .toList
+```
+
+The function consists of 2 steps: skimming out from the 1 to 9 range the numbers that don't satisfy the constraints and getting a new `Sudoku` for each one that solves.
+
+
+Now that the solving step has been implemented, it's time to add some **recursion** to find the solutions. Since the sudokus that `calcStep` returns might still have zeros, it makes sense to **re-submit** them to the `solve` function. Since we have a `List[Sudoku]` and `solve` returns a `List[Sudoku]` as well, the easiest way to **chain** the `solve` function to itself is using `flatMap`:
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = s.getZero match {
+  case None => s :: Nil
+  case Some((x,y)) => calcStep(x, y)(s).flatMap(solve)
+}
+
+def calcStep(x: Int, y: Int)(s: Sudoku): List[Sudoku] = 1
+  .to(9)
+  .filter(s.fitsInPlace(x, y))
+  .map(s.set(x, y))
+  .toList
+```
+
+A fancier way to write this solution, leveraging some `cats` aliases and using `fold`, is the following:
+
+```scala3
+def solve(s: Sudoku): List[Sudoku] = s.getZero.fold(s :: Nil) {
+  case (x, y) => calcStep(x, y)(s) >>= solve
+}
+```
+
+# Creating the command line application
+
+Now that we've built the core of the logic, it's time to wire it to **create a command line application**. The chosen library for command line argument parsing is [decline](https://ben.kirw.in/decline/).
+
+// pretty print
+
+// Use decline
+
+// add packaging output
+
+# Optimizing
+
+// hyperfine
+
+// tail-recursion
+
+// Decline + fast termination for single solution + Add `--all` flag to print all the solutions
 
 // Use native
+
+// hyperfine again
 
 // OFC That's not a comprehensive guide of all the features that scala-cli has.
