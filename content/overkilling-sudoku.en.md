@@ -276,11 +276,12 @@ A more structured way to set up a project is to separate the source files from t
 
 ```tree
 .
-├── project.scala
+.
 ├── src
 │  └── Sudoku.scala
-└── test
-   └── SudokuSpec.scala
+├── test
+│  └── SudokuSpec.scala
+└── project.scala
 ```
 
 This structure autodetects *test classes* using the files' relative path: if the file's path contains the string `"test"`, it will be treated as a test class. To test the application, we will declare **munit** in the `project.scala` file that now contains all the directives previously in `Sudoku.scala`.
@@ -289,7 +290,7 @@ This structure autodetects *test classes* using the files' relative path: if the
 ```scala3
 //> using scala "3.2.1"
 //> using lib "org.typelevel::cats-core::2.9.0"
-//> using lib "com.monovore::decline::2.3.1"
+//> using lib "com.monovore::decline::2.4.1"
 //> using lib "org.scalameta::munit::0.7.29"
 ```
 {% end %}
@@ -447,7 +448,7 @@ def calcStep(x: Int, y: Int)(s: Sudoku): List[Sudoku] = 1
   .toList
 ```
 
-The function consists of 2 steps: skimming out from the 1 to 9 range the numbers that don't satisfy the constraints and getting a new `Sudoku` for each one that solves.
+The function consists of 2 steps: skimming out from the 1 to 9 range the numbers that don't satisfy the constraints and getting a new `Sudoku` for each one that does.
 
 
 Now that the solving step has been implemented, it's time to add some **recursion** to find the solutions. Since the sudokus that `calcStep` returns might still have zeros, it makes sense to **re-submit** them to the `solve` function. Since we have a `List[Sudoku]` and `solve` returns a `List[Sudoku]` as well, the easiest way to **chain** the `solve` function to itself is using `flatMap`:
@@ -475,15 +476,181 @@ def solve(s: Sudoku): List[Sudoku] = s.getZero.fold(s :: Nil) {
 
 # Creating the command line application
 
-Now that we've built the core of the logic, it's time to wire it to **create a command line application**. The chosen library for command line argument parsing is [decline](https://ben.kirw.in/decline/).
+Now that we've built the core of the logic, it's time to wire it to **create a command line application**. The chosen library for command line argument parsing is [decline](https://ben.kirw.in/decline/). We will place the argument parsing logic and the application entry point in their own `Main.scala` file.
 
-// pretty print
+```tree
+.
+├── src
+│  ├── Main.scala
+│  └── Sudoku.scala
+├── test
+│  └── SudokuSpec.scala
+└── project.scala
+```
 
-// Use decline
+The decline API to define a command line argument parser is called `Opts`. `Opts` features a few [basic options](https://ben.kirw.in/decline/usage.html#basic-options) to combine to determine the command line API of your application:
 
-// add packaging output
+- `Opts.argument[T]` to define a mandatory argument that **MUST** be passed to you application
+- `Opts.option[T]` to modify the program's behaviour and that require a value (like `-n 10`)
+- `Opts.flag` that are identical to `option` but don't require a value (like `-l` or `--verbose`)
+- `Opts.env[T]` to read environment variables
+
+Each of these options has a "**s-terminating**" alternative (like `Opts.arguments[T]`) that will parse multiple instances of the defined option. **Decline** features [commands and subcommands](https://ben.kirw.in/decline/usage.html#commands-and-subcommands), but they're out of scope for the sake of this post.
+
+Since our application's solving logic must receive a `Sudoku` we will write a `Opts[Sudoku]` definition:
+
+{% codeBlock(title="src/Main.scala") %}
+```scala
+import com.monovore.decline.*
+import cats.syntax.all.*
+import Sudoku.*
+
+val sudokuArgument: Opts[Sudoku] =
+  Opts.argument[String]("sudoku").mapValidated(Sudoku.from(_).toValidatedNel)
+```
+{% end %}
+
+The definitions starts from a string argument that gets parsed to create a `Sudoku`. Decline offers the `mapValidated` method, that accepts a `String => ValidatedNel[String, Sudoku]` function that should convert the provided string to a Sudoku. The returned datatype is a [Validated](https://typelevel.org/cats/datatypes/validated), an `Either`-like structure offered by cats that doesn't form a monad and that is [particularly suited for error accumulation](https://typelevel.org/cats/datatypes/validated#parallel-validation). Luckily we can convert from `Either[A,B]` to `Validated[NonEmptyList[A],B]` using an extension method.
+
+To use the newly defined `sudokuArgument` we must extend [CommandApp](https://ben.kirw.in/decline/usage.html#using-commandapp), to wire up our app's `main` method:
+
+{% codeBlock(title="src/Main.scala") %}
+```scala
+import com.monovore.decline.*
+import cats.syntax.all.*
+import Sudoku.*
+
+val sudokuArgument: Opts[Sudoku] =
+  Opts.argument[String]("sudoku").mapValidated(Sudoku.from(_).toValidatedNel)
+
+object Main extends CommandApp(
+  name = "sudokuSolver",
+  header = "Solves sudokus passed as 81 chars string with . or 0 in place of empty cells",
+  main = sudokuArgument.map(sudoku =>
+    println(sudoku.asPrettyString)
+  )
+)
+```
+{% end %}
+
+<details>
+<summary><code>asPrettyString</code> definition</summary>
+
+```scala
+  def asPrettyString: String = {
+    def showRow(a: Vector[Int]): String =
+      a.grouped(3).map(_.mkString).mkString("│")
+
+    (0 until 9)
+      .map(getRow)
+      .map(showRow)
+      .grouped(3)
+      .map(_.mkString("\n"))
+      .mkString("\n───┼───┼───\n")
+  }
+```
+</details>
+
+Now we can run our application using scala-cli:
+
+```cli
+$ scala-cli run .
+Missing expected positional argument!
+
+Usage: sudokuSolver <sudoku>
+
+Solves sudokus passed as 81 chars string with . or 0 in place of empty cells
+
+Options and flags:
+    --help
+        Display this help text.
+
+$ scala-cli run . -- "483591267957268431621473895879132654164985372235647918792314586348756129516829743"
+483│591│267
+957│268│431
+621│473│895
+───┼───┼───
+879│132│654
+164│985│372
+235│647│918
+───┼───┼───
+792│314│586
+348│756│129
+516│829│743
+```
+
+Every argument that we will decide to support in the future will be documented in the `--help` output of our application.
+To **solve** the passed sudoku we must call the `solve` method on it and print **both** the success and failure cases to stdout and stderr, respectively.
+
+{% codeBlock(title="src/Main.scala") %}
+```scala
+import com.monovore.decline.*
+import cats.syntax.all.*
+import Sudoku.*
+
+val sudokuArgument: Opts[Sudoku] =
+  Opts.argument[String]("sudoku").mapValidated(Sudoku.from(_).toValidatedNel)
+
+object Main extends CommandApp(
+  name = "sudokuSolver",
+  header = "Solves sudokus passed as 81 chars string with . or 0 in place of empty cells",
+  main = sudokuArgument.map(sudoku =>
+    sudoku.solve.headOption.fold { // For the moment we will print the first solution only
+      System.err.println("Sudoku not solvable"); System.exit(1)
+    } {
+      s => System.out.println(s); System.exit(0) 
+    }
+  )
+)
+```
+{% end %}
+
+## Packaging as an executable file
+
+It's time to use scala-cli to [package](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) our application. By default scala-cli packages in a [lightweight format](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) that contains only your bytecode. To run the application the `java` command needs to be available, and access to the internet, **if dependencies need to be downloaded**. Adding `//> using packaging.output "sudokuSolver"` to `project.scala` will let us control the filename of the produced executable file.
+
+```cli
+$ scala-cli package .
+Wrote /Users/toniogela/repo/sudoku/sudokuSolver, run it with
+  ./sudokuSolver
+
+$ ./sudokuSolver "....47......5.....9.483..15.19.7...4...3.9.21.3...5.7......8....78.2..3...1.5.4.."
+185│247│963
+763│591│248
+924│836│715
+───┼───┼───
+819│672│354
+457│389│621
+236│415│879
+───┼───┼───
+342│168│597
+578│924│136
+691│753│482
+
+$ ./sudokuSolver "foo"
+The sudoku string doesn't contain only digits
+
+Usage: sudokuSolver <sudoku>
+
+Solves sudokus passed as 81 chars string with . or 0 in place of empty cells
+
+Options and flags:
+    --help
+        Display this help text.
+```
+
+Running `sudokuSolver` on a fresh machine featuring only a java installation will **automagically** download every dependency needed to run your code, plus macOS and Linux executables **are portable between these two operating systems**, maximizing the "shareability" of your application package :heart_eyes:.
 
 # Optimizing
+
+```cli
+$ SUDOKU="....47......5.....9.483..15.19.7...4...3.9.21.3...5.7......8....78.2..3...1.5.4.."
+
+$ hyperfine --warmup 20 -N "./sudokuSolver ${SUDOKU}" 
+Benchmark 1:
+  Time (mean ± σ):     855.4 ms ±   8.7 ms    [User: 1738.1 ms, System: 102.3 ms]
+  Range (min … max):   845.6 ms … 870.3 ms    10 runs
+```
 
 // hyperfine
 
