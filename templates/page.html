@@ -22,13 +22,13 @@
     {{ page.content | safe }}
     {% endblock post %}
   </article>
+  {% if config.extra.comments %}
+  <script src="https://giscus.app/client.js" data-repo="TonioGela/toniogela.dev-comments"
+    data-repo-id="MDEwOlJlcG9zaXRvcnkzNzA0NjExODI=" data-category="Announcements"
+    data-category-id="DIC_kwDOFhTJ_s4CTMjF" data-mapping="pathname" data-strict="0" data-reactions-enabled="1"
+    data-emit-metadata="1" data-input-position="bottom" data-theme="dark_dimmed" data-lang="en" data-loading="lazy"
+    crossorigin="anonymous" async>
+    </script>
+  {% endif %}
+  {% endblock content %}
 </section>
-{% if config.extra.comments %}
-<script src="https://utteranc.es/client.js" repo="{{config.extra.comments.repo}}" {% if
-  config.extra.comments.issue_number %} issue-number="{{config.extra.comments.issue_number}}" {% else %}
-  issue-term="{{config.extra.comments.term}}" {% endif %} {% if config.extra.comments.label %}
-  label="{{config.extra.comments.label}}" {% endif %} theme="{{config.extra.comments.theme}}" crossorigin="anonymous"
-  async>
-  </script>
-{% endif %}
-{% endblock content %}
