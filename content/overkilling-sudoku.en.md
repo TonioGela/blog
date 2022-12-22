@@ -607,7 +607,7 @@ object Main extends CommandApp(
 
 ## Packaging as an executable file
 
-It's time to use scala-cli to [package](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) our application. By default scala-cli packages in a [lightweight format](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) that contains only your bytecode. To run the application the `java` command needs to be available, and access to the internet, **if dependencies need to be downloaded**. Adding `//> using packaging.output "sudokuSolver"` to `project.scala` will let us control the filename of the produced executable file.
+It's time to use scala-cli to [package](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) our application. By default scala-cli packages in a [lightweight format](https://scala-cli.virtuslab.org/docs/cookbooks/scala-package) that contains only your bytecode. To run the application, the `java` command needs to be available, and access to the internet, **if dependencies need to be downloaded**. Adding `//> using packaging.output "sudokuSolver"` to `project.scala` will let us control the filename of the produced executable file.
 
 ```cli
 $ scala-cli package .
@@ -639,27 +639,83 @@ Options and flags:
         Display this help text.
 ```
 
-Running `sudokuSolver` on a fresh machine featuring only a java installation will **automagically** download every dependency needed to run your code, plus macOS and Linux executables **are portable between these two operating systems**, maximizing the "shareability" of your application package :heart_eyes:.
+Running `sudokuSolver` on a fresh machine featuring only a java installation will **automagically** download every dependency needed to run your code, plus macOS and Linux executables **are portable between these two operating systems**, maximising the "shareability" of your application package :heart_eyes:.
 
-# Optimizing
+# Benchmarking and Scala Native
+
+Now that we have a universal-ish binary that can run **virtually anywhere** there's a java installation, it's time for some benchmarking. To benchmark the time our command line app takes to solve a specific sudoku we'll use [hyperfine](https://github.com/sharkdp/hyperfine), an awesome **command-line benchmarking tool** written in Rust.
 
 ```cli
 $ SUDOKU="....47......5.....9.483..15.19.7...4...3.9.21.3...5.7......8....78.2..3...1.5.4.."
 
-$ hyperfine --warmup 20 -N "./sudokuSolver ${SUDOKU}" 
+$ hyperfine --warmup 20 -N "./sudokuSolver ${SUDOKU}"
 Benchmark 1:
   Time (mean ± σ):     855.4 ms ±   8.7 ms    [User: 1738.1 ms, System: 102.3 ms]
   Range (min … max):   845.6 ms … 870.3 ms    10 runs
 ```
 
-// hyperfine
+Running 20 warmup tests and avoiding spawning the command in a subshell (using `-N`) to reduce the number of **statistical outliers**, we get a mean resolution time of `855.4 ms`, which is a good, **but not so good** time.
 
-// tail-recursion
+To get a **considerable performance increase**, we will leverage [Scala Native](https://scala-native.org/en/stable), an optimising ahead-of-time **compiler** and lightweight managed **runtime** specifically designed for Scala. To use libraries with scala-native, **they must be built specifically for it**, and recently [several major Typelevel projects were published for it](https://typelevel.org/blog/2022/09/19/typelevel-native.html). Luckily for us, the list includes cats and decline, so **we can seamlessly compile our application to native code**.
 
-// Decline + fast termination for single solution + Add `--all` flag to print all the solutions
+To achieve it, we can add a few directives to `project.scala`:
+- `//> using platform "scala-native"` to toggle the **native compilation**
+- `//> using nativeMode "release-full"` to choose a **release mode** optimised for performance
+- `//> using nativeGc "none"` to **disable the garbage collector** completely: this is an opinionated but safe choice since our app is a short-lived one
+- `//> using nativeLinking "thin"` to perform some **link-time optimisation**. This option is available **on Linux only**.
 
-// Use native
+Tweaking the `packaging.output` directive to rename the executable to `"sudokuNativeSolver"` and waiting for a while ("release-full" mode will significantly increase compilation times) will result in a few MB native executable:
 
-// hyperfine again
+```cli
+$ scala-cli package -f .
+Compiling project (Scala 3.2.1, Scala Native)
+Compiled project (Scala 3.2.1, Scala Native)
+[info] Linking (3057 ms)
+[info] Discovered 2011 classes and 13735 methods
+[info] Optimizing (release-full mode) (73201 ms)
+[info] Generating intermediate code (9415 ms)
+[info] Produced 1 files
+[info] Compiling to native code (110000 ms)
+[info] Total (196293 ms)
+Wrote /Users/toniogela/Downloads/sudoku/sudokuNativeSolver, run it with
+  ./sudokuNativeSolver
 
-// OFC That's not a comprehensive guide of all the features that scala-cli has.
+$ SUDOKU="....47......5.....9.483..15.19.7...4...3.9.21.3...5.7......8....78.2..3...1.5.4.." 
+
+$ ./sudokuNativeSolver $SUDOKU
+185│247│963
+763│591│248
+924│836│715
+───┼───┼───
+819│672│354
+457│389│621
+236│415│879
+───┼───┼───
+342│168│597
+578│924│136
+691│753│482
+```
+
+Now that we have two versions of the app, we can compare them using hyperfine again:
+
+```cli
+$ hyperfine --warmup 20 -N "./sudokuSolver $SUDOKU" "./sudokuNativeSolver $SUDOKU"      
+Benchmark 1: ./sudokuSolver
+  Time (mean ± σ):     860.5 ms ±  17.9 ms    [User: 1751.0 ms, System: 103.1 ms]
+  Range (min … max):   844.8 ms … 903.9 ms    10 runs
+ 
+Benchmark 2: ./sudokuNativeSolver
+  Time (mean ± σ):     122.5 ms ±   2.1 ms    [User: 83.4 ms, System: 34.0 ms]
+  Range (min … max):   119.3 ms … 127.5 ms    24 runs
+ 
+Summary
+  './sudokuNativeSolver' ran 7.02 ± 0.19 times faster than './sudokuSolver'
+```
+
+scala cli annilathes the startup time since there's no jvm yada yada
+
+OFC That's not a comprehensive guide of all the features that scala-cli has.
+
+Proposal for the reader:
+
+// Add `--all` flag to print all the solutions
