@@ -5,7 +5,7 @@ slug = "overkilling-sudoku"
 language="en"
 draft = true
 [extra]
-description = "Writing a sudoku solver that brute forces a sudoku is an easy junior developer task. How about overkilling the task to create a fully-fledged command line application using `scala-cli`, `scala-native` and `decline`?"
+description = "Writing a sudoku solver that brute forces a sudoku is an easy junior developer task. How about overkilling the task to create a fully-fledged command line application using `scala-cli`, `Scala Native` and `decline`?"
 +++
 
 
@@ -14,7 +14,7 @@ description = "Writing a sudoku solver that brute forces a sudoku is an easy jun
 # Introduction
 [Sudoku](https://en.wikipedia.org/wiki/Sudoku) is a notorious combinatorial puzzle solvable with optimised and efficient algorithms. Today we won't focus on any of those techniques, but we'll leverage the computing power of our machines to brute-force the solution in a **functional immutable fashion.**
 
-The Scala ecosystem has many fantastic tools and libraries to help us synthesise the solution and package our solver in an **ultra-fast native executable with instant startup time** using our favourite language and its expressivity. To implement our solution, I chose [scala-cli](https://scala-cli.virtuslab.org/) to structure the project and to compile it with [scala-native](https://scala-native.org/en/stable/), [decline](https://ben.kirw.in/decline/) to parse command line arguments and [cats](https://typelevel.org/cats/) for its purely functional approach.
+The Scala ecosystem has many fantastic tools and libraries to help us synthesise the solution and package our solver in an **ultra-fast native executable with instant startup time** using our favourite language and its expressivity. To implement our solution, I chose [scala-cli](https://scala-cli.virtuslab.org/) to structure the project and to compile it with [Scala Native](https://scala-native.org/en/stable/), [decline](https://ben.kirw.in/decline/) to parse command line arguments and [cats](https://typelevel.org/cats/) for its purely functional approach.
 
 ## Scala-CLI: your best command line buddy
 [Scala CLI](https://scala-cli.virtuslab.org/) is a recent command line tool by [VirtusLab](https://virtuslab.org/) that lets you interact with Scala in multiple ways. One of its most valuable features is the support to create single-file scripts that can use any Scala dependency and be packaged in various formats to run everywhere.
@@ -656,7 +656,7 @@ Benchmark 1:
 
 Running 20 warmup tests and avoiding spawning the command in a subshell (using `-N`) to reduce the number of **statistical outliers**, we get a mean resolution time of `855.4 ms`, which is a good, **but not so good** time.
 
-To get a **considerable performance increase**, we will leverage [Scala Native](https://scala-native.org/en/stable), an optimising ahead-of-time **compiler** and lightweight managed **runtime** specifically designed for Scala. To use libraries with scala-native, **they must be built specifically for it**, and recently [several major Typelevel projects were published for it](https://typelevel.org/blog/2022/09/19/typelevel-native.html). Luckily for us, the list includes cats and decline, so **we can seamlessly compile our application to native code**.
+To get a **considerable performance increase**, we will leverage [Scala Native](https://scala-native.org/en/stable), an optimising ahead-of-time **compiler** and lightweight managed **runtime** specifically designed for Scala. To use libraries with Scala Native, **they must be built specifically for it**, and recently [several major Typelevel projects were published for it](https://typelevel.org/blog/2022/09/19/typelevel-native.html). Luckily for us, the list includes cats and decline, so **we can seamlessly compile our application to native code**.
 
 To achieve it, we can add a few directives to `project.scala`:
 - `//> using platform "scala-native"` to toggle the **native compilation**
@@ -712,13 +712,13 @@ Summary
   './sudokuNativeSolver' ran 7.02 ± 0.19 times faster than './sudokuSolver'
 ```
 
-As we can see, scala-native **annihilated** the application startup time (there's no JVM to startup) and reduced the whole computing time altogether by seven times. 
+As we can see, Scala Native **annihilated** the application startup time (there's no JVM to startup) and reduced the whole computing time altogether by seven times. 
 
 Scala Native can be used to craft **NGINX Unit server applications** using [Snunit](https://github.com/lolgab/snunit), and as recently a [**Cats-Effect** single-threaded native runtime](https://github.com/armanbilge/epollcat) was published, it's possible to use [**Http4s** with Ember](https://github.com/ChristopherDavenport/scala-native-ember-example) to create **single-threaded native servers**!
 
 # Conclusion
 
-In this article, we saw how to use [scala-cli](https://scala-cli.virtuslab.org/), [scala-native](https://scala-native.org/en/stable/) and [decline](https://ben.kirw.in/decline/), a combination of tools that rocks when used to craft lightweight command line tools and much more. Despite not being a comprehensive guide to all their features, I hope this article will act as a starting point for ideas.
+In this article, we saw how to use [scala-cli](https://scala-cli.virtuslab.org/), [Scala Native](https://scala-native.org/en/stable/) and [decline](https://ben.kirw.in/decline/), a combination of tools that rocks when used to craft lightweight command line tools and much more. Despite not being a comprehensive guide to all their features, I hope this article will act as a starting point for ideas.
 
 #### Ideas for further improvements
 
