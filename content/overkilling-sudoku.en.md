@@ -664,7 +664,7 @@ To achieve it, we can add a few directives to `project.scala`:
 - `//> using nativeGc "none"` to **disable the garbage collector** completely: this is an opinionated but safe choice since our app is a short-lived one
 - `//> using nativeLinking "thin"` to perform some **link-time optimisation**. This option is available **on Linux only**.
 
-Tweaking the `packaging.output` directive to rename the executable to `"sudokuNativeSolver"` and waiting for a while ("release-full" mode will significantly increase compilation times) will result in a few MB native executable:
+Tweaking the `packaging.output` directive to rename the executable to `"sudokuNativeSolver"` and waiting for a while ("release-full" mode will significantly increase compilation times) will result in a native executable:
 
 ```cli
 $ scala-cli package -f .
@@ -712,10 +712,15 @@ Summary
   './sudokuNativeSolver' ran 7.02 ± 0.19 times faster than './sudokuSolver'
 ```
 
-scala cli annilathes the startup time since there's no jvm yada yada
+As we can see, scala-native **annihilated** the application startup time (there's no JVM to startup) and reduced the whole computing time altogether by seven times. 
 
-OFC That's not a comprehensive guide of all the features that scala-cli has.
+Scala Native can be used to craft **NGINX Unit server applications** using [Snunit](https://github.com/lolgab/snunit), and as recently a [**Cats-Effect** single-threaded native runtime](https://github.com/armanbilge/epollcat) was published, it's possible to use [**Http4s** with Ember](https://github.com/ChristopherDavenport/scala-native-ember-example) to create **single-threaded native servers**!
 
-Proposal for the reader:
+# Conclusion
 
-// Add `--all` flag to print all the solutions
+In this article, we saw how to use [scala-cli](https://scala-cli.virtuslab.org/), [scala-native](https://scala-native.org/en/stable/) and [decline](https://ben.kirw.in/decline/), a combination of tools that rocks when used to craft lightweight command line tools and much more. Despite not being a comprehensive guide to all their features, I hope this article will act as a starting point for ideas.
+
+#### Ideas for further improvements
+
+- Writing a `solve` stack-safe implementation
+- Adding a `--all` flag to print all the solutions
