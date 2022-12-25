@@ -180,7 +180,7 @@ object Sudoku {
       .ensure("The sudoku string doesn't contain only digits")(
         _.forall(_.isDigit)
       )
-      .map(_.toCharArray().map(_.asDigit).toVector)
+      .map(_.toVector.map(_.asDigit))
       .ensure("The sudoku string is not exactly 81 characters long")(
         _.length === 81
       )
