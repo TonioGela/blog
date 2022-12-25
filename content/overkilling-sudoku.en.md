@@ -208,7 +208,7 @@ Let's examine the `from` function line by line:
   In this particular case, we use to check that all the characters in the string (`forall`) are digits (`isDigit`) otherwise, we return a `Left("The sudoku string doesn't contain only digits")` to signal the error, shortcircuiting all the following validations.
 - `.map(_.toCharArray().map(_.asDigit).toVector)` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the array. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
 - Using the same `ensure` function we check that the string has the correct length
-- Finally, we map the `Either[String, Array[Int]]` into an `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
+- Finally, we map the `Either[String, Vector[Int]]` into an `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
 
 The main strength of the `from` function is that it won't let us create a `Sudoku` if the input **doesn't comply with a set of minimum requirements needed to fully and correctly describe a** `Sudoku`. This approach, sometimes called ["Parse, don't validate"](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/), might not seem a big deal. Still, it enables us to write functions and extension methods that use `Sudoku` as parameters and **are not required to perform any validation**. `Sudoku`s are now impossible to create without using a valid input: we made invalid `Sudoku`s impossible to represent. 
 
