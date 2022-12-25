@@ -180,7 +180,7 @@ final case class Sudoku private (data: Vector[Int])
 object Sudoku {
 
   def from(s: String): Either[String, Sudoku] =
-    s.replaceAll("\\.", "0")
+    s.replace('.', '0')
       .asRight[String]
       .ensure("The sudoku string doesn't contain only digits")(
         _.forall(_.isDigit)
@@ -195,7 +195,7 @@ object Sudoku {
 {% end %}
 
 Let's examine the `from` function line by line:
-- `s.replaceAll("\\.", "0")` replaces the `.`s with `0`s to signal the lack of a digit using a value that belongs to type `Int`. Replacing `.` is necessary since we'll use [this generator](https://qqwing.com/generate.html) with "Output format: One line".
+- `s.replace('.', '0')` replaces the `.`s with `0`s to signal the lack of a digit using a value that belongs to type `Int`. Replacing `.` is necessary since we'll use [this generator](https://qqwing.com/generate.html) with "Output format: One line", getting an input value like `8...1...2.7...931.....485...2....8.91..2....3.........7...9...1.5...1.....3.7.29.`.
 - `.asRight[String]` is the first cats utility that we'll use. Defined as 
   
   ```scala 
