@@ -47,11 +47,10 @@ $ scala-cli run Hello.scala --jvm "temurin:11" --scala "2.13.10"
 # Compiled project (Scala 2.13.10, JVM)
 Hello from scala-cli
 ```
-
-The best way to alter the default behaviour through the various options Scala CLI lets you customise is [using Directives](https://scala-cli.virtuslab.org/docs/guides/using-directives).
+The best way to customise its default behaviour is through Scala CLI's [using Directives](https://scala-cli.virtuslab.org/docs/guides/using-directives).
 
 ### Directives
-Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. Using directives, it's possible to declare it as our script's dependency and to specify both the JVM and Scala versions we intend to run our script with:
+Let's say that for our script purposes, a library like [PPrint](https://github.com/com-lihaoyi/PPrint) might be convenient. With directives, it's possible to declare it as our script's dependency and to specify both the JVM and Scala versions we intend to run our script with:
 
 {% codeBlock(title="Maps.scala") %}
 ```scala3
