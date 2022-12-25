@@ -83,7 +83,7 @@ Through directives you can, for example:
 and much more. For a complete reference, see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
 
 ### Updating dependencies
-As some of you may have noticed, the `pprint` library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since Scala CLI exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
+As some of you may have noticed, the `pprint` library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since scala-cli exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
 
 ```cli
 $ scala-cli dependency-update Maps.scala
@@ -125,15 +125,7 @@ resulting in the generation of 2 files that both Metals and IntelliJ use to prov
 Opening the _enclosing folder_ in your **Metals**-enabled editor or importing it in **IntelliJ** will provide you with the Scala IDE experience you're used to.
 
 ### Formatting
-Our developer experience can't be complete without a properly configured formatter. Luckily Scala CLI supports [Scalafmt](https://scalameta.org/scalafmt/) configuration in the same format used in sbt, mill or similar, i.e. having a `.scalafmt.conf` file in the project's root folder
-
-```tree
-...
-├── .scalafmt.conf
-└── Maps.scala
-```
-
-and then running `scala-cli fmt Maps.scala`. The command can run even without the configuration file as it infers the version and dialect from the project. To save locally the default scalafmt configuration (to maybe use it with you IDE of choice), it's possible to use a flag: `scala-cli fmt Maps.scala --save-scalafmt-conf`.
+Our developer experience can't be complete without a properly configured formatter. Luckily scala-cli can run [scalafmt](https://scalameta.org/scalafmt/) with `scala-cli fmt Maps.scala`. A `.scalafmt.conf` file in the project's root folder will let you customize the default formatting behaviour (add `--save-scalafmt-conf` to save locally the default configuration if needed).
 
 **Now that we have a working IDE, we can begin modelling the problem and its solution.**
 
@@ -195,7 +187,7 @@ object Sudoku {
 {% end %}
 
 Let's examine the `from` function line by line:
-- `s.replace('.', '0')` replaces the `.`s with `0`s to signal the lack of a digit using a value that belongs to type `Int`. Replacing `.` is necessary since we'll use [this generator](https://qqwing.com/generate.html) with "Output format: One line", getting an input value like `8...1...2.7...931.....485...2....8.91..2....3.........7...9...1.5...1.....3.7.29.`.
+- `s.replace('.', '0')` replaces the `.`s with `0`s to signal the lack of a digit using a value that belongs to type `Int`. Replacing `.` is necessary since we'll use [this generator](https://qqwing.com/generate.html) with "Output format: One line", getting an input value like `8...1...2.7...931.....485...2....8.91..2....3.........7...9...1.5...1.....3.7.29.` that represents the 81 digits of the board.
 - `.asRight[String]` is the first cats utility that we'll use. Defined as 
   
   ```scala 
@@ -211,7 +203,7 @@ Let's examine the `from` function line by line:
   }
   ```
   In this particular case, we use to check that all the characters in the string (`forall`) are digits (`isDigit`) otherwise, we return a `Left("The sudoku string doesn't contain only digits")` to signal the error, shortcircuiting all the following validations.
-- `.map(_.toCharArray().map(_.asDigit).toVector)` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the array. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
+- `.map(_.toVector.map(_.asDigit))` Now that we're sure that every character is a digit, we first map over the `Either[String,String]` to transform its content (when it's a `Right`) and then we map every `Char` into an `Int` `map`ping over the vector. (Note: we use `asDigit` and not `toDigit` as we want to interpret the literal value of the `Char` as a digit and not its internal representation)
 - Using the same `ensure` function we check that the string has the correct length
 - Finally, we map the `Either[String, Vector[Int]]` into an `Either[String, Sudoku]` calling `Sudoku`'s constructor, that here in the companion object is accessible.
 
