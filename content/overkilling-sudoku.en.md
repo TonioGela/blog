@@ -74,7 +74,13 @@ $ scala-cli run Hello.scala
 Maps in Scala have the shape Map[_, _]
 ```
 
-Through directives, it's possible, among other things, to add java options or compiler flags, declare tests, change the compilation target and decide whether to package the application producing a fat jar or a script that downloads all the required dependencies at its first usage. For a complete reference, see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
+Through directives you can, for example:
+- add java options or compiler flags
+- declare tests
+- change the compilation target 
+- package the application as a fat jar or as a script that downloads all the required dependencies
+
+and much more. For a complete reference, see [Directives](https://scala-cli.virtuslab.org/docs/reference/scala-command/directives).
 
 ### Updating dependencies
 As some of you may have noticed, the `pprint` library version in the example it's not the newest one: at the time of writing, the most recent version is 0.8.0. Luckily we're not forced to _check it manually on Github or Maven Central_ since Scala CLI exposes the `dependency-update` command that will fetch the last version of each dependency and **print a command to update them all**.
