@@ -126,6 +126,7 @@ ul {
 }
 
 pre {
+    font-family: monospace;
     border-radius: 0.25em;
     padding: 0.65em;
     overflow-x: auto;
@@ -139,6 +140,9 @@ pre {
     }
 }
 
+.site_title {
+    text-align: center;
+}
 
 code {
     background-color: $code-non-pre-background;
