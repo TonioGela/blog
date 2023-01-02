@@ -307,13 +307,8 @@ tr {
     margin-bottom: 10px;
     font-size: 14px;
     font-weight: 700;
-    font-family: 'Raleway', sans-serif;
-    > li {
-        display: inline;
-    }
-    > span {
-        display: inline;
-    }
+    font-family: sans-serif;
+    > li { display: inline; }
     display: block;
     opacity: 0.3;
     transition: opacity 0.70s ease-out 1.7s;

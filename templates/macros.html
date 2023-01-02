@@ -1,9 +1,9 @@
 {% macro mini_logo(classes, title, siteurl, logourl) %}
 <figure class="mini_logo {{ classes }}">
-    <a href="{{siteurl}}" style="background-image: url({{siteurl}}/{{logourl}})" aria-label="Homepage">></a>
+    <a href="{{siteurl}}" style="background-image: url({{siteurl}}/{{logourl}})" aria-label="Homepage"></a>
 </figure>
 <h5>
-    <a href="{{siteurl}}" aria-label="Homepage">>{{title}}</a>
+    <a href="{{siteurl}}" aria-label="Homepage">{{title}}</a>
 </h5>
 {% endmacro mini_logo %}
 
@@ -58,9 +58,9 @@ blank=true
     <li>
         <time class="article_time" datetime="{{date}}">{{ date | date(format="%B %d, %Y") }}</time>
     </li>
-    <span class="dotDivider"></span>
+    <li class="dotDivider"></li>
     <li> {{word_count}} words </li>
-    <span class="dotDivider"></span>
+    <li class="dotDivider"></li>
     <li> {{read_time}} min </li>
 </ul>
 {% endmacro frontmatter %}
