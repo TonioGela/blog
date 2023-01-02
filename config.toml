@@ -24,7 +24,6 @@ render_emoji = true
 [extra]
 profile = "avatar.jpg"
 author = "Antonio Gelameris"
-google_analytics_id = "G-JJW5KRXYVV"
 
 [[extra.socials]]
 icon = "github"
@@ -52,6 +51,3 @@ uri = "https://www.linkedin.com/in/toniogela/"
 repo = "TonioGela/toniogela.dev-comments"
 theme = "github-dark"
 term = "url"
-
-[extra.font_awesome]
-kit = "e307e34624"
