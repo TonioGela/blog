@@ -126,7 +126,16 @@ ul {
 }
 
 pre {
-    font-family: monospace;
+    font-family: ui-monospace, 
+                 Menlo, Monaco, 
+                 "Cascadia Mono", "Segoe UI Mono", 
+                 "Roboto Mono", 
+                 "Oxygen Mono", 
+                 "Ubuntu Monospace", 
+                 "Source Code Pro",
+                 "Fira Mono", 
+                 "Droid Sans Mono", 
+                 "Courier New", monospace;
     border-radius: 0.25em;
     padding: 0.65em;
     overflow-x: auto;
@@ -150,6 +159,7 @@ code {
     border-radius: 3px;
     color: $accent2;
     border: 1px solid darken($code-non-pre-background, 15%);
+    overflow-wrap: break-word;
 }
 
 @media (max-width: 480px) {
