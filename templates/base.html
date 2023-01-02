@@ -40,7 +40,7 @@
   <link rel="icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
   <link rel="preload" as="style" href="{{ config.base_url }}/colors.css" />
   <link rel="preload" as="image" href="{{ config.base_url }}/avatar.jpg">
-  <link rel="preload" as="font" type="font/woff2" href="{{ config.base_url }}/toniogela.woff2">
+  {% block custom_preload %}{% endblock custom_preload %}
   <link rel="preconnect" href="https://www.googletagmanager.com/" crossorigin>
   <link rel="preconnect" href="https://giscus.app" crossorigin>
   <link rel="stylesheet" href="{{ config.base_url }}/colors.css" />

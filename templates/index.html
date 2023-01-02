@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 {% import "macros.html" as macros %}
 
+{% block custom_preload %}
+<link rel="preload" as="font" type="font/woff2" href="{{ config.base_url }}/toniogela.woff2">
+{% endblock custom_preload %}
+
 {% block content %}
 <nav>{% include "languages.html" %}</nav>
 <header class="header">
     {% block header %}
     <figure class="user_logo">
-        <a href="{{config.base_url}}" style="background-image: url({{config.base_url}}/{{config.extra.profile}}"></a>
+        <a href="{{config.base_url}}" style="background-image: url({{config.base_url}}/{{config.extra.profile}}"
+            aria-label="Homepage"></a>
     </figure>
     <h2 class="site_title">{{config.title}}</h2>
     <div>{{config.description | markdown(inline=true) | safe }}</div>
