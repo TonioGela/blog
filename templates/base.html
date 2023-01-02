@@ -50,12 +50,6 @@
 
 <body data-instant-allow-external-links>
   {% block content %} {% endblock content %}
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', '{{ config.extra.google_analytics_id }}');
-  </script>
 </body>
 
 </html>
