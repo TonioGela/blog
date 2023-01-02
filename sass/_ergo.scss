@@ -154,11 +154,6 @@ blockquote {
     color: $text;
 }
 
-hr {
-    color: $text;
-    opacity: 0.4;
-}
-
 article {
     a {
         text-decoration: underline;
@@ -370,16 +365,6 @@ a.anchor:hover + ul#frontmatter {
     transition: opacity 0.30s ease-in;
 }
 
-// .anchor {
-//     margin-left: 0.5em;
-//     font-size: 0.6em;
-//     vertical-align: middle;
-//     &:hover {
-//         color: $accent;
-//         transition: all 0.35s ease-in;
-//     }
-// }
-
 h1.article_title {
     padding-right: 5px;
     margin: 0 auto;
@@ -416,23 +401,6 @@ h1.article_title {
     > h1,h2,h3,h4,h5,h6 {
         max-width: $width;
     }
-}
-
-.foot_links {
-    clear: both;
-    display: block;
-    float: right;
-    margin-top: 2.5em;
-    margin-right: 2em;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.foot_list {
-    float: right;
-    margin-right: 1.5em;
-    z-index: 100;
 }
 
 .header_list {
