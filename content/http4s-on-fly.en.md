@@ -1,6 +1,6 @@
 +++
 title = "Deploy http4s on your domain with fly.io"
-date = 2023-01-06
+date = 2023-01-07
 slug = "http4s-on-fly-io"
 language="en"
 draft = true
