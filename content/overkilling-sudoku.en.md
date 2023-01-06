@@ -74,7 +74,7 @@ $ scala-cli run Hello.scala
 Maps in Scala have the shape Map[_, _]
 ```
 
-Through directives you can, for example:
+Through directives, you can, for example:
 - add java options or compiler flags
 - declare tests
 - change the compilation target 
@@ -659,7 +659,6 @@ To achieve it, we can add a few directives to `project.scala`:
 - `//> using platform "scala-native"` to toggle the **native compilation**
 - `//> using nativeMode "release-full"` to choose a **release mode** optimised for performance
 - `//> using nativeGc "none"` to **disable the garbage collector** completely: this is an opinionated but safe choice since our app is a short-lived one
-- `//> using nativeLinking "thin"` to perform some **link-time optimisation**. This option is available **on Linux only**.
 
 Tweaking the `packaging.output` directive to rename the executable to `"sudokuNativeSolver"` and waiting for a while ("release-full" mode will significantly increase compilation times) will result in a native executable:
 
