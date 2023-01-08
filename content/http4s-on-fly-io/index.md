@@ -287,7 +287,14 @@ Built docker image, run it with
 
 ## Deploying the server or fly.io
 
-- Talk about the free tier
+Fly has a free [Hobby Plan](https://fly.io/docs/about/pricing/#free-allowances) that includes: 
+- 3 shared-cpu-1x with 256mb of RAM
+- 3GB persistent volume storage (in total)
+- 160GB outbound data transfer
+
+So it's perfectly feasible for small apps like the one we're going to deploy, plus it automatically produces for free [the first ten](https://fly.io/docs/about/pricing/#managed-ssl-certificates) single-hostname HTTPS certificates using [Let's Encrypt]. Last but not least, fly.io offers [Fly Postgres](https://fly.io/docs/postgres/) to help you bootstrap and manage a database cluster for your apps. It's important to know that [it's not a fully managed database](https://fly.io/docs/postgres/getting-started/what-you-should-know/) like in other platforms.
+
+Creating our app is as simple as launching a command:
 
 ```cli
 $ fly launch --image hello-server:0.1.0 
@@ -304,7 +311,9 @@ Wrote config file fly.toml
 Your app is ready! Deploy with `flyctl deploy
 ```
 
-- Alter fly.toml using https://fly.io/docs/reference/configuration
+One of the side effects of the last command execution is that `fly.toml` configuration file for our application gets generated. The default settings are usually fine, but we need at least to add under `env` our mandatory variable `BASE_URL`. 
+
+I removed the `[[services.tcp_checks]]` in favour of a `[[services.http_checks]]` that calls our health check API, increased some concurrency limits and **forced HTTPS traffic**, all by following the [configuration reference](https://fly.io/docs/reference/configuration).
 
 {% codeBlock(title="fly.toml", color="green") %}
 ```toml
@@ -348,7 +357,7 @@ kill_timeout = 120
 ```
 {% end %}
 
-- first deploy
+Even deploying is just a matter of running a single command:
 
 ```cli
 $ fly deploy --local-only
@@ -377,9 +386,28 @@ Logs: https://fly.io/apps/hello-toniogela/monitoring
 --> v0 deployed successfully
 ```
 
-- `flyctl secrets set TITLE="Hey"`
+The `--local-only` flag was used to perform the build only locally using the local docker daemon and pushing the previously built image. We can now check that our app is reachable under `https://{appName}.fly.dev`:
 
-Add to `Justfile`
+{{ center_img(path="fly-domain.png", width="50%", borderRadius="0.5rem") }}
+
+### Secrets
+
+Fly supports secret environment variables, and they can be easily set from the command line, triggering a redeploy:
+
+```cli
+$ fly secrets set TITLE="Mommy I'm online"
+Release v1 created
+==> Monitoring deployment
+Logs: https://fly.io/apps/hello-toniogela/monitoring
+
+ 1 desired, 1 placed, 1 healthy, 0 unhealthy [health checks: 1 total, 1 passing]
+--> v1 deployed successfully
+```
+
+{{ center_img(path="custom-title.png", width="50%", borderRadius="0.5rem") }}
+
+We can save these commands for later reuse in our `Justfile`, using dependencies between recipes and default arguments:
+
 ```just
 # Deploys on fly.io
 deploy: build
@@ -394,14 +422,69 @@ open:
     open "https://fly.io/apps/hello-toniogela/"
 ```
 
-# TODO
+## Adding certificates and publishing on our domain
 
-- Certificates
-  - `flyctl ips allocate-v4`
-  - `flyctl certs add foo.toniogela.dev`
-  - DNS configuration
+Now that we confirmed that the server is up and running, it's time to make fly.io generate an HTTPS certificate and configure the DNS to expose the app on our domain. By default, fly.io assigns to every new app a shared ipv4 and a dedicated ipv6. This is due to a popularity increase and a global IPv4 scarcity, as [announced on the Fly.io blog](https://community.fly.io/t/announcement-shared-anycast-ipv4/9384).
 
-## Conclusion
+If we still desire a dedicated IPv4, i.e. for using an A record in our DNS server, we can allocate one:
+
+```cli
+$ fly ips allocate-v4
+VERSION	IP           	TYPE  	REGION	CREATED AT
+v4     	137.66.63.249	public	global	7s ago
+```
+
+To generate an HTTPS certificate, we can always use the command line:
+
+```cli
+$ fly certs add hello.toniogela.dev
+You are creating a certificate for hello.toniogela.dev
+We are using Let's Encrypt for this certificate.
+
+You can configure your DNS for hello.toniogela.dev by:
+
+1: Adding an CNAME record to your DNS service which reads:
+
+    CNAME hello. hello-toniogela.fly.dev
+```
+
+To speed up the certificate creation, we can visit the dedicated section on our app dashboard and follow the instructions to confirm the domain ownership:
+
+{{ center_img(path="certificates-instruction.png", width="90%", borderRadius="0.5rem") }}
+
+and setup at our domain's vendor the DNS records as requested:
+
+{{ center_img(path="google-domains.png", width="90%", borderRadius="0.5rem") }}
+
+After a few minutes, our DNS should be propagated. We can check the status via command line:
+
+```cli
+$ fly certs check hello.toniogela.dev
+The certificate for hello.toniogela.dev has been issued.
+Hostname                  = hello.toniogela.dev
+
+DNS Provider              = googledomains
+
+Certificate Authority     = Let's Encrypt
+
+Issued                    = rsa,ecdsa
+
+Added to App              = 10 minutes ago
+
+Source                    = fly
+```
+
+Now we can enjoy our app directly from our domain :tada::tada::tada:
+
+{{ center_img(path="complete.png", width="50%", borderRadius="0.5rem") }}
+
+## Conclusions
+
+We saw how fast publishing a backend application on a custom domain can be following these instructions.
+
+This article is not a comprehensive guide of either [http4s], [scala-cli] or [fly.io], but rather a series of TODO steps that might come in handy when you want to prototype an idea and show it to someone else rapidly.
+
+Enjoy!
 
 [fly.io]: https://fly.io/
 [scala-cli]: https://scala-cli.virtuslab.org/
@@ -410,3 +493,4 @@ open:
 [just]: https://github.com/casey/just
 [Rock The JVM blog]: https://blog.rockthejvm.com/
 [decline]: https://ben.kirw.in/decline/
+[Let's Encrypt]: https://letsencrypt.org/
