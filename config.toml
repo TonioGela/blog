@@ -22,7 +22,7 @@ highlight_theme = "base16-ocean-dark"
 render_emoji = true
 
 [extra]
-profile = "avatar.jpg"
+profile = "avatar.webp"
 author = "Antonio Gelameris"
 
 [[extra.socials]]
