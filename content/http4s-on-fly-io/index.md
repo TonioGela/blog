@@ -15,7 +15,7 @@ description = "How to write and deploy a server with [http4s](https://http4s.org
 >
 > If you need **help** with any of these resources feel free to contact me or better ask questions in the [Typelevel's Discord](https://discord.com/invite/XF3CXcMzqD). You'll find **an amazing and kind community** of really **talented** people that will be glad to answer to your questions :smile:
 
-If you already own a domain, deploying a toy server or any personal *server-shaped* project on it should not be a complex operation. Using [fly.io], [scala-cli], [http4s] and [just] can help automatise the process and reduce the friction up to the point it might even be funny.
+If you already own a domain, deploying a toy server or any personal *server-shaped* project on it should not be a complex operation. Using [fly.io], [scala-cli], [http4s] and [just] can help automatise the process and reduce the friction up to the point it might even be fun.
 
 ## Requirements
 Before starting, we'll need to set up a couple of things. Here's the list:
