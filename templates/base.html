@@ -21,13 +21,13 @@
   <meta property="twitter:title" content="{{ config.title }}">
   {% endif %}
   {% if page.extra.description %}
-  <meta name="description" content="{{ page.extra.description }}">
-  <meta property="og:description" content="{{ page.extra.description }}">
-  <meta property="twitter:description" content="{{ page.extra.description }}">
+  <meta name="description" content="{{ page.extra.description | markdown | striptags }}">
+  <meta property="og:description" content="{{ page.extra.description | markdown | striptags }}">
+  <meta property="twitter:description" content="{{ page.extra.description | markdown | striptags }}">
   {% else %}
-  <meta name="description" content="{{ config.description }}">
-  <meta property="og:description" content="{{ config.description }}">
-  <meta property="twitter:description" content="{{ config.description }}">
+  <meta name="description" content="{{ config.description | markdown | striptags }}">
+  <meta property="og:description" content="{{ config.description | markdown | striptags }}">
+  <meta property="twitter:description" content="{{ config.description | markdown | striptags }}">
   {% endif %}
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{current_url}}">
