@@ -1,9 +1,9 @@
 +++
 title = "Deploy http4s on your domain with fly.io"
-date = 2023-01-07
+date = 2023-01-09
 slug = "http4s-on-fly-io"
 language="en"
-draft = true
+draft = false
 [extra]
 description = "How to write and deploy a server with [http4s](https://http4s.org/) and `scala-cli` and deploying it on your **own domain** with [fly.io](https://fly.io/) in 10 minutes."
 +++
