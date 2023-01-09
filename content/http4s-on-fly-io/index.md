@@ -491,6 +491,6 @@ Enjoy!
 [http4s]: https://http4s.org/
 [Google Domains]: https://domains.google/
 [just]: https://github.com/casey/just
-[Rock The JVM blog]: https://blog.rockthejvm.com/
+[Rock The JVM blog]: https://blog.rockthejvm.com/scala-cli-and-scala-native/
 [decline]: https://ben.kirw.in/decline/
 [Let's Encrypt]: https://letsencrypt.org/

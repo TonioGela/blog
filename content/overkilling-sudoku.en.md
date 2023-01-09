@@ -3,7 +3,7 @@ title = "Creating a CLI sudoku solver with scala-cli"
 date = 2022-11-13
 slug = "overkilling-sudoku"
 language="en"
-draft = false
+draft = true 
 [extra]
 description = "Writing a sudoku solver that brute forces a sudoku is an easy junior developer task. How about overkilling the task to create a fully-fledged command line application using `scala-cli`, `Scala Native` and `decline`?"
 +++
