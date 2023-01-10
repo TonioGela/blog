@@ -13,7 +13,7 @@ This first article will be about [Just] a **command-line** tool I recently disco
 
 Let's suppose you've just deployed your application via `scp` (_sigh!_) on one of your work's machines. Maybe your application was already built using tools like [Decline], so it's already capable of parsing command-line options and flags and printing a complete help like:
 
-```
+```cli
 $ foo --help
 Usage:
     foo schedule
@@ -94,7 +94,7 @@ hello-world:
 <details>
     <summary>output</summary>
 
-```
+```cli
 $ just hello-world
 echo "Hello World!"
 Hello World!
@@ -129,7 +129,7 @@ salute guy:
 <details>
     <summary>output</summary>
 
-```
+```cli
 $ just salute
 error: Recipe `salute` got 0 arguments but takes 1
 usage:
@@ -160,7 +160,7 @@ hello-any *targets: # Zero or more
 <details>
     <summary>output</summary>
 
-```
+```cli
 $ just hello
 Hello World!
 
@@ -243,7 +243,7 @@ _run_detached command argument:
 
 Nice, we've used many features of just, in particular recipes whose name begins with an underscore are called *hidden recipes*. Hidden means that if you run `just --list`, they won't get printed since they're meant to be used internally. A special recipe was used, the `default` one, that gets called if you prompt `just` without any recipe name. [EDIT] (Since the name is not precisely `default`, just runs the first recipe in the justfile, that has to be a recipe without arguments)
 
-```
+```cli
 $ just
 Available recipes:
     encrypt target     # encrypts 'target' and detaches
