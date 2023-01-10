@@ -1,5 +1,5 @@
 open:
-  zola serve --drafts --open
+    zola serve --drafts --open
 
 serve:
-  zola serve --drafts
+    zola serve --drafts
