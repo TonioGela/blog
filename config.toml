@@ -1,19 +1,12 @@
 base_url = "https://toniogela.dev"
 default_language = "en"
 compile_sass = true
+generate_feed = true
+feed_limit = 1000
+feed_filename="rss.xml"
+title = "TonioGela's"
+description = "\"In order to understand recursion, one must first understand recursion\""
 build_search_index = false
-
-[languages.en]
-title = "TonioGela's"
-description = "\"In order to understand recursion, one must first understand recursion\""
-generate_feed = false
-feed_limit = 1000
-
-[languages.it]
-title = "TonioGela's"
-description = "\"In order to understand recursion, one must first understand recursion\""
-generate_feed = false
-feed_limit = 1000
 
 [markdown]
 highlight_code = true
@@ -39,9 +32,9 @@ display = "about me"
 uri = "/about"
 blank = false
 
-[[extra.socials]]
-icon = "twitter"
-uri = "https://twitter.com/toniogela"
+# [[extra.socials]]
+# icon = "twitter"
+# uri = "https://twitter.com/toniogela"
 
 [[extra.socials]]
 icon = "linkedin"

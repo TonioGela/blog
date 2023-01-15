@@ -9,7 +9,8 @@
 
 {% macro social(display, icon, uri, classes, blank) %}
 <li>
-    <a rel="me" {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {% endif %}>
+    <a rel="me" {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {%
+        endif %}>
         <i class="icon-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
     </a>
 </li>
@@ -29,7 +30,7 @@ blank=social.blank | default(value=true)
 
 {% if config.generate_feed %}
 
-{% set feed_path = config.feed_file | default(value="atom.xml") %}
+{% set feed_path = config.feed_filename | default(value="rss.xml") %}
 {% if lang == "en" %}
 {% set feed_uri = feed_path %}
 {% else %}
@@ -37,7 +38,7 @@ blank=social.blank | default(value=true)
 {% endif %}
 
 {{ self::social(
-display=lang,
+display="",
 icon="rss",
 uri=feed_uri,
 classes=classes,
