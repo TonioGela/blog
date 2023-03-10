@@ -23,7 +23,7 @@ Before starting, we'll need to set up a couple of things. Here's the list:
 - Having/buying a **custom domain** and having access to its **DNS settings page**: I'm using [Google Domains] since the domains are cheap (most of them cost 12$ per year), but sadly it lacks support for ALIAS records.
 - Sign up on [fly.io], [install]((https://fly.io/docs/hands-on/install-flyctl/)) its command line tool **`flyctl`** and log in using `flyctl auth login`
 - **Of course**, a local installation of [scala-cli] (Here's me talking about it on the [Rock The JVM blog])
-- Optionally the command line tool [`just`](https://github.com/casey/just) that I <strike>recently</strike> reviewed [in another article](@/just.en.md)
+- Optionally the command line tool [`just`](https://github.com/casey/just) that I <strike>recently</strike> reviewed [in another article](@/just.md)
 
 ## Writing the application
 Writing a hello-world-spitting server with http4s using [its giter8 template](https://github.com/http4s/http4s.g8) and sbt it's a trivial task.
