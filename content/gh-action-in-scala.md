@@ -52,7 +52,7 @@ runs:
 ```
 {% end %}
 
-### Business logic
+### Business logic requirements
 
 Once the metadata file is defined we'll have to write the business logic, but there are a few issues that need to be addressed:
 - How do we produce a runnable js file?
@@ -77,7 +77,7 @@ object index extends App:
 
 Packaging this file is as simple as running the command `scala-cli --power package -f index.scala` (we'll reuse this command later in our CI). This command will produce a `index.js` file that can be run locally using `node ./index.js`.
 
-Now that we're able to produce a runnable js file it's time to create an actual GitHub action. The [official documentation for javascript actions](https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action) recommends using the [`GitHub Actions Toolkit Node.js module`](https://github.com/actions/toolkit) to speed up development, and a "smart person" will probably use it, but the Actions' runtime offers an alternative.
+Now that we're able to produce a runnable js file it's time to create an actual GitHub action. The [official documentation for javascript actions](https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action) recommends using the [`GitHub Actions Toolkit Node.js module`](https://github.com/actions/toolkit) to speed up development (a smart person will probably use it) but the Actions' runtime offers an alternative.
 
 Digging deep into the metadata syntax documentation, in the [inputs] section you'll find an interesting paragraph:
 
@@ -85,10 +85,19 @@ Digging deep into the metadata syntax documentation, in the [inputs] section you
 
 So to get our input parameters, reading the environment variables `INPUT_NUMBER-ONE` and `INPUT_NUMBER-TWO` will be enough.
 
-Last but not least, we need to find a way to define our action's output. 
+Last but not least, we need to find a way to define our action's output. Picking up the shovel again and digging further in the documentation we'll discover [a section](https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs#overview) that enlights us about the existence of a `GITHUB_OUTPUT` environment variable that will contain a file's path. This file will serve as an output buffer for the currently running step and using it is as simple as writing the string `<output_variable_name>=<value>` in it.
+
+In our case, we'll have to write `result=<sum of the inputs>` in the file that sits at path `$GITHUB_OUTPUT` and we'll be done.
+
+To sum up, we need a library/framework/stack that offers comfy APIs to read the content of environment variables and write stuff into files that has been compiled for Scala.js.
+
+The Scala standard library will probably be enough for such a simple task, but why don't we pick a tech stack that offers a resource-safe referentially tranparent way to perform these operations and that has a nice asyncronous API to call other processes, like other command line tools?
+
+### Typelevel toolkit
+
+
 
 ### Testing never hurts
-
 
 ---
 - Process APIs in fs2
