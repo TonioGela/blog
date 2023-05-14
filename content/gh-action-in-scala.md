@@ -75,28 +75,31 @@ object index extends App:
 ```
 {% end %}
 
-Packaging this file is as simple as running the command `scala-cli --power package -f index.scala`. This command will produce a `index.js` file that can be run locally using `node ./index.js`.
+Packaging this file is as simple as running the command `scala-cli --power package -f index.scala` (we'll reuse this command later in our CI). This command will produce a `index.js` file that can be run locally using `node ./index.js`.
+
+Now that we're able to produce a runnable js file it's time to create an actual GitHub action. The [official documentation for javascript actions](https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action) recommends using the [`GitHub Actions Toolkit Node.js module`](https://github.com/actions/toolkit) to speed up development, and a "smart person" will probably use it, but the Actions' runtime offers an alternative.
+
+Digging deep into the metadata syntax documentation, in the [inputs] section you'll find an interesting paragraph:
+
+> When you specify an input in a workflow file or use a default input value, GitHub creates an environment variable for the input with the name `INPUT_<VARIABLE_NAME>`. The environment variable created converts input names to uppercase letters and replaces spaces with `_` characters.
+
+So to get our input parameters, reading the environment variables `INPUT_NUMBER-ONE` and `INPUT_NUMBER-TWO` will be enough.
+
+Last but not least, we need to find a way to define our action's output. 
 
 ### Testing never hurts
 
+
+---
 - Process APIs in fs2
-- scala puo sputare js
 - sfruttiamo lo stack tl perche' e' gia tutto ported a js
 - tl toolkit comprende una serie di librerie comode per lo scopo
 - scala-cli semplifica tutto
 - si puo' testare l'azione stessa nella sua ci
-
 - Per il futuro sarebbe bello scrivere i bindings per quella lib
 
----
 [types of actions]: https://docs.github.com/en/actions/creating-actions/about-custom-actions#types-of-actions
 [Docker container Actions]: https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 [@armanbilge]: https://github.com/armanbilge
 [metadata syntax]: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
-
 [inputs]: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs
-
-> When you specify an input in a workflow file or use a default input value, GitHub creates an environment variable for the input with the name `INPUT_<VARIABLE_NAME>`. The environment variable created converts input names to uppercase letters and replaces spaces with _ characters.
-
-[documentation]: https://docs.github.com/en/actions
-
