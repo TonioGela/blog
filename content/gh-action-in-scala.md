@@ -5,7 +5,7 @@ slug = "gh-action-in-scala"
 language="en"
 draft = true
 [extra]
-description = "How to leverage [`scala-cli`](https://github.com/VirtusLab/scala-cli) and the [Typelevel Toolkit](https://github.com/typelevel/toolkit) to super charge your GitHub CI."
+description = "How to use [`scala-cli`](https://github.com/VirtusLab/scala-cli) and the [Typelevel Toolkit](https://github.com/typelevel/toolkit) to super charge your GitHub CI."
 +++
 
 Some months ago I discussed with a DevOps colleague the need for a custom GitHub Action at `$work`. The action we needed had to perform a bunch of tasks that weren't present in any action we were able to find, so we planned to write our own.
@@ -20,7 +20,7 @@ Even though this <u>scarcely interesting success story</u> has a happy ending, a
 
 > Also, I asked myself `Is it still possible to survive as a software developer in 2023 without ever having written a single line of javascript?`: you'll find the answer below.
 
-**TLDR**: yes and [@armanbilge] did it in a couple of repositories like [this one](https://github.com/typelevel/await-cirrus), so in this post we'll dissect his approach to create a how-to guide. Thank you Arman! :heart:
+**TLDR**: yes and [@armanbilge] did it in a couple of repositories like [this one](https://github.com/typelevel/await-cirrus), so in this post, we'll dissect his approach to create a how-to guide. Thank you Arman! :heart:
 
 ## Creating a simple action
 
@@ -75,7 +75,7 @@ object index extends App:
 ```
 {% end %}
 
-Packaging this file is as simple as running the command `scala-cli --power package -f index.scala` (we'll reuse this command later in our CI). This command will produce a `index.js` file that can be run locally using `node ./index.js`.
+Packaging this file is as simple as running the command `scala-cli --power package -f index.scala` (we'll reuse this command later in our CI). This command will produce an `index.js` file that can be run locally using `node ./index.js`.
 
 Now that we're able to produce a runnable js file it's time to create an actual GitHub action. The [official documentation for javascript actions](https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action) recommends using the [`GitHub Actions Toolkit Node.js module`](https://github.com/actions/toolkit) to speed up development (a smart person will probably use it) but the Actions' runtime offers an alternative.
 
@@ -91,7 +91,7 @@ In our case, we'll have to write `result=<sum of the inputs>` in the file that s
 
 To sum up, we need a library/framework/stack that offers comfy APIs to read the content of environment variables and write stuff into files that have been compiled for Scala.js.
 
-Unluckily the Scala standard library won't be enough even for such a simple task (unless you'll manually call some node.js APIs), so why don't we pick __*a tech stack that offers a resource-safe referentially transparent way to perform these operations and that has **a nice **asynchronous** API to** call other processes, like other command line tools*__?
+Unluckily the Scala standard library won't be enough even for such a simple task (unless you'll manually call some node.js APIs). If only there was __*a tech stack that offers a resource-safe referentially transparent way to perform these operations and that has **a nice **asynchronous** API to** call other processes, like other command line tools*__!
 
 ### Typelevel toolkit
 
@@ -99,7 +99,7 @@ Luckily for everybody such a stack exists, the [Typelevel] libraries are publish
 
 The most straightforward way to test out most of the fundamental libraries this stack has to offer is to use the [Typelevel toolkit]. The toolkit is a meta library that includes (among the others) [Cats Effect], [fs2-io] for streaming, [a library to parse command line arguments](https://ben.kirw.in/decline/effect.html), [a JSON serde that supports automatic Scala 3 derivation](https://circe.github.io/circe/) and [an HTTP client](https://http4s.org/v0.23/docs/client.html).
 
-To use the toolkit, it's enough to declare it as dependency in our scala-cli script:
+To use the toolkit, it's enough to declare it as a dependency in our scala-cli script:
 
 {% codeBlock(title="index.scala", color="red") %}
 ```scala
@@ -124,7 +124,7 @@ def getInput(input: String): IO[Option[String]] =
   Env[IO].get(s"INPUT_${input.toUpperCase.replace(' ', '_')}")
 ```
 
-With the same method we can get the output file path and write the output in it:
+With the same method, we can get the output file path and write the output in it:
 
 ```scala
 import fs2.io.file.{Files, Path}
