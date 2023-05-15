@@ -89,26 +89,164 @@ Last but not least, we need to find a way to define our action's output. Picking
 
 In our case, we'll have to write `result=<sum of the inputs>` in the file that sits at path `$GITHUB_OUTPUT` and we'll be done.
 
-To sum up, we need a library/framework/stack that offers comfy APIs to read the content of environment variables and write stuff into files that has been compiled for Scala.js.
+To sum up, we need a library/framework/stack that offers comfy APIs to read the content of environment variables and write stuff into files that have been compiled for Scala.js.
 
-The Scala standard library will probably be enough for such a simple task, but why don't we pick a tech stack that offers a resource-safe referentially tranparent way to perform these operations and that has a nice asyncronous API to call other processes, like other command line tools?
+Unluckily the Scala standard library won't be enough even for such a simple task (unless you'll manually call some node.js APIs), so why don't we pick __*a tech stack that offers a resource-safe referentially transparent way to perform these operations and that has **a nice **asynchronous** API to** call other processes, like other command line tools*__?
 
 ### Typelevel toolkit
 
+Luckily for everybody such a stack exists, the [Typelevel] libraries are published for a wide number of Scala versions, and for every platform that Scala supports (including [Scala native](https://typelevel.org/blog/2022/09/19/typelevel-native.html)).
 
+The most straightforward way to test out most of the fundamental libraries this stack has to offer is to use the [Typelevel toolkit]. The toolkit is a meta library that includes (among the others) [Cats Effect], [fs2-io] for streaming, [a library to parse command line arguments](https://ben.kirw.in/decline/effect.html), [a JSON serde that supports automatic Scala 3 derivation](https://circe.github.io/circe/) and [an HTTP client](https://http4s.org/v0.23/docs/client.html).
+
+To use the toolkit, it's enough to declare it as dependency in our scala-cli script:
+
+{% codeBlock(title="index.scala", color="red") %}
+```scala
+//> using scala "3.2.2"
+//> using platform "js"
+//> using jsVersion "1.13.1"
+//> using jsModuleKind "common"
+//> using dep "org.typelevel::toolkit::latest.release"
+
+object index extends App:
+    println("Hello world")
+```
+{% end %}
+
+Now it's time to write an input reading function: we can use `cats.effect.std.Env` to access the environment variables
+
+```scala
+import cats.effect.IO
+import cats.effect.std.Env
+
+def getInput(input: String): IO[Option[String]] =
+  Env[IO].get(s"INPUT_${input.toUpperCase.replace(' ', '_')}")
+```
+
+With the same method we can get the output file path and write the output in it:
+
+```scala
+import fs2.io.file.{Files, Path}
+import fs2.Stream
+
+def outputFile: IO[Path] =
+  Env[IO].get("GITHUB_OUTPUT").map(_.get).map(Path.apply) // unsafe Option.get
+
+def setOutput(name: String, value: String): IO[Unit] =
+  outputFile.flatMap(path =>
+    Stream[IO, String](s"${name}=${value}")
+      .through(Files[IO].writeUtf8(path))
+      .compile
+      .drain
+  )
+```
+
+Last but not least, we can write the logic of our application:
+
+```scala
+import cats.effect.IOApp
+
+object index extends IOApp.Simple:
+  def run = for {
+    number1 <- getInput("number-one").map(_.get.toInt) // unsafe
+    number2 <- getInput("number-two").map(_.get.toInt) // unsafe
+    _ <- setOutput("result", s"${number1 + number2}")
+  } yield ()
+```
+
+The whole action implementation will then be
+
+{% codeBlock(title="index.scala", color="red") %}
+```scala
+//> using scala "3.2.2"
+//> using platform "js"
+//> using jsVersion "1.13.1"
+//> using jsModuleKind "common"
+//> using dep "org.typelevel::toolkit::latest.release"
+
+import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.std.Env
+import fs2.io.file.{Files, Path}
+import fs2.Stream
+
+def getInput(input: String): IO[Option[String]] =
+  Env[IO].get(s"INPUT_${input.toUpperCase.replace(' ', '_')}")
+
+def outputFile: IO[Path] =
+  Env[IO].get("GITHUB_OUTPUT").map(_.get).map(Path.apply) // unsafe Option.get
+
+def setOutput(name: String, value: String): IO[Unit] =
+  outputFile.flatMap(path =>
+    Stream[IO, String](s"${name}=${value}")
+      .through(Files[IO].writeUtf8(path))
+      .compile
+      .drain
+  )
+
+object index extends IOApp.Simple:
+  def run = for {
+    number1 <- getInput("number-one").map(_.get.toInt) // unsafe Option.get
+    number2 <- getInput("number-two").map(_.get.toInt) // unsafe Option.get
+    _ <- setOutput("result", s"${number1 + number2}")
+  } yield ()
+```
+{% end %}
+
+<details>
+<summary>Safer and shorter alternative that uses decline</summary>
+
+{% codeBlock(title="index.scala", color="red") %}
+```scala
+//> using scala "3.2.2"
+//> using platform "js"
+//> using jsVersion "1.13.1"
+//> using jsModuleKind "common"
+//> using dep "org.typelevel::toolkit::latest.release"
+
+import cats.effect.{IO, ExitCode}
+import cats.syntax.all.*
+import fs2.Stream
+import fs2.io.file.{Files, Path}
+import com.monovore.decline.Opts
+import com.monovore.decline.effect.CommandIOApp
+
+val args = (
+  Opts.env[Int]("INPUT_NUMBER-ONE", "The first number"),
+  Opts.env[Int]("INPUT_NUMBER-TWO", "The second number"),
+  Opts.env[String]("GITHUB_OUTPUT", "The file of the output").map(Path.apply)
+)
+
+object index extends CommandIOApp("adder", "Summing two numbers"):
+  def main = args.mapN { (one, two, path) =>
+    Stream(s"result=${one + two}")
+      .through(Files[IO].writeUtf8(path))
+      .compile
+      .drain
+      .as(ExitCode.Success)
+  }
+```
+{% end %}
+
+</details>
 
 ### Testing never hurts
 
+- Commit the js
+- Use actions to test the action itself
+- The diff may break in the future due to `latest.release`
+- Link the repo
+
 ---
-- Process APIs in fs2
-- sfruttiamo lo stack tl perche' e' gia tutto ported a js
-- tl toolkit comprende una serie di librerie comode per lo scopo
-- scala-cli semplifica tutto
-- si puo' testare l'azione stessa nella sua ci
-- Per il futuro sarebbe bello scrivere i bindings per quella lib
+
+- In the future it will be awesome to rewrite in pure scala the actions/toolkit dep
 
 [types of actions]: https://docs.github.com/en/actions/creating-actions/about-custom-actions#types-of-actions
 [Docker container Actions]: https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 [@armanbilge]: https://github.com/armanbilge
 [metadata syntax]: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 [inputs]: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs
+[Typelevel]: https://typelevel.org/
+[Typelevel toolkit]: https://typelevel.org/toolkit/
+[Cats Effect]: https://typelevel.org/cats-effect/
+[fs2-io]: https://fs2.io/#/io
