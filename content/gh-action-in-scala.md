@@ -95,7 +95,7 @@ Unluckily the Scala standard library won't be enough even for such a simple task
 
 ### Typelevel toolkit
 
-Luckily for everybody, such a stack exists. The [Typelevel] libraries are published for many Scala versions and for every platform that Scala supports (including [Scala native](https://typelevel.org/blog/2022/09/19/typelevel-native.html)).
+Luckily for everybody, such a stack exists. The [Typelevel] libraries are published for many Scala versions and for every platform Scala supports, including [Scala native](https://typelevel.org/platforms/native/). [Most of them](https://typelevel.org/platforms/js/) can be used in a node.js action.
 
 The most straightforward way to test this stack's fundamental libraries is using the Typelevel toolkit. The toolkit is a meta library that includes (among the others) [Cats Effect], [fs2-io] for streaming, [a library to parse command line arguments](https://ben.kirw.in/decline/effect.html), [a JSON serde that supports automatic Scala 3 derivation](https://circe.github.io/circe/) and [an HTTP client](https://http4s.org/v0.23/docs/client.html).
 
