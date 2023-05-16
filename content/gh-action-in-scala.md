@@ -372,7 +372,7 @@ case class Foo(bar:String) derives Decoder
 given EntityDecoder[IO, Foo] = jsonOf[IO, Foo]
 
 EmberClientBuilder.default[IO].build.use { client =>
-    client.expect[Foo](s"https://foo.bar").flatMap(foo => IO.prinln(foo))
+    client.expect[Foo](s"https://foo.bar").flatMap(foo => IO.println(foo))
 }
 ```
 
