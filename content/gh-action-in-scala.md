@@ -1,9 +1,8 @@
 +++
 title = "Writing a GitHub Action with Scala.js"
-date = 2023-05-13
+date = 2023-05-18
 slug = "gh-action-in-scala"
 language="en"
-draft = true
 [extra]
 description = "How to use [`scala-cli`](https://github.com/VirtusLab/scala-cli) and the [Typelevel Toolkit](https://github.com/typelevel/toolkit) to super charge your GitHub CI."
 +++
@@ -249,7 +248,7 @@ There are a few ways to test if an action you're developing works as intended. T
 
 The quickest way to test the action is to run it directly on the GitHub Runners and set up its CI to test the logic: the only required thing is a workflow file under `.github/workflows`.
 
-As we must commit the transpiled version of our source code, a preliminary check that the `.js` file corresponds to the source `.scala` file is a good idea. The easiest way to test that they match is to recompile the `.scala` file with scala-cli and to use the good old `git diff`:
+As we must commit the transpiled version of our source code, a preliminary check that the `.js` file corresponds to the source `.scala` file is a good idea. The easiest way to test that they match is to recompile the `.scala` file with scala-cli and use the good old `git diff`:
 
 ```yml
 check-js-file:
@@ -345,7 +344,7 @@ To let the world use your new and shiny Scala.js-powered GitHub Action, commit e
 
 ### Further considerations
 
-The example in this post is meant to show how to use a combination of tools and libraries to create a Github Action and doesn't show the true power of the Typelevel stack. A recent addition to [fs2-io] that can be handy in the context of an action might be the [Processes apis], with whom you can invoke external commands/tools handling their stdin, stdout, and exit codes:
+The example in this post is meant to show how to use a combination of tools and libraries to create a Github Action and doesn't show the true power of the Typelevel stack. A recent addition to [fs2-io] that can be handy in the context of an action might be the [Processes APIs], with whom you can invoke external commands/tools handling their stdin, stdout, and exit codes:
 
 ```scala
 import cats.effect.{Concurrent, MonadCancelThrow}
@@ -401,4 +400,4 @@ Enjoy!
 [Cats Effect]: https://typelevel.org/cats-effect/
 [fs2-io]: https://fs2.io/#/io
 [act]: https://github.com/nektos/act
-[Processes apis]: https://fs2.io/#/io?id=processes
+[Processes APIs]: https://fs2.io/#/io?id=processes
