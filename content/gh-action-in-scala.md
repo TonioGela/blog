@@ -266,7 +266,7 @@ check-js-file:
     - run: git diff --quiet index.js                # Silently failing if there's any difference
 ```
 
-> One thing to consider is that we used `latest.release` as the toolkit version, making our build non reproducible. Pinning the dependencies' versions is usually a good idea. Also, pinning each action version (i.e. `- uses:VirtusLab/scala-cli-setup@v1.0.0-RC2`) might decrease the chances that your CI will produce a different js file (and thus failing) in the future.
+> One thing to consider is that we used `latest.release` as the toolkit version, making our build non reproducible. Pinning the dependencies' versions is usually a good idea. To achieve reproducibility is possible to pin a specific scala-cli version too using `--cli-version <version>`. Also, pinning each action version (i.e. `- uses:VirtusLab/scala-cli-setup@v1.0.0-RC2`) might decrease the chances that your CI will produce a different js file (and thus failing) in the future.
 
 Once sure that the transpiled version of our code is correct, we can run our action and test its output directly in its own CI:
 
@@ -309,7 +309,7 @@ jobs:
           java-version: 17
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@main
-      - run: scala-cli --power package -f index.scala
+      - run: scala-cli --power --cli-version 1.0.0-RC2 package -f index.scala
       - run: git diff --quiet index.js
 
   test-action-itself:
