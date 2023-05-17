@@ -266,7 +266,7 @@ check-js-file:
     - run: git diff --quiet index.js                # Silently failing if there's any difference
 ```
 
-> One thing to consider is that we used `latest.release` as the toolkit version, making our build non reproducible. Pinning the dependencies' versions is usually a good idea.
+> One thing to consider is that we used `latest.release` as the toolkit version, making our build non reproducible. Pinning the dependencies' versions is usually a good idea. Also, pinning each action version (i.e. `- uses:VirtusLab/scala-cli-setup@v1.0.0-RC2`) might decrease the chances that your CI will produce a different js file (and thus failing) in the future.
 
 Once sure that the transpiled version of our code is correct, we can run our action and test its output directly in its own CI:
 
@@ -358,7 +358,7 @@ def helloProcess[F[_]: Concurrent: Processes]: F[String] =
   }
 ```
 
-The toolkit includes the `Ember` client and its `circe` integration, with whom you can easily call any external service and deserialize it's output in a case class:
+The toolkit includes the `Ember` client and its `circe` integration, with whom you can easily call any external service and deserialize its output in a case class:
 
 ```scala
 import cats.effect.IO
@@ -376,14 +376,20 @@ EmberClientBuilder.default[IO].build.use { client =>
 }
 ```
 
-The toolkit's site contains a [few examples](https://typelevel.org/toolkit/examples.html) of what you can do with it, go take a look :smile:
+The toolkit's site contains a [few examples](https://typelevel.org/toolkit/examples.html) of what you can do with it. Go take a look :smile:
 
-## Conclusions?
+## Conclusions
 
-- Why it's always so difficult writing conclusions?
-- Use scala
-- #neverjsforever
-- In the future, it will be awesome to rewrite in pure scala the `actions/toolkit` dep
+Despite being a bit unripe, I find this approach fascinating and easy to use (in particular if you don't know any `js` in 2023 :innocent:). 
+
+In the future, I might consider rewriting in Scala.js the [actions/toolkit](https://github.com/actions/toolkit) library or a part of it (I might have to learn javascript :facepalm:). If you want to contribute, feel free to [contact me](https://discord.com/users/TonioGela#2735).
+
+One thing that's worth exploring is the interaction with [Scala-Steward](https://github.com/scala-steward-org/scala-steward). Can the CI be set up to re-generate the js and commit the result? Probably yes, with `postUpdateHooks`. Is it desirable? I'm still not sure.
+
+
+You'll find the code written in the post in [this repository](https://github.com/TonioGela/test-gh-action)
+
+Enjoy!
 
 [types of actions]: https://docs.github.com/en/actions/creating-actions/about-custom-actions#types-of-actions
 [Docker container Actions]: https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
