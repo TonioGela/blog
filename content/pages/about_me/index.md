@@ -34,5 +34,5 @@ The whole site is built with [zola]
 [Scala]: https://www.scala-lang.org
 [PagoPA S.p.A.]: https://github.com/pagopa
 [Mastodon]: https://hachyderm.io/@toniogela
-[Scala Italy's Discord Server]: https://discord.gg/8wadTgcZVt
+[Scala Italy's Discord Server]: https://discord.gg/channels/886958942008270848
 [Typelevel's Discord Server]: https://discord.com/channels/632277896739946517

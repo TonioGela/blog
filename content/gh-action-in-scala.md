@@ -381,7 +381,7 @@ The toolkit's site contains a [few examples](https://typelevel.org/toolkit/examp
 
 Despite being a bit unripe, I find this approach fascinating and easy to use (in particular if you don't know any `js` in 2023 :innocent:). 
 
-In the future, I might consider rewriting in Scala.js the [actions/toolkit](https://github.com/actions/toolkit) library or a part of it (I might have to learn javascript :facepalm:). If you want to contribute, feel free to [contact me](https://discord.com/users/TonioGela#2735).
+In the future, I might consider rewriting in Scala.js the [actions/toolkit](https://github.com/actions/toolkit) library or a part of it (I might have to learn javascript :facepalm:). If you want to contribute, feel free to [contact me](https://discord.com/users/372358874243661825).
 
 One thing that's worth exploring is the interaction with [Scala-Steward](https://github.com/scala-steward-org/scala-steward). Can the CI be set up to re-generate the js and commit the result? Probably yes, with `postUpdateHooks`. Is it desirable? I'm still not sure.
 
