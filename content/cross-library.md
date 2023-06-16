@@ -39,12 +39,41 @@ $ scala-cli run platform.sc --scala 2.13.10 --js
 `// Fix from here`
 
 How do we implement this? Using [sbt-crossproject]
+it adds cross-platform compilation support for sbt.
+
+```scala
+crossProject(JSPlatform, JVMPlatform, NativePlatform)
+    .crossType(CrossType.Pure) // [Pure, Full, Dummy], default: CrossType.Full
+    .settings(sharedSettings)
+    .jsSettings(/* ... */) // defined in sbt-scalajs-crossproject
+    .jvmSettings(/* ... */)
+    .nativeSettings(/* ... */) // defined in sbt-scala-native
+```
+
+```scala
+.crossType(CrossType.Pure):
+.
+├── .js
+├── .jvm
+├── .native
+└── src
+```
+
+```scala
+.crossType(CrossType.Full)
+.
+├── js
+├── jvm
+├── native
+└── shared
+```
 
 
 ### Appunti
 Racconta Moduli \
 Scala-Steward \
 Mergify \
+Unidocs \
 Sito
 
 [Laika]: https://github.com/typelevel/Laika
