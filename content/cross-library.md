@@ -21,7 +21,7 @@ A simple idea for a cross-compiled library may be a wrapper for a simple static 
 
 Ideally printing this string in **different "conditions"** will produce different outputs, i.e.
 
-{% codeBlock(title="platform.sc", color="scala") %}
+{% codeBlock(title="platform.sc", color="red") %}
 ```scala
 //> using dep my-group-id::my-library::latest.release
 println(Platform.platformAndVersion)
@@ -42,7 +42,7 @@ $ scala-cli run platform.sc --scala 2.13.10 --js
 
 We'll implement such a library using [sbt-crossproject], an sbt plugin that adds cross-platform compilation support.
 
-### sbt-crossproject in a nutshell
+## Cross Building with sbt-crossproject
 
 We already know from the [cross-building section of sbt's manual] that the mechanism to indicate which version of Scala a library was compiled against is to append the binary version, that's why we often see artifacts named `<lib-name>_2.13-<version>.jar` or `<lib-name>_3-<version>-sources.jar`.
 
@@ -52,51 +52,35 @@ Sbt leverages suffixes even when it has to differentiate an artifact that was co
 
 > Forgetting the third `%` is so common that someone though of creating [youforgotapercentagesignoracolon]
 
-While sbt supports  out of the box cross-building for different Scala versions, cross compiling a library for different platforms requires using [sbt-crossproject].
+While sbt supports out of the box cross-building for different Scala versions, cross compiling a library for different platforms requires using [sbt-crossproject]. Since we'll build for all the three supported platforms, we have to use both scala-js and scala-native plugins, each in combination with its cross-project plugin
 
-
+{% codeBlock(title="project/plugins.sbt", color="red") %}
 ```scala
-crossProject(JSPlatform, JVMPlatform, NativePlatform)
-    .crossType(CrossType.Pure) // [Pure, Full, Dummy], default: CrossType.Full
-    .settings(sharedSettings)
-    .jsSettings(/* ... */) // defined in sbt-scalajs-crossproject
-    .jvmSettings(/* ... */)
-    .nativeSettings(/* ... */) // defined in sbt-scala-native
+addSbtPlugin("org.scala-js"       % "sbt-scalajs"                   % "1.13.1")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.2.0")
+addSbtPlugin("org.scala-native"   % "sbt-scala-native"              % "0.4.14")
+addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.2.0")
 ```
+{% end %}
 
-```scala
-.crossType(CrossType.Pure):
-.
-├── .js
-├── .jvm
-├── .native
-└── src
-```
+`BUT we'll use it through sbt-tl`
 
-```scala
-.crossType(CrossType.Full)
-.
-├── js
-├── jvm
-├── native
-└── shared
-```
+### Rough Lineup
 
-### Scaletta
-
-Rough Idea
-sbt-cross project and publishLocal
-+ and ++
-writing different tests for different platforms
-Claiming Maven Central GroupID
-sbt-typelevel
-github actions con dependency submission
-versioning e mima?
-Scala Steward with creation
-Mergify
-Unidocs
-Sito + dominio
-scaladex
+- [x] Rough Idea
+- [ ] sbt-crossproject
+- [ ] \+ vs ++
+- [ ] publishLocal and have fun
+- [ ] sbt-typelevel
+- [ ] writing different tests for different platforms
+- [ ] Claiming Maven Central GroupID
+- [ ] github actions con dependency submission
+- [ ] versioning and mima?
+- [ ] Scala Steward + instance-creation with diy-steward
+- [ ] Mergify
+- [ ] Unidocs
+- [ ] Site + domain 
+- [ ] javadoc.io + scaladex
 
 [Laika]: https://github.com/typelevel/Laika
 [Sonartype]: https://central.sonatype.com/
