@@ -12,7 +12,9 @@ In my early days as a Scala developer, one of the things that were more confusin
 
 `"Library authors must be incredibly skilled (and patient) people that rewrite N times the same library"` was my thought at that time, and while I still believe that lib authors are **immensely talented people**, now I've clear ideas on how to cross-compile a library (and no, you don't have to rewrite everything).
 
-This post aims to write a library for what we can imagine being the **worst case scenario**: a library should behave differently for every **platform and Scala version**. The best case scenario, for instance, is having every dependency already cross-compiled and writing our library/application just once. 
+> Recalibrate the post and write it for the best case scenario. The worst case scenario can be described in a later post maybe.
+
+This post aims to write a library for what we can imagine being the **worst case scenario**: a library should behave differently for every **platform and Scala version**. The best case scenario, for instance, is having every dependency already cross-compiled and writing our library/application just once.
 
 Wel'll also cover how to publish this library on **Maven Central**, taking care of **every step required**, from claiming a groupID to publishing a [Laika] powered documentation site passing from **automagically written CI workflows** for cross-testing and publication.
 
@@ -76,7 +78,7 @@ addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.2.0")
 - [ ] Claiming Maven Central GroupID
 - [ ] github actions con dependency submission
 - [ ] versioning and mima?
-- [ ] Scala Steward + instance-creation with diy-steward
+- [ ] Public Scala Steward + instance-creation with diy-steward
 - [ ] Mergify
 - [ ] Unidocs
 - [ ] Site + domain 
