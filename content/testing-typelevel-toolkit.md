@@ -8,7 +8,7 @@ draft = true
 description = "How do you test a meta library that is meant to be used via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_"
 +++
 
-The [Typelevel toolkit] is a metalibrary including some **great libraries** by [Typelevel] created to speed up the development of cross-platform applications in Scala. It's the Typelevel's flavour of the official [Scala Toolkit], a set of libraries to perform common programming tasks, that got its own section, full of examples, in the [official Scala documentation](https://docs.scala-lang.org/toolkit/introduction.html).
+The [Typelevel toolkit] is a metalibrary including some **great libraries** by [Typelevel], that was created to speed up the development of cross-platform applications in Scala and that I happily maintain since its creation. It's the Typelevel's flavour of the official [Scala Toolkit], a set of libraries to perform common programming tasks, that got its own section, full of examples, in the [official Scala documentation](https://docs.scala-lang.org/toolkit/introduction.html).
 
 One of the vaunts of the Typelevel's stack is the fact that (almost) every library is published for the all the **three officially supported Scala platforms: JVM, JS and Native**, and for this reason every library is **heavily tested** against every supported platform and Scala version, to ensure a near perfect cross-compatibility.
 
@@ -63,7 +63,28 @@ object ScalaCliApp extends App:
 
 ## First tentative: using the dependency in tests
 
-"Unspoken rule about the Scala community"
+In order to publish the artifacts locally before testing we needed a new `tests` project and to establish this relationship:
+
+{% codeBlock(title="build.sbt") %}
+```scala
+//...
+lazy val root = tlCrossRootProject.aggregate(
+  toolkit, 
+  toolkitTest,
+  tests
+)
+//...
+lazy val tests = project
+  .in(file("tests"))
+  .settings(
+    name := "tests",
+    Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal).value
+  )
+//...
+```
+{%end%}
+
+In this way the `test` sbt command will always run a `publishLocal` of the jvm flavor of the toolkit artifact. The project then needed to be set to **not publish its** artifact and to have some dependencies added to actually write the tests. The `scala-cli` dependency needed some trickery to use the Scala 3 artifact (the only one published) in Scala 2.13 as well.
 
 {% codeBlock(title="build.sbt") %}
 ```scala
@@ -73,24 +94,85 @@ lazy val tests = project
   .settings(
     name := "tests",
     Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal).value,
+    // Required to use the scala 3 artifact with scala 2.13
     scalacOptions ++= {
       if (scalaBinaryVersion.value == "2.13") Seq("-Ytasty-reader") else Nil
     },
     libraryDependencies ++= Seq(
       "org.typelevel" %% "munit-cats-effect" % "2.0.0-M3" % Test,
+      // This is needed to write scripts' body into files
       "co.fs2" %% "fs2-io" % "3.9.2" % Test,
       "org.virtuslab.scala-cli" %% "cli" % "1.0.4" % Test cross (CrossVersion.for2_13Use3)
     )
   )
-  .enablePlugins(BuildInfoPlugin, NoPublishPlugin)
+  .enablePlugins(NoPublishPlugin)
 //...
 ```
 {%end%}
 
+The last bit needed was a way to add to the scripts' body which version of the artifact we were publishing right before the testing step and which Scala version we were running on, in order to test it properly. The only place were this **(non-static)** information was present was the build itself, but we needed to have them **as an information in the source code**. We definitively needed some sbt trickery to make it happen.
+
+There is an unspoken rule about the Scala community (or in the sbt users community to be precise) that you may already know about: "If you need some kind of sbt trickery, [eed3si9n] probably wrote a sbt plugin for that". 
+
+This was our case with [sbt-buildinfo], a sbt plugin whose punchline is "_I know this because build.sbt knows this_". As you'll discover later, **sbt-buildinfo has been the corner stone of our second and more exhausting approach**, but what briefly does is generating Scala source from your build definitions, and thus makes build information available in the source code too.
+
+As `scalaVersion` and `version` are two information that are injected by default, we just needed to add the plugin into `project/plugins.sbt` and enabling it on `tests` in the build:
+
+{% codeBlock(title="projects/plugins.sbt") %}
+```scala
+//...
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
+```
+{%end%}
+
+{% codeBlock(title="build.sbt") %}
+```scala
+//...
+lazy val tests = project
+  .in(file("tests"))
+  .settings(
+    name := "tests",
+    Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal).value,
+    // Required to use the scala 3 artifact with scala 2.13
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.13") Seq("-Ytasty-reader") else Nil
+    },
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "munit-cats-effect" % "2.0.0-M3" % Test,
+      // This is needed to write scripts' body into files
+      "co.fs2" %% "fs2-io" % "3.9.2" % Test,
+      "org.virtuslab.scala-cli" %% "cli" % "1.0.4" % Test cross (CrossVersion.for2_13Use3)
+    )
+  )
+  .enablePlugins(NoPublishPlugin, BuildInfoPlugin)
+//...
+```
+{%end%}
+
+**Time to write the tests!** The first thing that was needed was a way to write on a temporary file the body of the script, including the artifact and Scala version, and then submit the file to scala-cli main method:
 
 {% codeBlock(title="ToolkitTests.scala") %}
 ```scala
-  def testRun(testName: String)(scriptBody: String): Unit = {
+package org.typelevel.toolkit
+
+import munit.CatsEffectSuite
+import cats.effect.IO
+import fs2.Stream
+import fs2.io.file.Files
+import scala.cli.ScalaCli
+import buildinfo.BuildInfo.{version, scalaVersion}
+
+class ToolkitCompilationTest extends CatsEffectSuite {
+
+  testRun("Toolkit should compile a simple Hello Cats Effect") {
+    s"""|import cats.effect._
+        |
+        |object Hello extends IOApp.Simple {
+        |  def run = IO.println("Hello toolkit!")
+        |}"""
+  }
+
+  def testRun(testName: String)(scriptBody: String): Unit =
     test(testName)(
       Files[IO]
         .tempFile(None, "", "-toolkit.scala", None)
@@ -107,10 +189,17 @@ lazy val tests = project
           )
         }
     )
-  }
+}
 ```
 {%end%}
 
+And with this easy and lean approach we were finally able to **test the toolkit**! :tada::tada::tada::tada::tada:
+
+`Another pause for dramatic effect`
+
+Except we weren't really testing everything: the `js` and `native` artifact weren't tested by this approach, as the `tests` project is a jvm only project depending on `toolkit.jvm`. We needed a more general/agnostic solution.
+
+## BuildInfo magic and Java Instrumentation
 
 
 [Typelevel toolkit]: https://typelevel.org/toolkit/
@@ -118,10 +207,9 @@ lazy val tests = project
 [Scala Toolkit]: https://github.com/scala/toolkit/
 [scala-cli]: https://scala-cli.virtuslab.org/
 [sbt]: https://www.scala-sbt.org/
+[eed3si9n]: https://github.com/eed3si9n
+[sbt-buildinfo]: https://github.com/sbt/sbt-buildinfo
+[scala-steward]: https://github.com/scala-steward-org/scala-steward
 
-- scala-cli in GH non ci piaceva, implementare test esternamente
-- artifact publishing
-- primo tentativo jvm only con il classpath
-- Idea con BuildInfo
 - Trasformare runtime error in compile errors
 - cross platform con fs2, invocando java e dichiarando male la dipendenza
