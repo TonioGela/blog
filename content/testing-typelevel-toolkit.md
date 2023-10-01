@@ -197,10 +197,117 @@ And with this easy and lean approach we were finally able to **test the toolkit*
 
 `Another pause for dramatic effect`
 
-Except we weren't really testing everything: the `js` and `native` artifact weren't tested by this approach, as the `tests` project is a jvm only project depending on `toolkit.jvm`. We needed a more general/agnostic solution.
+Except we weren't really testing everything: the `js` and `native` artifact weren't tested by this approach, as the `tests` project is a jvm only project depending on `toolkit.jvm`. Also, the `toolkit-test` artifact wasn't even taken in consideration. We needed a more general/agnostic solution.
 
-## BuildInfo magic and Java Instrumentation
+## Second approach: Java Instrumentation
 
+The first tentative was good but not satisfying at all: we had to find a way to test the js and native artifacts too, but how? The scala-cli artifact is a **JVM Scala 3 only** artifact, and there's no way to use it as a dependency on other platforms. The only way to use it is just through the jvm, and that's **precisely what we decided to do**.
+
+Given that:
+- At least a JVM was present in the testing environment
+- `fs2.io.process` exposes a **cross-platform way to launch and manage external processes**
+- we had the scala-cli artifact on our classpath
+
+we knew that was possible, there was just some `sbt`_-fu_ needed. 
+
+The thing we needed to intelligently instrument was a mere `java -cp <scala-cli + transitive deps classpath> scala.cli.ScalaCli`, pass to it `run <scriptFilename>.scala` and wait for the exit code, for each `(scalaVersion,platform)` combination.
+
+### BuildInfo magic
+
+To begin we had to transform the `tests` project in to a cross project (using [sbt-crossproject](https://github.com/portable-scala/sbt-crossproject), that is embedded in [sbt-typelevel]) and make every subproject `test` command depend on the publication of the respective artifact:
+
+{% codeBlock(title="build.sbt") %}
+```scala
+//...
+lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .in(file("tests"))
+  .settings(
+    name := "tests",
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.13") Seq("-Ytasty-reader") else Nil
+    },
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "munit-cats-effect" % "2.0.0-M3" % Test,
+      "co.fs2" %%% "fs2-io" % "3.9.2" % Test,
+      "org.virtuslab.scala-cli" %% "cli" % "1.0.4" cross (CrossVersion.for2_13Use3)
+    )
+  )
+  .jvmSettings(
+    Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal).value
+  )
+  .jsSettings(
+    Test / test := (Test / test).dependsOn(toolkit.js / publishLocal).value
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+  )
+  .nativeSettings(
+    Test / test := (Test / test).dependsOn(toolkit.native / publishLocal).value
+  )
+  .enablePlugins(BuildInfoPlugin, NoPublishPlugin)
+//...
+```
+{% end %}
+
+One thing to note is that we deliberately made a "mistake". The `munit-cats-effect` and `fs2-io` dependencies are declared using `%%%` the operator that not only appends `_${scalaBinaryVersion}` to the end of the artifact name but also the platform name (appending i.e. for a Scala 3 native dependency `_native0.4_3`), but the `scala-cli` one was declared using just `%%` and the `% Test` modifier was removed. In this way we were sure that, for **every platform**, the `Compile / dependencyClasspath` would have included just the jvm version of scala-cli.
+
+To inject the classpath into the source code we leveraged our beloved friend [sbt-buildinfo], that **it's not limited to inject just `SettingKey[T]`s** and/or static information (computed at project load time), but using its own syntax **can inject `TaskKey[T]`s after they've been evaluated** (and re-evaluated each time at compile). So in the common `.settings` we added: 
+
+{% codeBlock(title="build.sbt") %}
+```scala
+///...
+  buildInfoKeys += BuildInfoKey.map(Compile / dependencyClasspath) {
+      case (_, v) =>
+        "classPath" -> v.seq
+          .map(_.data.getAbsolutePath)
+          .mkString(File.pathSeparator) // That's the way java -cp accepts classpath info
+    },
+    buildInfoKeys += BuildInfoKey.action("javaHome") {
+      val path = sys.env.get("JAVA_HOME").orElse(sys.props.get("java.home")).get
+      if (path.endsWith("/jre")) {
+        // handle JDK 8 installations
+        path.replace("/jre", "")
+      } else path
+    },
+    buildInfoKeys += "scala3" -> (scalaVersion.value.head == '3')
+///...
+```
+{% end %}
+
+and in each platform specific section we added to buildInfo the platform's name:
+
+{% codeBlock(title="build.sbt") %}
+```scala
+//...
+  .jvmSettings(
+    //...
+    buildInfoKeys += "platform" -> "jvm"
+  )
+  .jsSettings(
+    //...
+    buildInfoKeys += "platform" -> "js",
+  )
+  .nativeSettings(
+    //...
+    buildInfoKeys += "platform" -> "native"
+  )
+//...
+```
+{% end %}
+
+in this way we could leverage in our source code all the information required to run `scala-cli` and test our snippets:
+
+```scala
+private val ClassPath: String = BuildInfo.classPath
+private val JavaHome: String  = BuildInfo.javaHome
+private val platform: String  = BuildInfo.platform
+private val scala3: Boolean   = BuildInfo.scala3
+```
+
+### Java instrumentation via fs2 `Process`
+
+https://github.com/typelevel/toolkit/blob/main/tests/shared/src/test/scala/org/typelevel/toolkit/ScalaCliProcess.scala#L34
+
+TODO:
+- Don't forget to mention `tookit-test`
 
 [Typelevel toolkit]: https://typelevel.org/toolkit/
 [Typelevel]: https://github.com/typelevel/
@@ -210,6 +317,4 @@ Except we weren't really testing everything: the `js` and `native` artifact were
 [eed3si9n]: https://github.com/eed3si9n
 [sbt-buildinfo]: https://github.com/sbt/sbt-buildinfo
 [scala-steward]: https://github.com/scala-steward-org/scala-steward
-
-- Trasformare runtime error in compile errors
-- cross platform con fs2, invocando java e dichiarando male la dipendenza
+[sbt-typelevel]: https://github.com/typelevel/sbt-typelevel 
