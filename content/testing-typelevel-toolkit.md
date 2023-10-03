@@ -254,6 +254,7 @@ To inject the classpath into the source code we leveraged our beloved friend [sb
 {% codeBlock(title="build.sbt") %}
 ```scala
 ///...
+  buildInfoKeys += scalaBinaryVersion,
   buildInfoKeys += BuildInfoKey.map(Compile / dependencyClasspath) {
       case (_, v) =>
         "classPath" -> v.seq
@@ -296,15 +297,95 @@ and in each platform specific section we added to buildInfo the platform's name:
 in this way we could leverage in our source code all the information required to run `scala-cli` and test our snippets:
 
 ```scala
-private val ClassPath: String = BuildInfo.classPath
-private val JavaHome: String  = BuildInfo.javaHome
-private val platform: String  = BuildInfo.platform
-private val scala3: Boolean   = BuildInfo.scala3
+private val ClassPath: String          = BuildInfo.classPath
+private val JavaHome: String           = BuildInfo.javaHome
+private val platform: String           = BuildInfo.platform
+private val scalaBinaryVersion: String = BuildInfo.scalaBinaryVersion
+private val scala3: Boolean            = BuildInfo.scala3
 ```
 
 ### Java instrumentation via fs2 `Process`
 
-https://github.com/typelevel/toolkit/blob/main/tests/shared/src/test/scala/org/typelevel/toolkit/ScalaCliProcess.scala#L34
+Once we had all the required components, invoking java was easy, we just created and spawned a [Process](https://fs2.io/#/io?id=processes) from the package `fs2.io.process`, that is implemented for every platform under the very same API:
+
+{% codeBlock(title="ScalaCliProcess.scala") %}
+```scala
+import buildinfo.BuildInfo
+import cats.effect.kernel.Resource
+import cats.effect.std.Console
+import cats.effect.IO
+import cats.syntax.parallel.*
+import fs2.Stream
+import fs2.io.file.Files
+import fs2.io.process.ProcessBuilder
+import munit.Assertions.fail
+
+object ScalaCliProcess {
+
+  private def scalaCli(args: List[String]): IO[Unit] = ProcessBuilder(
+    s"${BuildInfo.javaHome}/bin/java",
+    args.prependedAll(List("-cp", BuildInfo.classPath, "scala.cli.ScalaCli"))
+  ).spawn[IO]
+    .use(process =>
+      (
+        process.exitValue,
+        process.stdout.through(fs2.text.utf8.decode).compile.string,
+        process.stderr.through(fs2.text.utf8.decode).compile.string
+      ).parFlatMapN {
+        case (0, _, _) => IO.unit
+        case (exitCode, stdout, stdErr) =>
+          IO.println(stdout) >> Console[IO].errorln(stdErr) >> IO.delay(
+            fail(s"Non zero exit code ($exitCode) for ${args.mkString(" ")}")
+          )
+      }
+    )
+
+  //..
+
+}
+```
+{% end %}
+
+Let's dissect this function for a moment: 
+- `ProcessBuilder` constructor accepts a `String` command and a list of `String` arguments, it can then spawn the subprocess using `.spawn[IO]`, that will return a `Resource[IO, Process[IO]]`. Resource is a really useful Cats Effect datatype that deserves its own post, but you can find some information in [the official documentation](https://typelevel.org/cats-effect/docs/std/resource).
+- The `Process[IO]` resource is `use`d, and its exit code is gathered **in parallel** together with its stdout and stderr using `parFlatMapN`. This will prevent deadlocking, as we won't wait for a process' exit code without consuming its stdout and stderr streams.
+- Once we have the results, if the exit code is 0 we'll simply discard the content of the streams, otherwise we'll print everything that might be useful to debug possible errors, and we'll instruct our testing framework to fail with a specific message.
+
+Now we needed a method to write in a temporary file the source of each scala-cli script with all the information needed to correctly test the toolkit. Luckily for us `fs2` makes it easy:
+
+{% codeBlock(title="ScalaCliProcess.scala") %}
+```scala
+//...
+  private def writeToFile(scriptBody: String)(isTest: Boolean): Resource[IO, String] =
+    Files[IO].tempFile(None,"",if (isTest) "-toolkit.test.scala" else "-toolkit.scala", None)
+      .evalTap { path =>
+        val header = List(
+          s"//> using scala ${BuildInfo.scalaVersion}",
+          s"//> using toolkit typelevel:${BuildInfo.version}",
+          s"//> using platform ${BuildInfo.platform}"
+        ).mkString("", "\n", "\n")
+        Stream(header, scriptBody.stripMargin)
+          .through(Files[IO].writeUtf8(path))
+          .compile
+          .drain
+      }
+      .map(_.toString)
+```
+{% end %}
+
+Dissecting the function again we'll see that:
+- `Files[IO].tempFile` creates a temporary file as a `Resource`, whose release method will delete the temporary file.
+- The `isTest` parameter is used to pilot the extension that the temp file will have, as scala-cli requires a specific extension for both source and test files.
+- `.evalTap` will run an effectful side effect but returning the same `Resource` it was called on. In this case it will write the script content in the newly created temp file. This effect will run **AFTER** the file creation, but **BEFORE** any other effectful action that can be performed in the `use` method.
+- The path of the freshly baked scala-cli script will then be provided as a `Resource[IO, String]`
+
+The only thing we need to do now is to combine the two methods:
+
+{% codeBlock(title="ScalaCliProcess.scala") %}
+```scala
+```
+{% end %}
+
 
 TODO:
 - Don't forget to mention `tookit-test`
