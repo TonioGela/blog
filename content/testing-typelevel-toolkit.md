@@ -214,7 +214,7 @@ The thing we needed to intelligently instrument was a mere `java -cp <scala-cli 
 
 ### BuildInfo magic
 
-To begin we had to transform the `tests` project in to a cross project (using [sbt-crossproject](https://github.com/portable-scala/sbt-crossproject), that is embedded in [sbt-typelevel]) and make every subproject `test` command depend on the publication of the respective artifact:
+To begin we had to transform the `tests` project in to a cross project (using [sbt-crossproject](https://github.com/portable-scala/sbt-crossproject), that is embedded in [sbt-typelevel]) and make every subproject `test` command depend on the publication of the respective artifacts:
 
 {% codeBlock(title="build.sbt") %}
 ```scala
@@ -233,14 +233,14 @@ lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     )
   )
   .jvmSettings(
-    Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal).value
+    Test / test := (Test / test).dependsOn(toolkit.jvm / publishLocal, toolkitTest.jvm / publishLocal).value
   )
   .jsSettings(
-    Test / test := (Test / test).dependsOn(toolkit.js / publishLocal).value
+    Test / test := (Test / test).dependsOn(toolkit.js / publishLocal, toolkitTest.js / publishLocal).value
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
   .nativeSettings(
-    Test / test := (Test / test).dependsOn(toolkit.native / publishLocal).value
+    Test / test := (Test / test).dependsOn(toolkit.native / publishLocal, toolkitTest.native / publishLocal).value
   )
   .enablePlugins(BuildInfoPlugin, NoPublishPlugin)
 //...
@@ -308,7 +308,7 @@ private val scala3: Boolean            = BuildInfo.scala3
 
 Once we had all the required components, invoking java was easy, we just created and spawned a [Process](https://fs2.io/#/io?id=processes) from the package `fs2.io.process`, that is implemented for every platform under the very same API:
 
-{% codeBlock(title="ScalaCliProcess.scala") %}
+{% codeBlock(title="ScalaCliTest.scala") %}
 ```scala
 import buildinfo.BuildInfo
 import cats.effect.kernel.Resource
@@ -353,7 +353,7 @@ Let's dissect this function for a moment:
 
 Now we needed a method to write in a temporary file the source of each scala-cli script with all the information needed to correctly test the toolkit. Luckily for us `fs2` makes it easy:
 
-{% codeBlock(title="ScalaCliProcess.scala") %}
+{% codeBlock(title="ScalaCliTest.scala") %}
 ```scala
 //...
   private def writeToFile(scriptBody: String)(isTest: Boolean): Resource[IO, String] =
@@ -370,25 +370,89 @@ Now we needed a method to write in a temporary file the source of each scala-cli
           .drain
       }
       .map(_.toString)
+//...
 ```
 {% end %}
 
 Dissecting the function again we'll see that:
 - `Files[IO].tempFile` creates a temporary file as a `Resource`, whose release method will delete the temporary file.
-- The `isTest` parameter is used to pilot the extension that the temp file will have, as scala-cli requires a specific extension for both source and test files.
+- The `isTest` parameter is used to pilot the extension that the temp file will have, as `scala-cli` requires a specific extension for both source and test files.
 - `.evalTap` will run an effectful side effect but returning the same `Resource` it was called on. In this case it will write the script content in the newly created temp file. This effect will run **AFTER** the file creation, but **BEFORE** any other effectful action that can be performed in the `use` method.
+- In the effect we'll produce a set of `scala-cli` directives using `BuildInfo`, we'll write prepend them to the script's body and write everything in the temp file.
 - The path of the freshly baked scala-cli script will then be provided as a `Resource[IO, String]`
 
-The only thing we need to do now is to combine the two methods:
+The only thing we needed to do was to **combine the two methods** into a test:
 
-{% codeBlock(title="ScalaCliProcess.scala") %}
+{% codeBlock(title="ScalaCliTest.scala") %}
 ```scala
+//...
+  def testRun(testName:String)(body: String): IO[Unit] = 
+   test(testName)(writeToFile(body)(false).use(f => scalaCli("run" :: f :: Nil)))
+
+  def testTest(body: String): IO[Unit] = 
+    test(testName)(writeToFile(body)(true).use(f => scalaCli("test" :: f :: Nil)))
+//...
 ```
 {% end %}
 
+To recap, each of the two methods will run a munit test that:
+- write the `body` argument to a temporary file with the correct extension, prepending the correct `scala-cli` directives
+- run either the command `scala-cli run` or `scala-cli test` against the newly created file
+- use the exit code of the process to establish if the test is passed or not
+- delete the temporary file
 
-TODO:
-- Don't forget to mention `tookit-test`
+**Time to write and run the actual tests!**
+
+{% codeBlock(title="ToolkitTests.scala") %}
+```scala
+import munit.CatsEffectSuite
+import buildinfo.BuildInfo.scala3
+import ScalaCliTest.{testRun, testTest}
+
+class ToolkitTests extends CatsEffectSuite {
+
+  testRun("Toolkit should run a simple Hello Cats Effect") {
+    if (scala3)
+      """|import cats.effect.*
+         |
+         |object Hello extends IOApp.Simple:
+         |  def run = IO.println("Hello toolkit!")"""
+    else
+      """|import cats.effect._
+         |
+         |object Hello extends IOApp.Simple {
+         |  def run = IO.println("Hello toolkit!")
+         |}"""
+  }
+
+  testTest("Toolkit should execute a simple munit suite") {
+    if (scala3)
+      """|import cats.effect.*
+         |import munit.*
+         |
+         |class Test extends CatsEffectSuite:
+         |  test("test")(IO.unit)"""
+    else
+      """|import cats.effect._
+         |import munit._
+         |
+         |class Test extends CatsEffectSuite {
+         |  test("test")(IO.unit)
+         |}"""
+  }
+  //...
+}
+```
+{% end %}
+
+sbt test lancia test per tutte le piattaforme e versioni di scala, wooohooo
+
+Conclusioni
+
+With all this machinery in place we were able to:
+- ogni artefatto viene pubblicato e testato direttamente con scala-cli
+- abbiamo coverage completa per piattaforme e versioni di scala
+- non abbiamo toccato gh actions
 
 [Typelevel toolkit]: https://typelevel.org/toolkit/
 [Typelevel]: https://github.com/typelevel/
