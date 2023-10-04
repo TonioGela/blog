@@ -405,7 +405,7 @@ To recap, each of the two methods will run a munit test that:
 The **produced files** will look, for example, like this:
 
 ```scala
-//> using scala 3.3.1
+//> using scala 3
 //> using toolkit typelevel:typelevel:0.1.14-29-d717826-20231004T153011Z-SNAPSHOT
 //> using platform jvm
 
