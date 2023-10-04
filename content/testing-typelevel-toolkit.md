@@ -1,18 +1,18 @@
 +++
 title = "Testing the typelevel toolkit"
-date = 2023-09-25
+date = 2023-10-04
 slug = "testing-typelevel-toolkit"
 language="en"
 draft = true
 [extra]
-description = "How do you test a meta library that is meant to be used via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_"
+description = "How do you test a meta library that is meant to be used mainly via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_"
 +++
 
-The [Typelevel toolkit] is a metalibrary including some **great libraries** by [Typelevel], that was created to speed up the development of cross-platform applications in Scala and that I happily maintain since its creation. It's the Typelevel's flavour of the official [Scala Toolkit], a set of libraries to perform common programming tasks, that got its own section, full of examples, in the [official Scala documentation](https://docs.scala-lang.org/toolkit/introduction.html).
+The [Typelevel toolkit] is a metalibrary including some **great libraries** by [Typelevel], that was created to speed up the development of cross-platform applications in Scala and that I happily maintain since its creation. It's the Typelevel's flavour of the official [Scala Toolkit], a set of libraries to perform common programming tasks, that has its own section, full of examples, in the [official Scala documentation](https://docs.scala-lang.org/toolkit/introduction.html).
 
 One of the vaunts of the Typelevel's stack is the fact that (almost) every library is published for the all the **three officially supported Scala platforms: JVM, JS and Native**, and for this reason every library is **heavily tested** against every supported platform and Scala version, to ensure a near perfect cross-compatibility.
 
-Since its creation the [Typelevel toolkit] was lacking any sort of testing, mainly due to the fact that it is a mere collection of already battle tested libraries, so why bothering writing tests for it? As [this bug](https://github.com/typelevel/toolkit/issues/49) promptly reminded us, the main goal of the toolkit is to provide the most seamless experience while using [scala-cli]. 
+Since its creation the [Typelevel toolkit] was lacking any sort of testing, mainly due to the fact that it is a mere collection of already battle tested libraries, so why bothering writing tests for it? As [this bug](https://github.com/typelevel/toolkit/issues/49) promptly reminded us, the main goal of the toolkit is to provide the most seamless experience while using [scala-cli].
 
 Ideally you should be able to write:
 
@@ -84,7 +84,7 @@ lazy val tests = project
 ```
 {%end%}
 
-In this way the `test` sbt command will always run a `publishLocal` of the jvm flavor of the toolkit artifact. The project then needed to be set to **not publish its** artifact and to have some dependencies added to actually write the tests. The `scala-cli` dependency needed some trickery to use the Scala 3 artifact (the only one published) in Scala 2.13 as well.
+In this way the `test` sbt command will always run a `publishLocal` of the jvm flavor of the toolkit artifact. The project then needed to be set to **not publish its** artifact and to have some dependencies added to actually write the tests. The `scala-cli` dependency needed some trickery (`.cross(CrossVersion.for2_13Use3)`) to use the Scala 3 artifact, the only one published, in Scala 2.13 as well.
 
 {% codeBlock(title="build.sbt") %}
 ```scala
@@ -110,13 +110,15 @@ lazy val tests = project
 ```
 {%end%}
 
-The last bit needed was a way to add to the scripts' body which version of the artifact we were publishing right before the testing step and which Scala version we were running on, in order to test it properly. The only place were this **(non-static)** information was present was the build itself, but we needed to have them **as an information in the source code**. We definitively needed some sbt trickery to make it happen.
+The last bit needed was a way to add to the scripts' body **which version of the artifact we were publishing right before the testing step and which Scala version we were running on**, in order to test it properly. The only place were this **(non-static)** information was present was the build itself, but we needed to have them **as an information in the source code**. We definitively needed some sbt trickery to make it happen.
 
-There is an unspoken rule about the Scala community (or in the sbt users community to be precise) that you may already know about: "If you need some kind of sbt trickery, [eed3si9n] probably wrote a sbt plugin for that". 
+> There is an **unspoken rule** about the Scala community (or in the sbt users community to be precise) that you may already know about: 
+>
+> _If you need some kind of sbt trickery, **[eed3si9n]** probably wrote a sbt plugin for that_.
 
 This was our case with [sbt-buildinfo], a sbt plugin whose punchline is "_I know this because build.sbt knows this_". As you'll discover later, **sbt-buildinfo has been the corner stone of our second and more exhausting approach**, but what briefly does is generating Scala source from your build definitions, and thus makes build information available in the source code too.
 
-As `scalaVersion` and `version` are two information that are injected by default, we just needed to add the plugin into `project/plugins.sbt` and enabling it on `tests` in the build:
+As `scalaBinaryVersion` and `version` are two information that are injected by default, we just needed to add the plugin into `project/plugins.sbt` and enabling it on `tests` in the build:
 
 {% codeBlock(title="projects/plugins.sbt") %}
 ```scala
@@ -172,28 +174,27 @@ class ToolkitCompilationTest extends CatsEffectSuite {
         |}"""
   }
 
-  def testRun(testName: String)(scriptBody: String): Unit =
-    test(testName)(
-      Files[IO]
-        .tempFile(None, "", "-toolkit.scala", None)
-        .use { path =>
-            val header = List(
-              s"//> using scala ${BuildInfo.scalaVersion}",
-              s"//> using toolkit typelevel:${BuildInfo.version}",
-            ).mkString("", "\n", "\n")
-          Stream(header, scriptBody.stripMargin)
-            .through(Files[IO].writeUtf8(path))
-            .compile
-            .drain >> IO.delay(
-            ScalaCli.main(Array("run", path.toString))
-          )
-        }
-    )
+  // We'll describe this method in a later section of the post
+  def testRun(testName: String)(scriptBody: String): Unit = test(testName)(
+    Files[IO].tempFile(None, "", "-toolkit.scala", None)
+      .use { path =>
+          val header = List(
+            s"//> using scala ${BuildInfo.scalaVersion}",
+            s"//> using toolkit typelevel:${BuildInfo.version}",
+          ).mkString("", "\n", "\n")
+        Stream(header, scriptBody.stripMargin)
+          .through(Files[IO].writeUtf8(path))
+          .compile
+          .drain >> IO.delay(
+          ScalaCli.main(Array("run", path.toString))
+        )
+      }
+  )
 }
 ```
 {%end%}
 
-And with this easy and lean approach we were finally able to **test the toolkit**! :tada::tada::tada::tada::tada:
+And with this easy and lean approach we were finally able to **test the toolkit**! :tada::tada::tada:
 
 `Another pause for dramatic effect`
 
@@ -201,7 +202,7 @@ Except we weren't really testing everything: the `js` and `native` artifact were
 
 ## Second approach: Java Instrumentation
 
-The first tentative was good but not satisfying at all: we had to find a way to test the js and native artifacts too, but how? The scala-cli artifact is a **JVM Scala 3 only** artifact, and there's no way to use it as a dependency on other platforms. The only way to use it is just through the jvm, and that's **precisely what we decided to do**.
+The first tentative was good but not satisfying at all: we had to find a way to test the `js` and `native` artifacts too, but how? The `scala-cli` artifact is **JVM Scala 3 only**, and there's no way to use it as a dependency on other platforms. The only way to use it is just through the jvm, and that's **precisely what we decided to do**.
 
 Given that:
 - At least a JVM was present in the testing environment
@@ -247,7 +248,7 @@ lazy val tests = crossProject(JVMPlatform, JSPlatform, NativePlatform)
 ```
 {% end %}
 
-One thing to note is that we deliberately made a "mistake". The `munit-cats-effect` and `fs2-io` dependencies are declared using `%%%` the operator that not only appends `_${scalaBinaryVersion}` to the end of the artifact name but also the platform name (appending i.e. for a Scala 3 native dependency `_native0.4_3`), but the `scala-cli` one was declared using just `%%` and the `% Test` modifier was removed. In this way we were sure that, for **every platform**, the `Compile / dependencyClasspath` would have included just the jvm version of scala-cli.
+One thing to note is that we deliberately made a "mistake". The `munit-cats-effect` and `fs2-io` dependencies are declared using `%%%` the operator that not only appends `_${scalaBinaryVersion}` to the end of the artifact name but also the platform name (appending i.e. for a Scala 3 native dependency `_native0.4_3`), but the `scala-cli` one was declared using just `%%` and the `% Test` modifier was removed. In this way we were sure that, for **every platform**, the `Compile / dependencyClasspath` would have included just the **jvm version of scala-cli**.
 
 To inject the classpath into the source code we leveraged our beloved friend [sbt-buildinfo], that **it's not limited to inject just `SettingKey[T]`s** and/or static information (computed at project load time), but using its own syntax **can inject `TaskKey[T]`s after they've been evaluated** (and re-evaluated each time at compile). So in the common `.settings` we added: 
 
@@ -297,8 +298,8 @@ and in each platform specific section we added to buildInfo the platform's name:
 in this way we could leverage in our source code all the information required to run `scala-cli` and test our snippets:
 
 ```scala
-private val ClassPath: String          = BuildInfo.classPath
-private val JavaHome: String           = BuildInfo.javaHome
+private val classPath: String          = BuildInfo.classPath
+private val javaHome: String           = BuildInfo.javaHome
 private val platform: String           = BuildInfo.platform
 private val scalaBinaryVersion: String = BuildInfo.scalaBinaryVersion
 private val scala3: Boolean            = BuildInfo.scala3
@@ -346,9 +347,9 @@ object ScalaCliProcess {
 ```
 {% end %}
 
-Let's dissect this function for a moment: 
+Let's dissect this function:
 - `ProcessBuilder` constructor accepts a `String` command and a list of `String` arguments, it can then spawn the subprocess using `.spawn[IO]`, that will return a `Resource[IO, Process[IO]]`. Resource is a really useful Cats Effect datatype that deserves its own post, but you can find some information in [the official documentation](https://typelevel.org/cats-effect/docs/std/resource).
-- The `Process[IO]` resource is `use`d, and its exit code is gathered **in parallel** together with its stdout and stderr using `parFlatMapN`. This will prevent deadlocking, as we won't wait for a process' exit code without consuming its stdout and stderr streams.
+- The `Process[IO]` resource is `use`d, and its exit code is gathered, **in parallel**, together with its stdout and stderr using `parFlatMapN`. This will prevent deadlocking, as we won't wait for a process' exit code without consuming its stdout and stderr streams.
 - Once we have the results, if the exit code is 0 we'll simply discard the content of the streams, otherwise we'll print everything that might be useful to debug possible errors, and we'll instruct our testing framework to fail with a specific message.
 
 Now we needed a method to write in a temporary file the source of each scala-cli script with all the information needed to correctly test the toolkit. Luckily for us `fs2` makes it easy:
@@ -374,14 +375,14 @@ Now we needed a method to write in a temporary file the source of each scala-cli
 ```
 {% end %}
 
-Dissecting the function again we'll see that:
-- `Files[IO].tempFile` creates a temporary file as a `Resource`, whose release method will delete the temporary file.
+Dissecting this function too we'll see that:
+- `Files[IO].tempFile` creates a temporary file as a `Resource`, whose release method will **delete the temporary file**.
 - The `isTest` parameter is used to pilot the extension that the temp file will have, as `scala-cli` requires a specific extension for both source and test files.
 - `.evalTap` will run an effectful side effect but returning the same `Resource` it was called on. In this case it will write the script content in the newly created temp file. This effect will run **AFTER** the file creation, but **BEFORE** any other effectful action that can be performed in the `use` method.
-- In the effect we'll produce a set of `scala-cli` directives using `BuildInfo`, we'll write prepend them to the script's body and write everything in the temp file.
+- In the effect we'll produce a set of `scala-cli` directives using `BuildInfo`, we'll prepend them to the script's body and write everything in the temp file.
 - The path of the freshly baked scala-cli script will then be provided as a `Resource[IO, String]`
 
-The only thing we needed to do was to **combine the two methods** into a test:
+The only thing we needed to do was to **combine the two methods** into a testing method:
 
 {% codeBlock(title="ScalaCliTest.scala") %}
 ```scala
@@ -389,7 +390,7 @@ The only thing we needed to do was to **combine the two methods** into a test:
   def testRun(testName:String)(body: String): IO[Unit] = 
    test(testName)(writeToFile(body)(false).use(f => scalaCli("run" :: f :: Nil)))
 
-  def testTest(body: String): IO[Unit] = 
+  def testTest(testName:String)(body: String): IO[Unit] = 
     test(testName)(writeToFile(body)(true).use(f => scalaCli("test" :: f :: Nil)))
 //...
 ```
@@ -401,7 +402,9 @@ To recap, each of the two methods will run a munit test that:
 - use the exit code of the process to establish if the test is passed or not
 - delete the temporary file
 
-**Time to write and run the actual tests!**
+## Test writing
+
+It was then **Time to write and run the actual tests!**
 
 {% codeBlock(title="ToolkitTests.scala") %}
 ```scala
@@ -445,14 +448,9 @@ class ToolkitTests extends CatsEffectSuite {
 ```
 {% end %}
 
-sbt test lancia test per tutte le piattaforme e versioni di scala, wooohooo
+The little testing framework we wrote is now capable of both running and testing `scala-cli` scripts that use the typelevel toolkit, and it will test it in every platform and scala version. `sbt test` will now publish both the toolkit and the test toolkit, for every platform, right before running the unit tests, achieving in this way a complete coverage and adding reliability to our releases! :tada: 
 
-Conclusioni
-
-With all this machinery in place we were able to:
-- ogni artefatto viene pubblicato e testato direttamente con scala-cli
-- abbiamo coverage completa per piattaforme e versioni di scala
-- non abbiamo toccato gh actions
+And all of this was done without even touching our GitHub Actions, just with some `sbt`_-fu_.
 
 [Typelevel toolkit]: https://typelevel.org/toolkit/
 [Typelevel]: https://github.com/typelevel/
