@@ -402,6 +402,21 @@ To recap, each of the two methods will run a munit test that:
 - use the exit code of the process to establish if the test is passed or not
 - delete the temporary file
 
+The **produced files** will look, for example, like this:
+
+```scala
+//> using scala 3.3.1
+//> using toolkit typelevel:typelevel:0.1.14-29-d717826-20231004T153011Z-SNAPSHOT
+//> using platform jvm
+
+import cats.effect.*
+
+object Hello extends IOApp.Simple:
+  def run = IO.println("Hello toolkit!")
+```
+
+where `0.1.14-29-d717826-20231004T153011Z-SNAPSHOT` is the version of the toolkit that was just **published** locally by sbt.
+
 ## Test writing
 
 It was then **Time to write and run the actual tests!**
@@ -450,7 +465,7 @@ class ToolkitTests extends CatsEffectSuite {
 
 The little testing framework we wrote is now capable of both running and testing `scala-cli` scripts that use the typelevel toolkit, and it will test it in every platform and scala version. `sbt test` will now publish both the toolkit and the test toolkit, for every platform, right before running the unit tests, achieving in this way a complete coverage and adding reliability to our releases! :tada: 
 
-And all of this was done without even touching our GitHub Actions, just with some `sbt`_-fu_.
+And all of this was done without even touching our GitHub Actions, just with some `sbt`_-fu_, and **just using the libraries that are included in the toolkit itself** :sunglasses:
 
 [Typelevel toolkit]: https://typelevel.org/toolkit/
 [Typelevel]: https://github.com/typelevel/
