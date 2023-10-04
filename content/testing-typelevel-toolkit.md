@@ -5,7 +5,7 @@ slug = "testing-typelevel-toolkit"
 language="en"
 draft = true
 [extra]
-description = "How do you test a meta library that is meant to be used mainly via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_"
+description = "How do you test a meta library that is meant to be used mainly via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_."
 +++
 
 The [Typelevel toolkit] is a metalibrary including some **great libraries** by [Typelevel], that was created to speed up the development of cross-platform applications in Scala and that I happily maintain since its creation. It's the Typelevel's flavour of the official [Scala Toolkit], a set of libraries to perform common programming tasks, that has its own section, full of examples, in the [official Scala documentation](https://docs.scala-lang.org/toolkit/introduction.html).
