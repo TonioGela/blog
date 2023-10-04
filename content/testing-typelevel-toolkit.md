@@ -3,7 +3,7 @@ title = "Testing the typelevel toolkit"
 date = 2023-10-04
 slug = "testing-typelevel-toolkit"
 language="en"
-draft = true
+draft = false
 [extra]
 description = "How do you test a meta library that is meant to be used mainly via `scala-cli`? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of `sbt`_-fu_."
 +++
