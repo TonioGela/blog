@@ -377,7 +377,7 @@ Now we needed a method to write in a temporary file the source of each scala-cli
 
 Dissecting this function too we'll see that:
 - `Files[IO].tempFile` creates a temporary file as a `Resource`, whose release method will **delete the temporary file**.
-- The `isTest` parameter is used to pilot the extension that the temp file will have, as `scala-cli` requires a specific extension for both source and test files.
+- The `isTest` parameter is used to determine the extension that the temp file will have, as `scala-cli` requires a specific extension for both source and test files.
 - `.evalTap` will run an effectful side effect but returning the same `Resource` it was called on. In this case it will write the script content in the newly created temp file. This effect will run **AFTER** the file creation, but **BEFORE** any other effectful action that can be performed in the `use` method.
 - In the effect we'll produce a set of `scala-cli` directives using `BuildInfo`, we'll prepend them to the script's body and write everything in the temp file.
 - The path of the freshly baked scala-cli script will then be provided as a `Resource[IO, String]`
