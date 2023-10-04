@@ -1,5 +1,5 @@
 +++
-title = "Testing the Typelevel toolkit"
+title = "Integration testing the Typelevel toolkit"
 date = 2023-10-04
 slug = "testing-typelevel-toolkit"
 language="en"
