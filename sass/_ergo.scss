@@ -3,7 +3,7 @@
 html, body {
     background-color: $background;
     color: $text;
-    font-family: sans-serif;
+    font-family: system-ui, sans-serif;
     font-display: swap;
     font-weight: 400;
     z-index: 50;
@@ -94,7 +94,7 @@ ul {
 }
 
 pre {
-    font-family: ui-monospace, monospace;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
     border-radius: 0.25em;
     padding: 0.65em;
     overflow-x: auto;
@@ -294,7 +294,7 @@ tr {
     margin-bottom: 10px;
     font-size: 14px;
     font-weight: 700;
-    font-family: sans-serif;
+    font-family: system-ui, sans-serif;
     > li { display: inline; }
     display: block;
     opacity: 0.3;
