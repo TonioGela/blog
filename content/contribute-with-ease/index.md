@@ -5,5 +5,5 @@ slug = "contribute-with-ease"
 language="en"
 draft = true
 [extra]
-description = "Contribute!"
+description = "Contribute with ease!"
 +++
