@@ -7,6 +7,7 @@ feed_filename = "rss.xml"
 title = "TonioGela's"
 description = "\"In order to understand recursion, one must first understand recursion\""
 build_search_index = false
+minify_html = true
 
 [markdown]
 highlight_code = true

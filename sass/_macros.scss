@@ -15,7 +15,7 @@ figure.mini_logo {
         height: 26px;
         border-radius: 100%;
         margin: 0 auto;
-        background-size: 100%;
+        background-size: 100% !important;
         background-color: $accent;
         border: 2px solid $background;
         text-decoration: none;

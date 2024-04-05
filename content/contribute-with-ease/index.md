@@ -8,6 +8,8 @@ draft = true
 description = "Contribute with ease!"
 +++
 
+- Once upon a time I didn't know how to contribute
+
 - Create issues and bug reports
     - search a lot before
     - maybe ask on Discord

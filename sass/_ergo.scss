@@ -220,7 +220,7 @@ tr {
         height: 115px;
         display: block;
         margin: 0 auto;
-        background-size: 100%;
+        background-size: 100% !important;
         border-radius: 100%;
         background-color: $accent;
         border: 5px solid $background;
