@@ -35,8 +35,3 @@ blank = false
 [[extra.socials]]
 icon = "linkedin"
 uri = "https://www.linkedin.com/in/toniogela/"
-
-[extra.comments] # Optional
-repo = "TonioGela/toniogela.dev-comments"
-theme = "github-dark"
-term = "url"
