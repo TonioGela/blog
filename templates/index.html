@@ -22,13 +22,14 @@
     {% for page in paginator.pages %}
     <article id="{{page.title}}" class="post_list_item">
         <h1 class="article_title">
-            <a href="{{page.permalink}}" id="article_link">{{page.title}}</a>
+            <a href="{{page.permalink}}" id="article_link">{% if page.draft %}[DRAFT] {% endif %}{{page.title}}</a>
         </h1>
         {{ macros::frontmatter(
         classes="",
         date=page.date | default(value=""),
         word_count=page.word_count,
-        read_time=page.reading_time
+        read_time=page.reading_time,
+        authors=page.authors
         ) }}
         <p class="article_content">{{ page.extra.description | default(value=page.content | striptags | truncate) |
             markdown | safe

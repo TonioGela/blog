@@ -18,6 +18,9 @@ render_emoji = true
 profile = "avatar.webp"
 author = "Antonio Gelameris"
 
+[extra.authors]
+"TonioGela" = "https://github.com/TonioGela"
+
 [[extra.socials]]
 icon = "github"
 uri = "https://github.com/TonioGela"

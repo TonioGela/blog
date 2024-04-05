@@ -1,5 +1,5 @@
 +++
-title = "[DRAFT] Cross publishing with sbt-typelevel"
+title = "Cross publishing with sbt-typelevel"
 date = 2023-06-18
 slug = "cross-library"
 language="en"

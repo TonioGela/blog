@@ -295,7 +295,12 @@ tr {
     font-size: 14px;
     font-weight: 700;
     font-family: system-ui, sans-serif;
-    > li { display: inline; }
+    > li { 
+        display: inline;
+        > a {
+            text-decoration: none;
+        }
+    }
     display: block;
     opacity: 0.3;
     transition: opacity 0.70s ease-out 1.7s;

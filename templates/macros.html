@@ -19,13 +19,8 @@
 {% macro social_common(classes) %}
 {% set extra = config.extra %}
 {% for social in extra.socials %}
-{{ self::social(
-display=social.display | default(value=""),
-icon=social.icon,
-uri=social.uri,
-classes=classes,
-blank=social.blank | default(value=true)
-) }}
+{{ self::social( display=social.display | default(value=""), icon=social.icon, uri=social.uri, classes=classes,
+blank=social.blank | default(value=true)) }}
 {% endfor %}
 
 {% if config.generate_feed %}
@@ -47,15 +42,18 @@ blank=true
 {% endif %}
 {% endmacro social_common %}
 
-<!-- classes=any extra styling, bsize=buttonsize -->
 {% macro social_list(classes, bsize) %}
 <ul class="social_list {{classes}}">
     {{ self::social_common(classes="button " ~ bsize ~ " font_faint") }}
 </ul>
 {% endmacro social_list %}
 
-{% macro frontmatter(classes, date, word_count, read_time) %}
+{% macro frontmatter(classes, date, word_count, read_time, authors) %}
 <ul class="frontmatter {{classes}}" id="frontmatter">
+    {% for author in authors %}
+    <li><a href="{{config.extra.authors[author]}}">@{{author}}</a></li>
+    <li class="dotDivider"></li>
+    {% endfor %}
     <li>
         <time class="article_time" datetime="{{date}}">{{ date | date(format="%B %d, %Y") }}</time>
     </li>
