@@ -15,6 +15,14 @@ extra_syntaxes_and_themes = ["syntaxes"]
 highlight_theme = "base16-ocean-dark"
 render_emoji = true
 
+[link_checker]
+skip_prefixes = [
+    "https://twitter.com", # Twitter returns 403 in most cases
+]
+skip_anchor_prefixes = [
+    "https://github.com/casey/just", # I'm simply too lazy to fix that post
+]
+
 [extra]
 profile = "avatar.webp"
 author = "Antonio Gelameris"

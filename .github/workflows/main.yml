@@ -11,4 +11,7 @@ jobs:
         uses: shalzz/zola-deploy-action@v0.18.0
         env:
           PAGES_BRANCH: gh-pages
+          CHECK_LINKS: true
+          CHECK_FLAGS: --drafts
+          BUILD_THEMES: false
           TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -406,7 +406,7 @@ In the following weeks, I'll try to write about other **command-line** tools I u
 [Decline]: https://ben.kirw.in/decline/
 [Ciris]: https://cir.is/
 [Zola]: https://www.getzola.org/
-[RSS]: https://toniogela.dev/atom.xml
+[RSS]: https://toniogela.dev/rss.xml
 [Twitter]:https://twitter.com/toniogela
 [ShellCheck]: https://www.shellcheck.net/
 [Stephen Bourne]: https://en.wikipedia.org/wiki/Stephen_R._Bourne
