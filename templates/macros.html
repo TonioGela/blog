@@ -17,29 +17,20 @@
 {% endmacro %}
 
 {% macro social_common(classes) %}
-{% set extra = config.extra %}
-{% for social in extra.socials %}
-{{ self::social( display=social.display | default(value=""), icon=social.icon, uri=social.uri, classes=classes,
-blank=social.blank | default(value=true)) }}
-{% endfor %}
+    {% set extra = config.extra %}
+    {% for social in extra.socials %}
+        {{ self::social( display=social.display | default(value=""), icon=social.icon, uri=social.uri, classes=classes, blank=social.blank | default(value=true)) }}
+    {% endfor %}
 
-{% if config.generate_feed %}
-
-{% set feed_path = config.feed_filename | default(value="rss.xml") %}
-{% if lang == "en" %}
-{% set feed_uri = feed_path %}
-{% else %}
-{% set feed_uri = lang ~ "/" ~ feed_path %}
-{% endif %}
-
-{{ self::social(
-display="",
-icon="rss",
-uri=feed_uri,
-classes=classes,
-blank=true
-) }}
-{% endif %}
+    {% if config.generate_feed %}
+    {% set feed_path = config.feed_filename | default(value="rss.xml") %}
+        {% if lang == "en" %}
+            {% set feed_uri = feed_path %}
+        {% else %}
+            {% set feed_uri = lang ~ "/" ~ feed_path %}
+        {% endif %}
+    {{ self::social(display="",icon="rss",uri=feed_uri,classes=classes,blank=true) }}
+    {% endif %}
 {% endmacro social_common %}
 
 {% macro social_list(classes, bsize) %}
@@ -63,3 +54,7 @@ blank=true
     <li> {{read_time}} min </li>
 </ul>
 {% endmacro frontmatter %}
+
+{% macro urlOf(path) %}
+    {{get_url(path=path, cachebust=true)}}
+{% endmacro urlOf %}

@@ -40,14 +40,14 @@
   {% block rss %}
   <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path="rss.xml", trailing_slash=false) }}">
   {% endblock %}
-  <link rel="shortcut icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
-  <link rel="icon" href="{{ config.base_url }}/favicon.ico" type="image/x-icon">
-  <link rel="preload" as="style" href="{{ config.base_url }}/colors.css" />
-  <link rel="preload" as="image" href="{{ config.base_url }}/{{config.extra.profile}}">
+  <link rel="shortcut icon" href="{{ get_url(path="favicon.ico", cachebust=true) }}" type="image/x-icon">
+  <link rel="icon" href="{{ get_url(path="favicon.ico", cachebust=true) }}" type="image/x-icon">
+  <link rel="preload" as="style" href="{{ get_url(path="colors.css", cachebust=true) }}" />
+  <link rel="preload" as="image" href="{{ macros::urlOf(path=config.extra.profile) }}">
   {% block custom_preload %}{% endblock custom_preload %}
   <link rel="preconnect" href="https://giscus.app" crossorigin>
-  <link rel="stylesheet" href="{{ config.base_url }}/colors.css" />
-  <script async="true" defer="true" src="{{ config.base_url }}/instantpage-5.1.0.js" type="module"></script>
+  <link rel="stylesheet" href="{{ get_url(path="colors.css", cachebust=true) }}" integrity="sha512-{{ get_hash(path="colors.css", sha_type=512, base64=true) | safe }}" />
+  <script async="true" defer="true" src="{{ get_url(path="instantpage-5.1.0.js", cachebust=true) }}"  integrity="sha512-{{ get_hash(path="instantpage-5.1.0.js", sha_type=512, base64=true) | safe }}" type="module"></script>
   {% endblock head %}
 </head>
 
