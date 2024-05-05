@@ -21,6 +21,7 @@ skip_prefixes = [
 ]
 skip_anchor_prefixes = [
     "https://github.com/casey/just", # I'm simply too lazy to fix that post
+    "https://github.com/cli/cli",    # It can't find #installation on the page, idk why
 ]
 
 [extra]
