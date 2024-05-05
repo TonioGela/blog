@@ -1,6 +1,7 @@
 @import 'macros';
 
-html, body {
+html,
+body {
     background-color: $background;
     color: $text;
     font-family: system-ui, sans-serif;
@@ -10,7 +11,12 @@ html, body {
     min-height: 100vh;
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-weight: 700;
     margin-bottom: 12px;
     line-height: 1;
@@ -30,11 +36,15 @@ h3 {
     font-size: 1.4em;
 }
 
-h4,h5,h6 {
+h4,
+h5,
+h6 {
     font-size: 1.2em;
 }
 
-p,li,ul {
+p,
+li,
+ul {
     font-size: 1em;
     color: $text;
     line-height: 1.7;
@@ -48,8 +58,14 @@ ul {
     border: 1px solid darken($code-non-pre-background, 15%);
     border-radius: 3px;
     margin: 1em 0;
-    
+
     .code-title {
+        padding: 0.65em;
+        border-top-left-radius: 0.25em;
+        border-top-right-radius: 0.25em;
+        background-color: $accent;
+        font-size: 0.8em;
+
         .dot-red {
             height: 0.6em;
             width: 0.6em;
@@ -57,6 +73,7 @@ ul {
             border-radius: 50%;
             border: 1px solid darken($code-non-pre-background, 15%);
             display: inline-block;
+            margin-right: 0.15em;
         }
 
         .dot-yellow {
@@ -66,6 +83,7 @@ ul {
             border-radius: 50%;
             border: 1px solid darken($code-non-pre-background, 15%);
             display: inline-block;
+            margin-right: 0.15em;
         }
 
         .dot-green {
@@ -76,12 +94,6 @@ ul {
             border: 1px solid darken($code-non-pre-background, 15%);
             display: inline-block;
         }
-
-        padding: 0.65em;
-        border-top-left-radius: 0.25em;
-        border-top-right-radius: 0.25em;
-        background-color: $accent;
-        font-size: 0.8em;
     }
 
     .code-body {
@@ -99,6 +111,7 @@ pre {
     padding: 0.65em;
     overflow-x: auto;
     white-space: pre;
+
     code {
         background-color: unset;
         padding: unset;
@@ -127,7 +140,13 @@ code {
         margin-right: 0px;
         margin-left: 0px;
     }
-    h1,h2,h3,h4,h5,h6 {
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         text-align: left;
     }
 }
@@ -153,10 +172,12 @@ article {
         text-decoration-thickness: 1.5px;
         color: $text;
     }
+
     a:link {
         transition-property: all;
         transition-duration: 0.35s;
     }
+
     a:hover {
         outline: 0;
         text-decoration-color: $accent;
@@ -166,26 +187,31 @@ article {
 
 details {
     &:hover {
-        cursor:pointer;
+        cursor: pointer;
     }
+
     &:focus {
         outline: none;
     }
-    &[open] summary ~ * {
+
+    &[open] summary~* {
         animation: sweep 400ms ease-in-out;
         outline: none;
     }
 }
 
 
-table, th, td {
+table,
+th,
+td {
     border-spacing: 0;
     border-collapse: collapse;
     border: 1px solid $text;
     padding: 0.33em;
 }
 
-th, td {
+th,
+td {
     margin: auto;
 }
 
@@ -195,18 +221,27 @@ tr {
 }
 
 @keyframes sweep {
-    0% {opacity: 0; margin-left: -10px;}
-    100% {opacity: 1; margin-left: 0px;}
+    0% {
+        opacity: 0;
+        margin-left: -10px;
+    }
+
+    100% {
+        opacity: 1;
+        margin-left: 0px;
+    }
 }
 
 @keyframes slidein {
     0% {
         transform: translateY(-200%);
     }
+
     100% {
         transform: translateY(0);
     }
 }
+
 .user_logo {
     width: 125px;
     height: 125px;
@@ -215,7 +250,8 @@ tr {
     border: 5px solid $accent;
     border-radius: 100%;
     margin: 0 auto;
-    > a {
+
+    >a {
         width: 115px;
         height: 115px;
         display: block;
@@ -246,18 +282,23 @@ tr {
     margin-bottom: 50px;
     border-bottom: 0px solid $accent;
     text-align: center;
-    > h1,h2,h3 {
+
+    >h1,
+    h2,
+    h3 {
         max-width: 600px;
         margin: auto;
         margin-bottom: 0.25em;
         padding: 0.25em;
     }
-    > h2 {
+
+    >h2 {
         font-size: 2.5em;
         font-weight: 900;
         color: $accent;
     }
-    > div {
+
+    >div {
         opacity: 0.7;
         font-weight: 300;
         line-height: 1.2;
@@ -265,6 +306,7 @@ tr {
         max-width: 625px;
         display: block;
         text-align: center;
+
         * {
             max-width: 625px;
         }
@@ -284,12 +326,15 @@ tr {
     font-size: 14px;
     font-weight: 700;
     font-family: system-ui, sans-serif;
-    > li { 
+
+    >li {
         display: inline;
-        > a {
+
+        >a {
             text-decoration: none;
         }
     }
+
     display: block;
     opacity: 0.3;
     transition: opacity 0.70s ease-out 1.7s;
@@ -313,13 +358,15 @@ tr {
     padding-bottom: 30px;
     display: block;
     position: relative;
-    > article {
+
+    >article {
         display: block;
         text-align: justify;
     }
 }
 
-a#article_link, a#article_link:visited {
+a#article_link,
+a#article_link:visited {
     transition: all 0.35s ease-out;
     text-decoration: none;
     color: $title;
@@ -330,8 +377,8 @@ a#article_link:hover {
     transition: all 0.35s ease-in;
 }
 
-h1.article_title:hover + ul#frontmatter {
-    opacity:1;
+h1.article_title:hover+ul#frontmatter {
+    opacity: 1;
     transition: opacity 0.30s ease-in;
 }
 
@@ -346,8 +393,8 @@ a.anchor:hover {
     transition: all 0.35s ease-in;
 }
 
-a.anchor:hover + ul#frontmatter {
-    opacity:1;
+a.anchor:hover+ul#frontmatter {
+    opacity: 1;
     transition: opacity 0.30s ease-in;
 }
 
@@ -358,16 +405,18 @@ h1.article_title {
     line-height: 1.5em;
     margin-top: 0px;
     font-weight: 700;
-    > a {
+
+    >a {
         border-bottom: unset;
     }
-    > a:focus {
+
+    >a:focus {
         outline: none;
     }
 }
 
 img {
-    max-width:100%;
+    max-width: 100%;
 }
 
 .post_list_item {
@@ -376,19 +425,28 @@ img {
     margin: auto;
     margin-bottom: 4em;
     max-width: $width;
-    > ul {
+
+    >ul {
         max-width: $width;
     }
-    > a {
+
+    >a {
         margin-top: 0.5em;
     }
-    > p {
+
+    >p {
         max-width: $width;
         display: block;
         margin: auto;
         color: $text;
     }
-    > h1,h2,h3,h4,h5,h6 {
+
+    >h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         max-width: $width;
     }
 }
@@ -408,13 +466,15 @@ nav.pagination {
     display: block;
     z-index: 100;
     position: relative;
-    > span.prev {
+
+    >span.prev {
         display: block;
         float: left;
         z-index: 100;
     }
-    > span.next {
-        display:block;
+
+    >span.next {
+        display: block;
         float: right;
         z-index: 100;
     }
@@ -428,7 +488,8 @@ nav.pagination {
     text-align: justify;
     position: relative;
     max-width: $width;
-    > article {
+
+    >article {
         margin-bottom: 30px;
         position: relative;
         display: inherit;
@@ -440,7 +501,6 @@ nav.pagination {
     transition: opacity 0.35 ease-in-out 2s;
     margin: 0 auto;
 }
-
 
 .extra_small {
     font-size: 14px;
@@ -493,14 +553,14 @@ nav.pagination {
 }
 
 .youtube {
-    > iframe {
+    >iframe {
         width: 100%;
         height: 340px;
     }
 }
 
 .vimeo {
-    > iframe {
+    >iframe {
         width: 100%;
         height: 340px;
     }
