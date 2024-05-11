@@ -80,7 +80,11 @@ Congratulations you're now able to commmit on GitHub, and you've completed the f
 
 # Using GitHub to interact with other developers
 
-- Contributing != Creating Pull Requests
+One of my strongest beliefs when I began contributing was that **contributing consisted solely on writing proper code**, submitting it to the corresponding repository and waiting for a review by some grownup and more skilled developer that I was.
+
+What I realised after I spent some time contibuting and maintaing public code is that writing code and submitting pull requests is just **one of the many ways a user can help improving a library**, and what I believe is that there surely are **more important** (and possibly simpler) actions that any library user can perform to help everyone (maintainer and users) **evolving both the library and its user experience**.
+
+
 - Issues, labels, search a lot
 - If there's a Discord, or a chat channel you can use it
 - Read CONTRIBUTING, use templates
