@@ -80,16 +80,46 @@ Congratulations you're now able to commmit on GitHub, and you've completed the f
 
 # Using GitHub to interact with other developers
 
-One of my strongest beliefs when I began contributing was that **contributing consisted solely on writing proper code**, submitting it to the corresponding repository and waiting for a review by some grownup and more skilled developer that I was.
+One of my strongest beliefs when I began contributing was that **contributing consisted solely on writing proper code**, submitting it to the corresponding repository and waiting for a review by some grownup developer.
 
 What I realised after I spent some time contibuting and maintaing public code is that writing code and submitting pull requests is just **one of the many ways a user can help improving a library**, and what I believe is that there surely are **more important** (and possibly simpler) actions that any library user can perform to help everyone (maintainer and users) **evolving both the library and its user experience**.
 
+Since the reasons that usually bring a developer to search for a library's repo page, in my opinion, are mainly these:
+- Check which is the **last version** of that lib and copy its import string (like `"dev.foo" %% "foo-lib" %% "1.0.0"`)
+- Read its documentation **to learn how to use it**
+- Read its documentation to understand if the **weird behaviour** they're getting **is a bug**
+- **Search within the issues** whether someone else had the very same experience they're having
+- **Open a bug** after if the previous three resulted in nothing
 
-- Issues, labels, search a lot
+every user can contribute simply making **these users' interactions with the library and its documentation more accessible, more enjoyable and simply easier**.
+
+> **Contributing to the library documentation enhances the overall usability and accessibility of the project, and it's also the simplest action with the highest effort-to-impact ratio that a user can take.**
+
+A non trivial and possibly funnier way to help other users is to **write blog posts on how to use the library** or what problem you solved at work using it. Open Source libraries documentations usually have sections that link to blog post of happy users, be sure to signal to the maintainers that you wrote an enthusiastic post that it's worth getting added there and you'll possibly see your blog ranking up in SEO too.
+
+> **Spotting and reporting bugs** is also incredibly important for keeping an open-source library in top shape. Don't be yet another developer that expects libraries to just work and that complains when they don't. It's not useful to anyone, yourself included, and denigrates the free and voluntary work that open source contributors did.
+
+Before reporting a bug opening a new issue just make sure to check the existing ones first to avoid any repeats and be sure to **add all the context details as possible**. In these cases adding an [**MRE**](https://en.wikipedia.org/wiki/Minimal_reproducible_example) is extremely useful for mantainers and contributors, as they can use your example as a unit test to turn green while fixing the bug.
+
+A really appreciated kind of MREs in the Scala OSS ecosystem are the ones using [scala-cli], as in a single file you can define the specific combination of JVM, library and language versions that will cause the specific piece of code to fail the expectations. Imagine reading a bug report that contains this snippet:
+
+```scala
+//> using scala 3.4.2
+//> using jvm 8
+//> using dep dev.foo::foo-lib::1.0.0
+
+@main def foo = assert(foo.method("specific argument value"))
+```
+
+while reading one saying just that "Sometimes `foo.method` returns a false". With the latter, most of the investigation is supposed to be done by the people attempting to solve the bug, possibly spending a lot of time trying to guess with (scala, jvm, lib) versions combination produces the faulty behaviour. This way, new problems get fixed faster, and the software stays solid and reliable for everyone.
+
+> SHALL I SHOW HOW TO OPEN AN ISSUE?
+
+### There's not just Github
+
 - If there's a Discord, or a chat channel you can use it
-- Read CONTRIBUTING, use templates
-- Info section on the upper right part
-- Use scala-cli for MRE
+
+# Contributing to the library
 
 ---
 
@@ -110,5 +140,6 @@ What I realised after I spent some time contibuting and maintaing public code is
 
 [feral]: https://github.com/typelevel/feral
 [Scala.js]: https://www.scala-js.org/
+[scala-cli]: https://scala-cli.virtuslab.org/
 [Cats Effect]: https://typelevel.org/cats-effect/
 [git]: https://git-scm.com/
