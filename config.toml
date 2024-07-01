@@ -1,9 +1,9 @@
 base_url = "https://toniogela.dev"
 default_language = "en"
 compile_sass = true
-generate_feed = true
+generate_feeds = true
 feed_limit = 1000
-feed_filename = "rss.xml"
+feed_filenames = ["rss.xml"]
 title = "TonioGela's"
 description = "\"In order to understand recursion, one must first understand recursion\""
 build_search_index = false
