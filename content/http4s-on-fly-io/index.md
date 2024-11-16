@@ -287,13 +287,6 @@ Built docker image, run it with
 
 ## Deploying the server or fly.io
 
-Fly has a free [Hobby Plan](https://fly.io/docs/about/pricing/#free-allowances) that includes: 
-- 3 shared-cpu-1x with 256mb of RAM
-- 3GB persistent volume storage (in total)
-- 160GB outbound data transfer
-
-So it's perfectly feasible for small apps like the one we're going to deploy, plus it automatically produces for free [the first ten](https://fly.io/docs/about/pricing/#managed-ssl-certificates) single-hostname HTTPS certificates using [Let's Encrypt]. Last but not least, fly.io offers [Fly Postgres](https://fly.io/docs/postgres/) to help you bootstrap and manage a database cluster for your apps. It's important to know that [it's not a fully managed database](https://fly.io/docs/postgres/getting-started/what-you-should-know/) like in other platforms.
-
 Creating our app is as simple as launching a command:
 
 ```cli
