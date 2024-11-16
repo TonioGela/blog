@@ -373,8 +373,6 @@ Obviously, [just] doesn't automatically solve every problem you might encounter 
 and **HIPSTER ALERT**:
 - It has its own [Github Action](https://github.com/extractions/setup-just)
 - [Syntax Highlight](https://github.com/casey/just#editor-support) for Vim, Emacs and Visual Studio Code is already available 
-    - (I'll try to port it to a `sublime-syntax` to use it in this page with the [syntax highlighting](https://www.getzola.org/documentation/content/syntax-highlighting/) system of Zola)
-    - `[EDIT]` I ported it! You can see it [here](https://github.com/casey/just#sublime-text)
 
 Creating practical recipes, installing the prebuilt binaries, and the command-line completion scripts can probably convince people to use it. If not, try documenting your software, using examples in the `justfile` that's sitting in the home of the repo, or try harder using
 
@@ -391,10 +389,6 @@ as the `/etc/motd` for the prod machines.
 
 ##### More Tools!
 
-In the following weeks, I'll try to write about other **command-line** tools I use every day (at least I'll try :sweat_smile:), so follow me on [Twitter] to get updates or subscribe to [RSS].
-
-`[EDIT]` I've been mentioned by [@casey](https://github.com/casey), just's developer [on twitter](https://twitter.com/rodarmor/status/1402822761639153668). Thanks @casey!
-
 <details>
     <summary>SPOILER: next tool</summary>
 <a href="https://www.getzola.org/">Zola</a> : the templating engine I'm using for this blog :)
@@ -406,7 +400,5 @@ In the following weeks, I'll try to write about other **command-line** tools I u
 [Decline]: https://ben.kirw.in/decline/
 [Ciris]: https://cir.is/
 [Zola]: https://www.getzola.org/
-[RSS]: https://toniogela.dev/rss.xml
-[Twitter]:https://twitter.com/toniogela
 [ShellCheck]: https://www.shellcheck.net/
 [Stephen Bourne]: https://en.wikipedia.org/wiki/Stephen_R._Bourne
