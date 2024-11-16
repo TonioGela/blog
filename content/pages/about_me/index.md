@@ -34,5 +34,5 @@ The whole site is built with [zola]
 [Scala]: https://www.scala-lang.org
 [iov42]: https://iov42.com
 [Mastodon]: https://hachyderm.io/@toniogela
-[Scala Italy's Discord Server]: https://discord.gg/channels/886958942008270848
+[Scala Italy's Discord Server]: https://discord.gg/VCF2NFhecS
 [Typelevel's Discord Server]: https://discord.com/channels/632277896739946517
