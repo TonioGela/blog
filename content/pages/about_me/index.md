@@ -6,7 +6,7 @@ template="single.html"
 description = "It's a me! Antonio!"
 +++
 
-I'm Antonio Gelameris, a {{ resize_image(path="pages/about_me/scala.png", width=15, height=15, op="fit") }} [Scala] developer currently working at [iov42]
+I'm Antonio Gelameris, a {{ resize_image(path="pages/about_me/scala.png", width=15, height=15, op="fit") }} [Scala] developer currently working at [Hypervolt]
 
 I began this blog mainly for **two** reasons:
 
@@ -32,7 +32,7 @@ The whole site is built with [zola]
 
 [zola]: https://www.getzola.org
 [Scala]: https://www.scala-lang.org
-[iov42]: https://iov42.com
+[Hypervolt]: https://www.hypervolt.co.uk/
 [Mastodon]: https://hachyderm.io/@toniogela
 [Scala Italy's Discord Server]: https://discord.gg/VCF2NFhecS
 [Typelevel's Discord Server]: https://discord.com/channels/632277896739946517
