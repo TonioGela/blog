@@ -84,7 +84,7 @@ Digging deep into the metadata syntax documentation, in the [inputs] section, yo
 
 So to get our input parameters, reading the environment variables `INPUT_NUMBER-ONE` and `INPUT_NUMBER-TWO` will be enough.
 
-Last but not least, we need to find a way to define our action's output. Picking up the shovel again and digging further into the documentation, we'll discover [a section](https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs#overview) that enlightens us about the existence of a `GITHUB_OUTPUT` environment variable containing a file's path. This file will serve as an output buffer for the currently running step, and using it is as simple as writing the string `<output_variable_name>=<value>` in it.
+Last but not least, we need to find a way to define our action's output. Picking up the shovel again and digging further into the documentation, we'll discover [a section](https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs) that enlightens us about the existence of a `GITHUB_OUTPUT` environment variable containing a file's path. This file will serve as an output buffer for the currently running step, and using it is as simple as writing the string `<output_variable_name>=<value>` in it.
 
 In our case, we'll have to write `result=<sum of the inputs>` in the file at path `$GITHUB_OUTPUT`, and we'll be done.
 
