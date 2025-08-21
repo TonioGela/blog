@@ -1,0 +1,229 @@
+<!doctype html><html lang=en><head><meta content="IE=edge" http-equiv=X-UA-Compatible><meta content="text/html; charset=utf-8; X-Content-Type-Options=nosniff" http-equiv=Content-Type><meta content="frame-ancestors 'none'; base-uri 'self';" http-equiv=Content-Security-Policy><meta content="index, follow" name=robots><meta content="3 days" name=revisit-after><meta content="Antonio Gelameris" name=author><title>Just use just | TonioGela's</title><meta content="Just use just | TonioGela's" name=title><meta content="Just use just | TonioGela's" property=og:title><meta content="Just use just | TonioGela's" property=twitter:title><meta content="Fast, well designed and well documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output, variadic arguments, custom interpreters and much more.
+" name=description><meta content="Fast, well designed and well documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output, variadic arguments, custom interpreters and much more.
+" property=og:description><meta content="Fast, well designed and well documented command-line tool written in Rust. Handy way to save and run project-specific commands that features colored output, variadic arguments, custom interpreters and much more.
+" property=twitter:description><meta content=website property=og:type><meta content=https://toniogela.dev/just/ property=og:url><meta content=summary property=twitter:card><meta content=https://toniogela.dev/just/ property=twitter:url><meta content=@toniogela name=twitter:site><meta content=@toniogela name=twitter:creator><meta content="width=device-width,initial-scale=1.0,maximum-scale=3" name=viewport><link href=https://toniogela.dev/rss.xml rel=alternate title=RSS type=application/rss+xml><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel="shortcut icon" type=image/x-icon><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel=icon type=image/x-icon><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" as=style rel=preload><link href="
+    https://toniogela.dev/avatar.webp?h=bb598620204fd77b7659
+" as=image rel=preload><link crossorigin href=https://giscus.app rel=preconnect><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" integrity="sha512-o0dvhjSBealgvuJzmYvFePyVuQvaOn3W76rseE83rvGCQTtaLHrVmd71648TAvmxyTRRKgHUBshRCelRiGIyng==" rel=stylesheet><script integrity="sha512-DKtiGDYXXQYuisRMLzYB5k06+5giy0VlJem3LveN+feK32OGPWVltPBsc7Zuxstr4WQqJhOzQkWpH4QDPhuyLg==" src="https://toniogela.dev/instantpage-5.1.0.js?h=fa5c34371df3acd378bd" async defer type=module></script><body data-instant-allow-external-links><nav class=overlord id=overlord><figure class=mini_logo><a aria-label=Homepage href=https://toniogela.dev style=background-image:url(https://toniogela.dev/avatar.webp)></a></figure><h5><a aria-label=Homepage href=https://toniogela.dev>TonioGela's</a></h5></nav><section class=post_container><article><h1 class=article_title><a href=https://toniogela.dev/just/ id=article_link>Just use just</a></h1><ul class="frontmatter frontmatter_page" id=frontmatter><li><time class=article_time datetime=2021-06-02>June 02, 2021</time><li class=dotDivider><li>1364 words<li class=dotDivider><li>7 min</ul><p>OMG, the blog is live! 😱 And this is the first article! 😱<p>This first article will be about <a href=https://github.com/casey/just>Just</a> a <strong>command-line</strong> tool I recently discovered that immediately became essential in many work projects. Since it's a tool written in <strong>Rust</strong>, it's fast, it's well designed and documented, it features colored output, and it's an essential step in your terminal's <em>hypsterization</em> process!<p>Let's suppose you've just deployed your application via <code>scp</code> (<em>sigh!</em>) on one of your work's machines. Maybe your application was already built using tools like <a href=https://ben.kirw.in/decline/>Decline</a>, so it's already capable of parsing command-line options and flags and printing a complete help like:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ foo --help
+</span><span>Usage:
+</span><span>    foo schedule
+</span><span>    foo encrypt
+</span><span>    foo decrypt
+</span><span>
+</span><span>foo tool, it can encrypt and decrypt files and schedule operations
+</span><span>
+</span><span>Options and flags:
+</span><span>    --help
+</span><span>        Display this help text.
+</span><span>
+</span><span>Subcommands:
+</span><span>    schedule
+</span><span>        schedules encryptions/decriptions
+</span><span>    encrypt
+</span><span>        encrypts files
+</span><span>    decrypt
+</span><span>        decrypts files
+</span></code></pre><p>But let's add a <strong>slow-changing configuration</strong> to the scenario, which changes so often that it doesn't justify a refactor to add a library like <a href=https://cir.is/>Ciris</a> to your code. Maybe some <strong>non-power users</strong> need to change that configuration once a week or month <em>because of reasons</em>.<p>What's missing? Maybe there's a local MySql that needs to be queried for maintenance operations, or perhaps a remote database/storage/service/whatever that requires another command-line tool to be interacted with.<p>This is one of the times in which unmaintained, undocumented, faulty crap like <strong>maintenance_script.sh</strong> or <strong>fix_for_prod.sh</strong> begins to spread around. In no time, the situation will look similar to<pre class=language-bash data-lang=bash style=color:#c0c5ce;background-color:#2b303b><code class=language-bash data-lang=bash><span style=color:#bf616a>/home/applicative_account/perform_operation.sh
+</span><span style=color:#bf616a>/home/colleague1/perform_operation_copy.sh
+</span><span style=color:#bf616a>/home/colleague1/old_version/perform_operation_as_root.sh
+</span><span style=color:#bf616a>/home/sre_guy/this_should_fix_everything.sh
+</span><span style=color:#bf616a>/home/random_data_scientist/do_not_run.sh </span><span style=color:#65737e>#(ofc it was chmod +x)
+</span></code></pre><p>90% of them will have the shebang <code>#!/bin/bash</code> while the 10% <code>#!/bin/sh</code>. Some of them will have <code>zsh</code> commands because there are people around that uses <code>zsh</code> (like me) that forgets that it doesn't share 100% of the syntax with <code>bash</code> (not like me, I swear).<p>Most of them will contain almost the same commands like<pre style=color:#c0c5ce;background-color:#2b303b><code><span>mysql prod_db &lt; maintenance.sql > maintenance_output.dump
+</span></code></pre><p>or templatized commands like<pre style=color:#c0c5ce;background-color:#2b303b><code><span>"/foo-${VERSION}/bin/foo"
+</span></code></pre><p>that depend on environment variables defined in the <code>.profile</code> of a deleted user.<p>The last time you used <a href=https://www.shellcheck.net/>ShellCheck</a> to check the scripts, the linter exploded, and somewhere in the world, <a href=https://en.wikipedia.org/wiki/Stephen_R._Bourne>Stephen Bourne</a> suddenly began crying without any apparent reason.<h2 id=just-to-the-rescue><a class=anchor href=#just-to-the-rescue>Just to the rescue</a></h2><p>As its Github <a href=https://github.com/casey/just#just>README</a> states, Just <em>is a handy way to save and run project-specific commands</em> called <strong>recipes</strong>, stored in a file called <code>justfile</code> with a syntax inspired by <strong>Make</strong>.<p>Here's a tiny example:<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#8fa1b3>build</span><span>:
+</span><span>    cc *.c -o main
+</span><span>
+</span><span style=color:#65737e># test everything
+</span><span style=color:#8fa1b3>test-all</span><span>: build
+</span><span>    ./test --all
+</span><span>
+</span><span style=color:#65737e># run a specific test
+</span><span style=color:#8fa1b3>test</span><span> TEST: build
+</span><span>    ./test --test {{</span><span style=color:#bf616a>TEST</span><span>}}
+</span></code></pre><p>Just searches for a <code>justfile</code> in the current directory written in its particular syntax, so let's begin creating one with an hello world recipe and let's try to run it:<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#8fa1b3>hello-world</span><span>:
+</span><span>    echo "</span><span style=color:#a3be8c>Hello World!</span><span>"
+</span></code></pre><details><summary>output</summary> <pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ just hello-world
+</span><span>echo "Hello World!"
+</span><span>Hello World!
+</span></code></pre></details><p>As you can see, just <strong>shows the command</strong> that is about to run before running it, while we can't say the same for global or user-defined <code>alias</code>es in various shells (unless using something like <code>set -x</code> for bash). If you want to suppress this behaviour, you can put a <code>@</code> in front of the command to hide.<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#8fa1b3>hello-world</span><span>:
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello World!</span><span>"
+</span></code></pre><details><summary>output</summary> <pre style=color:#c0c5ce;background-color:#2b303b><code><span>$ just hello-world
+</span><span>Hello World!
+</span></code></pre></details><p>Let's try to create a second recipe with an argument.<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#8fa1b3>hello-world</span><span>:
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello World!</span><span>"
+</span><span>
+</span><span style=color:#8fa1b3>salute</span><span> guy:
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello </span><span>{{</span><span style=color:#bf616a>guy</span><span>}}</span><span style=color:#a3be8c>!</span><span>"
+</span></code></pre><details><summary>output</summary> <pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ just salute
+</span><span>error: Recipe `salute` got 0 arguments but takes 1
+</span><span>usage:
+</span><span>    just salute guy
+</span><span>
+</span><span style=color:#a3be8c>$ just salute Tonio
+</span><span>Hello Tonio!
+</span><span>
+</span><span style=color:#a3be8c>$ just --dry-run salute Tonio
+</span><span>echo "Hello Tonio"
+</span></code></pre></details><p>The recipe cannot obviously run without an argument since that argument is referred to in the body of the recipe using just syntax <code>{{ argument_or_variable_name }}</code>. If you want to "debug" the recipe that will run with the provided arguments, you can use the <code>--dry-run</code> command-line flag. This can come in handy if a command is long and complex and you have, for example, to schedule it in your crontab file. Just copy it from there.<p>Arguments are really powerful since they can have <strong>default values</strong> and can be <strong>variadic</strong> (both in the form <code>zero or more</code> or <code>one or more</code>):<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#8fa1b3>hello</span><span> target="World":
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello </span><span>{{</span><span style=color:#bf616a>target</span><span>}}</span><span style=color:#a3be8c>!</span><span>"
+</span><span>
+</span><span style=color:#8fa1b3>hello-all</span><span> +targets="Tim": </span><span style=color:#65737e># One or more plus a default value
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello to everyone: </span><span>{{</span><span style=color:#bf616a>targets</span><span>}}</span><span style=color:#a3be8c>!</span><span>"
+</span><span>
+</span><span style=color:#8fa1b3>hello-any</span><span> *targets: </span><span style=color:#65737e># Zero or more
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo "</span><span style=color:#a3be8c>Hello </span><span>{{</span><span style=color:#bf616a>targets</span><span>}}</span><span style=color:#a3be8c>!</span><span>"
+</span></code></pre><details><summary>output</summary> <pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ just hello
+</span><span>Hello World!
+</span><span>
+</span><span style=color:#a3be8c>$ just hello-all
+</span><span>Hello to everyone: Tim!
+</span><span>
+</span><span style=color:#a3be8c>$ just hello-all "Tim" "Martha" "Lisa"
+</span><span>Hello to everyone: Tim Martha Lisa!
+</span><span>
+</span><span style=color:#a3be8c>$ just hello-any
+</span><span>Hello !
+</span><span>
+</span><span style=color:#a3be8c>$ just hello-any "Bob" "Lucas"
+</span><span>Hello Bob Lucas!
+</span></code></pre></details><p>We know enough syntax. Let's try to build a meaningful example for our <strong>messed-up work machine</strong> and let's try new features <strong>just</strong> if we need them (no pun intended 😄).<h3 id=an-almost-working-example><a class=anchor href=#an-almost-working-example>An almost working example</a></h3><p>If we inspect the history of our machine, we'll notice that most of the commands are <code>foo</code> invocations with <code>nohup</code> and stdin and stderr redirection into a <code>.log</code> file. We should consider refactoring the application, removing all the <code>println</code>s to replace them with a <code>logger.info</code>, maybe using a logging framework that automatically handles log rotation and similar.<p>In the meantime, we can standardize how <code>foo</code> is called, how the outputs are redirected, and its execution detached to avoid interactive sessions that might early terminate if you close a terminal session.<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#bf616a>foo_version    </span><span>:= "</span><span style=color:#a3be8c>0.3.0</span><span>"
+</span><span style=color:#bf616a>foo_executable </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo-</span><span>" + </span><span style=color:#bf616a>foo_version </span><span>+ "</span><span style=color:#a3be8c>/bin/foo</span><span>"
+</span><span style=color:#bf616a>conf_file      </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.conf</span><span>"
+</span><span style=color:#bf616a>log_file       </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.log</span><span>"
+</span><span>
+</span><span style=color:#65737e># encrypts 'target' and detaches
+</span><span style=color:#8fa1b3>encrypt</span><span> target:
+</span><span>    nohup {{</span><span style=color:#bf616a>foo_executable</span><span>}} "</span><span style=color:#a3be8c>encrypt</span><span>" {{</span><span style=color:#bf616a>target</span><span>}} {{</span><span style=color:#bf616a>conf_file</span><span>}} &>> {{</span><span style=color:#bf616a>log_file</span><span>}} &
+</span><span>
+</span><span style=color:#65737e># decrypts 'target' and detaches
+</span><span style=color:#8fa1b3>decrypt</span><span> target:
+</span><span>    nohup {{</span><span style=color:#bf616a>foo_executable</span><span>}} "</span><span style=color:#a3be8c>decrypt</span><span>" {{</span><span style=color:#bf616a>target</span><span>}} {{</span><span style=color:#bf616a>conf_file</span><span>}} &>> {{</span><span style=color:#bf616a>log_file</span><span>}} &
+</span><span>
+</span><span style=color:#65737e># schedules operations formatted like '&lt;cron_expression> &lt;decrypt|encrypt> &lt;target>'
+</span><span style=color:#8fa1b3>schedule</span><span> operation:
+</span><span>    nohup {{</span><span style=color:#bf616a>foo_executable</span><span>}} "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>operation</span><span>}}" {{</span><span style=color:#bf616a>conf_file</span><span>}} &>> {{</span><span style=color:#bf616a>log_file</span><span>}} &
+</span></code></pre><p>(Probably <code>nohup</code> + <code>&</code> is overkilling, but who cares 😇? )<p>That's better. We've used <strong>variables</strong> to avoid repetitions, templatized every recipe and added comments. It would be nice, though, to directly tail the <code>log_file</code> once a recipe is launched and avoid repetitions even more.<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#bf616a>foo_version    </span><span>:= "</span><span style=color:#a3be8c>0.3.0</span><span>"
+</span><span style=color:#bf616a>foo_executable </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo-</span><span>" + </span><span style=color:#bf616a>foo_version </span><span>+ "</span><span style=color:#a3be8c>/bin/foo</span><span>"
+</span><span style=color:#bf616a>conf_file      </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.conf</span><span>"
+</span><span style=color:#bf616a>log_file       </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.log</span><span>"
+</span><span>
+</span><span style=color:#8fa1b3>_default</span><span>:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just --list --unsorted
+</span><span>
+</span><span style=color:#65737e># encrypts 'target' and detaches
+</span><span style=color:#8fa1b3>encrypt</span><span> target:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>target</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail
+</span><span>
+</span><span style=color:#65737e># decrypts 'target' and detaches
+</span><span style=color:#8fa1b3>decrypt</span><span> target:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>target</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail
+</span><span>
+</span><span style=color:#65737e># schedules operations formatted like '&lt;cron_expression> &lt;decrypt|encrypt> &lt;target>'
+</span><span style=color:#8fa1b3>schedule</span><span> operation:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>operation</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail 20
+</span><span>
+</span><span style=color:#65737e># Follows the log file
+</span><span style=color:#8fa1b3>tail</span><span> n="200":
+</span><span>    tail -{{</span><span style=color:#bf616a>n</span><span>}}f {{</span><span style=color:#bf616a>log_file</span><span>}}
+</span><span>
+</span><span style=color:#8fa1b3>_run_detached</span><span> command argument:
+</span><span>    nohup {{</span><span style=color:#bf616a>foo_executable</span><span>}} {{</span><span style=color:#bf616a>command</span><span>}} {{</span><span style=color:#bf616a>argument</span><span>}} {{</span><span style=color:#bf616a>conf_file</span><span>}} &>> {{</span><span style=color:#bf616a>log_file</span><span>}} &
+</span></code></pre><p>Nice, we've used many features of just, in particular recipes whose name begins with an underscore are called <em>hidden recipes</em>. Hidden means that if you run <code>just --list</code>, they won't get printed since they're meant to be used internally. A special recipe was used, the <code>default</code> one, that gets called if you prompt <code>just</code> without any recipe name. [EDIT] (Since the name is not precisely <code>default</code>, just runs the first recipe in the justfile, that has to be a recipe without arguments)<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ just
+</span><span>Available recipes:
+</span><span>    encrypt target     </span><span style=color:#65737e># encrypts 'target' and detaches
+</span><span>    decrypt target     </span><span style=color:#65737e># decrypts 'target' and detaches
+</span><span>    schedule operation </span><span style=color:#65737e># schedules operations formatted like '&lt;cron_expression> &lt;decrypt|encrypt> &lt;target>'
+</span><span>    tail n="200"       </span><span style=color:#65737e># Follows the log file
+</span></code></pre><p>Oh nice, the <strong>comments</strong> we wrote previously just became documentation! Plus, we called the <code>tail</code> recipe from others, letting <code>just encrypt "something"</code> resemble an interactive command.<p>Let's now set the same interpreter for all the recipes choosing from the <a href=https://github.com/casey/just#shell>available ones</a>: <code>set shell := ["bash", "-uc"]</code>. This way, every recipe line will run in a newly spawned sub<code>shell</code>, <code>bash</code> in this case. If it feels like the way the shebang <code>#!/bin/bash</code> works, you're right.<p>In fact, it's possible to define <a href=https://github.com/casey/just#safer-bash-shebang-recipes>shebang recipes</a> to be able to use <a href=https://github.com/casey/just#setting-variables-in-a-recipe>local variables in recipes</a> but remember to add <code>set -euxo pipefail</code> like the documentation suggests if you're using Bash to maintain the fail-fast behaviour.<p>Mixing and stirring <em>commands</em>, <em>recipes</em>, <em>just features</em> you'll probably come up with something similar to this <strong>prod-like example</strong>:<div class=code-window><div class=code-title style=color:#000;background-color:#6d98ba><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> Justfile</div><div class=code-body><pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#b48ead>set </span><span>shell := ["</span><span style=color:#a3be8c>bash</span><span>", "</span><span style=color:#a3be8c>-uc</span><span>"]
+</span><span>
+</span><span style=color:#65737e># Foo
+</span><span style=color:#bf616a>foo_version    </span><span>:= "</span><span style=color:#a3be8c>0.3.0</span><span>"
+</span><span style=color:#bf616a>foo_executable </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo-</span><span>" + </span><span style=color:#bf616a>foo_version </span><span>+ "</span><span style=color:#a3be8c>/bin/foo</span><span>"
+</span><span style=color:#bf616a>conf_file      </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.conf</span><span>"
+</span><span style=color:#bf616a>log_file       </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/foo.log</span><span>"
+</span><span>
+</span><span style=color:#65737e># Bar
+</span><span style=color:#bf616a>bar_executable </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/bar</span><span>"
+</span><span style=color:#bf616a>sre_victim     </span><span>:= "</span><span style=color:#a3be8c>baz@sre.com</span><span>"
+</span><span>
+</span><span style=color:#65737e># MySql
+</span><span style=color:#bf616a>my_sql_default_user </span><span>:= "</span><span style=color:#a3be8c>random_guy</span><span>"
+</span><span style=color:#bf616a>dump_query          </span><span>:= "</span><span style=color:#a3be8c>select 'I have no intention to write queries in this example';</span><span>"
+</span><span style=color:#bf616a>now                 </span><span>:= `</span><span style=color:#a3be8c>date -u +"%Y-%m-%dT%H:%M:%SZ"</span><span>`
+</span><span style=color:#bf616a>mysql_output_file   </span><span>:= "</span><span style=color:#a3be8c>/home/power_user/mysql_dumps/</span><span>" + </span><span style=color:#bf616a>now </span><span>+ "</span><span style=color:#a3be8c>.dump</span><span>"
+</span><span>
+</span><span style=color:#65737e># Colors
+</span><span style=color:#bf616a>RED    </span><span>:= "</span><span style=color:#96b5b4>\\</span><span style=color:#a3be8c>u001b[31m</span><span>"
+</span><span style=color:#bf616a>GREEN  </span><span>:= "</span><span style=color:#96b5b4>\\</span><span style=color:#a3be8c>u001b[32m</span><span>"
+</span><span style=color:#bf616a>YELLOW </span><span>:= "</span><span style=color:#96b5b4>\\</span><span style=color:#a3be8c>u001b[33m</span><span>"
+</span><span style=color:#bf616a>BOLD   </span><span>:= "</span><span style=color:#96b5b4>\\</span><span style=color:#a3be8c>u001b[1m</span><span>"
+</span><span style=color:#bf616a>RESET  </span><span>:= "</span><span style=color:#96b5b4>\\</span><span style=color:#a3be8c>u001b[0m</span><span>"
+</span><span>
+</span><span style=color:#65737e>## Foo Recipes
+</span><span>
+</span><span style=color:#8fa1b3>_default</span><span>:
+</span><span>  </span><span style=color:#b48ead>@</span><span>just --list --unsorted
+</span><span>
+</span><span style=color:#65737e># encrypts 'target' and detaches
+</span><span style=color:#8fa1b3>encrypt</span><span> target:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>target</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail
+</span><span>
+</span><span style=color:#65737e># decrypts 'target' and detaches
+</span><span style=color:#8fa1b3>decrypt</span><span> target:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>target</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail
+</span><span>
+</span><span style=color:#65737e># schedules operations formatted like '&lt;cron_expression> &lt;decrypt|encrypt> &lt;target>'
+</span><span style=color:#8fa1b3>schedule</span><span> operation:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _run_detached "</span><span style=color:#a3be8c>schedule</span><span>" "{{</span><span style=color:#bf616a>operation</span><span>}}"
+</span><span>    </span><span style=color:#b48ead>@</span><span>just tail 20
+</span><span>
+</span><span style=color:#65737e># Follows the log file
+</span><span style=color:#8fa1b3>tail</span><span> n="200":
+</span><span>    tail -{{</span><span style=color:#bf616a>n</span><span>}}f {{</span><span style=color:#bf616a>log_file</span><span>}}
+</span><span>
+</span><span style=color:#65737e># Unsurprisingly kills foo
+</span><span style=color:#8fa1b3>kill</span><span>:
+</span><span>    pgrep -f {{</span><span style=color:#bf616a>foo_executable</span><span>}}
+</span><span>
+</span><span style=color:#65737e>## Bar Recipes
+</span><span>
+</span><span style=color:#65737e># Will notify an SRE with a boring mail.
+</span><span style=color:#8fa1b3>notify</span><span>:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _bold_squares "{{</span><span style=color:#bf616a>YELLOW</span><span>}}</span><span style=color:#a3be8c>WARNING</span><span>"
+</span><span>    </span><span style=color:#b48ead>@</span><span>echo -e "{{</span><span style=color:#bf616a>BOLD</span><span>}}</span><span style=color:#a3be8c> A SRE will be notified with an e-mail!</span><span>{{</span><span style=color:#bf616a>RESET</span><span>}}"
+</span><span>    {{</span><span style=color:#bf616a>bar_executable</span><span>}} notify {{</span><span style=color:#bf616a>sre_victim</span><span>}}
+</span><span>
+</span><span style=color:#65737e>## MySql Recipes
+</span><span>
+</span><span style=color:#65737e># runs the dump query
+</span><span style=color:#8fa1b3>dump</span><span> username password:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just kill
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _mysql_command_to {{</span><span style=color:#bf616a>username</span><span>}} {{</span><span style=color:#bf616a>password</span><span>}} {{</span><span style=color:#bf616a>dump_query</span><span>}} > {{</span><span style=color:#bf616a>mysql_output_file</span><span>}}
+</span><span>
+</span><span style=color:#65737e># runs the dump query with default user
+</span><span style=color:#8fa1b3>dump-with-default-user</span><span> password:
+</span><span>    </span><span style=color:#b48ead>@</span><span>just kill
+</span><span>    </span><span style=color:#b48ead>@</span><span>just _mysql_command_to {{</span><span style=color:#bf616a>my_sql_default_user</span><span>}} {{</span><span style=color:#bf616a>password</span><span>}} {{</span><span style=color:#bf616a>dump_query</span><span>}} > {{</span><span style=color:#bf616a>mysql_output_file</span><span>}}
+</span><span>
+</span><span style=color:#65737e>## Hidden Recipes
+</span><span>
+</span><span style=color:#8fa1b3>_bold_squares</span><span> message:
+</span><span>	</span><span style=color:#b48ead>@</span><span>echo -e "{{</span><span style=color:#bf616a>BOLD</span><span>}}</span><span style=color:#a3be8c>[</span><span>{{</span><span style=color:#bf616a>RESET</span><span>}}{{</span><span style=color:#bf616a>message</span><span>}}{{</span><span style=color:#bf616a>RESET</span><span>}}{{</span><span style=color:#bf616a>BOLD</span><span>}}</span><span style=color:#a3be8c>]</span><span>{{</span><span style=color:#bf616a>RESET</span><span>}}"
+</span><span>
+</span><span style=color:#8fa1b3>_mysql_command</span><span> username password query:
+</span><span>    mysql -u {{</span><span style=color:#bf616a>username</span><span>}} -p {{</span><span style=color:#bf616a>password</span><span>}} -e {{</span><span style=color:#bf616a>query</span><span>}}
+</span><span>
+</span><span style=color:#8fa1b3>_mysql_command_to</span><span> username password query output_file:
+</span><span>    _mysql_command {{</span><span style=color:#bf616a>username</span><span>}} {{</span><span style=color:#bf616a>password</span><span>}} {{</span><span style=color:#bf616a>query</span><span>}} > {{</span><span style=color:#bf616a>output_file</span><span>}}
+</span><span>
+</span><span style=color:#8fa1b3>_run_detached</span><span> command argument:
+</span><span>    nohup {{</span><span style=color:#bf616a>foo_executable</span><span>}} {{</span><span style=color:#bf616a>command</span><span>}} {{</span><span style=color:#bf616a>argument</span><span>}} {{</span><span style=color:#bf616a>conf_file</span><span>}} &>> {{</span><span style=color:#bf616a>log_file</span><span>}} &
+</span></code></pre></div></div><hr><h2 id=it-s-not-enough-to-enforce-people-to-not-mess-up-production-machines-with-crappy-shell-scripts><a class=anchor href=#it-s-not-enough-to-enforce-people-to-not-mess-up-production-machines-with-crappy-shell-scripts>"It's not enough to enforce people to not mess up production machines with crappy shell scripts!"</a></h2><p>Obviously, <a href=https://github.com/casey/just>just</a> doesn't automatically solve every problem you might encounter in <strong>heavily unmaintained machines</strong> with a lot of conflicting shell scripts, mostly because of people, but at least:<ul><li>It lets you concentrate every <strong>project-related</strong> commands in a <strong>single file</strong> that can be easily tracked by a VCS to become part of the deployment<li>It <strong>declaratively</strong> sets the interpreter<li>It lets you you write a multi-command script without relying on super-verbose and tricky <code>match-case</code> bash syntax with the addition of: <ul><li><strong>default arguments</strong><li><strong>easy string templating</strong><li><a href=https://github.com/casey/just#command-evaluation-using-backticks>command evaluation</a> using backticks (see the <code>now</code> variable in the previous example)<li><a href=https://github.com/casey/just#conditional-expressions>conditional expressions</a> that are evaluated before the command execution<li><code>get_or_else</code> syntax for <a href=https://github.com/casey/just#environment-variables>environment variables</a></ul><li>It integrates with <code>fzf</code> to <a href=https://github.com/casey/just#conditional-expressions>choose</a> argument-less recipes interactively<li>Recipes can depend on other recipes, like <code>tests</code> on <code>build</code> as in the <a href=https://toniogela.dev/just/#just-to-the-rescue>first example</a><li>It can generate its own shell completion scripts using <code>just --completions &lt;shell_name></code><li>It can be used as <a href=https://github.com/casey/just#just-scripts>an interpreter</a>, turning <code>justfile</code>s in runnable just script simply prepending <code>#!/usr/bin/env just --justfile</code> (This can be handy if you maybe want to use it with <code>crontab</code>)</ul><p>and <strong>HIPSTER ALERT</strong>:<ul><li>It has its own <a href=https://github.com/extractions/setup-just>Github Action</a><li><a href=https://github.com/casey/just#editor-support>Syntax Highlight</a> for Vim, Emacs and Visual Studio Code is already available</ul><p>Creating practical recipes, installing the prebuilt binaries, and the command-line completion scripts can probably convince people to use it. If not, try documenting your software, using examples in the <code>justfile</code> that's sitting in the home of the repo, or try harder using<pre style=color:#c0c5ce;background-color:#2b303b><code><span>**********************************
+</span><span>* Run `just` for a complete list *
+</span><span>* of available commands          *
+</span><span>**********************************
+</span></code></pre><p>as the <code>/etc/motd</code> for the prod machines.<hr><h5 id=more-tools><a class=anchor href=#more-tools>More Tools!</a></h5><details><summary>SPOILER: next tool</summary> <a href=https://www.getzola.org/>Zola</a> : the templating engine I'm using for this blog :)</details></article><script data-repo-id="MDEwOlJlcG9zaXRvcnkzNzA0MDc0NDc=" async crossorigin data-category=Q&A data-category-id=DIC_kwDOFhP4F84CeeYj data-emit-metadata=1 data-input-position=bottom data-lang=en data-loading=lazy data-mapping=pathname data-reactions-enabled=1 data-repo=TonioGela/blog data-strict=0 data-theme=dark_dimmed src=https://giscus.app/client.js></script>

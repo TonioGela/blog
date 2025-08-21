@@ -1,0 +1,271 @@
+<!doctype html><html lang=en><head><meta content="IE=edge" http-equiv=X-UA-Compatible><meta content="text/html; charset=utf-8; X-Content-Type-Options=nosniff" http-equiv=Content-Type><meta content="frame-ancestors 'none'; base-uri 'self';" http-equiv=Content-Security-Policy><meta content="index, follow" name=robots><meta content="3 days" name=revisit-after><meta content="Antonio Gelameris" name=author><title>Integration testing the Typelevel toolkit | TonioGela's</title><meta content="Integration testing the Typelevel toolkit | TonioGela's" name=title><meta content="Integration testing the Typelevel toolkit | TonioGela's" property=og:title><meta content="Integration testing the Typelevel toolkit | TonioGela's" property=twitter:title><meta content="How do you test a meta library that is meant to be used mainly via scala-cli? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of sbt-fu.
+" name=description><meta content="How do you test a meta library that is meant to be used mainly via scala-cli? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of sbt-fu.
+" property=og:description><meta content="How do you test a meta library that is meant to be used mainly via scala-cli? And also, how do you automatize the tests for every platform that the meta library supports? Here's how we did in a weekend full of sbt-fu.
+" property=twitter:description><meta content=website property=og:type><meta content=https://toniogela.dev/testing-typelevel-toolkit/ property=og:url><meta content=summary property=twitter:card><meta content=https://toniogela.dev/testing-typelevel-toolkit/ property=twitter:url><meta content=@toniogela name=twitter:site><meta content=@toniogela name=twitter:creator><meta content="width=device-width,initial-scale=1.0,maximum-scale=3" name=viewport><link href=https://toniogela.dev/rss.xml rel=alternate title=RSS type=application/rss+xml><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel="shortcut icon" type=image/x-icon><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel=icon type=image/x-icon><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" as=style rel=preload><link href="
+    https://toniogela.dev/avatar.webp?h=bb598620204fd77b7659
+" as=image rel=preload><link crossorigin href=https://giscus.app rel=preconnect><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" integrity="sha512-o0dvhjSBealgvuJzmYvFePyVuQvaOn3W76rseE83rvGCQTtaLHrVmd71648TAvmxyTRRKgHUBshRCelRiGIyng==" rel=stylesheet><script integrity="sha512-DKtiGDYXXQYuisRMLzYB5k06+5giy0VlJem3LveN+feK32OGPWVltPBsc7Zuxstr4WQqJhOzQkWpH4QDPhuyLg==" src="https://toniogela.dev/instantpage-5.1.0.js?h=fa5c34371df3acd378bd" async defer type=module></script><body data-instant-allow-external-links><nav class=overlord id=overlord><figure class=mini_logo><a aria-label=Homepage href=https://toniogela.dev style=background-image:url(https://toniogela.dev/avatar.webp)></a></figure><h5><a aria-label=Homepage href=https://toniogela.dev>TonioGela's</a></h5></nav><section class=post_container><article><h1 class=article_title><a href=https://toniogela.dev/testing-typelevel-toolkit/ id=article_link>Integration testing the Typelevel toolkit</a></h1><ul class="frontmatter frontmatter_page" id=frontmatter><li><time class=article_time datetime=2023-10-04>October 04, 2023</time><li class=dotDivider><li>2158 words<li class=dotDivider><li>11 min</ul><p>The <a href=https://typelevel.org/toolkit/>Typelevel toolkit</a> is a metalibrary including some <strong>great libraries</strong> by <a href=https://github.com/typelevel/>Typelevel</a>, that was created to speed up the development of cross-platform applications in Scala and that I happily maintain since its creation. It's the Typelevel's flavour of the official <a href=https://github.com/scala/toolkit/>Scala Toolkit</a>, a set of libraries to perform common programming tasks, that has its own section, full of examples, in the <a href=https://docs.scala-lang.org/toolkit/introduction.html>official Scala documentation</a>.<p>One of the vaunts of the Typelevel's stack is the fact that (almost) every library is published for the all the <strong>three officially supported Scala platforms: JVM, JS and Native</strong>, and for this reason every library is <strong>heavily tested</strong> against every supported platform and Scala version, to ensure a near perfect cross-compatibility.<p>Since its creation the <a href=https://typelevel.org/toolkit/>Typelevel toolkit</a> was lacking any sort of testing, mainly due to the fact that it is a mere collection of already battle tested libraries, so why bothering writing tests for it? As <a href=https://github.com/typelevel/toolkit/issues/49>this bug</a> promptly reminded us, the main goal of the toolkit is to provide the most seamless experience while using <a href=https://scala-cli.virtuslab.org/>scala-cli</a>.<p>Ideally you should be able to write:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> helloWorld.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//> using toolkit typelevel:latest
+</span><span>
+</span><span style=color:#b48ead>import </span><span>cats.effect.*
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>Hello </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>IOApp</span><span>.</span><span style=color:#ebcb8b>Simple</span><span>:
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>run </span><span>= </span><span style=color:#ebcb8b>IO</span><span>.println("</span><span style=color:#a3be8c>Hello World!</span><span>")
+</span></code></pre></div></div><p>and calling <code>scala-cli run {,--js,--native} helloWorld.scala</code> should <strong>Just Work™</strong> printing <code>"Hello World!"</code> to the console.<p>To be 100% sure we needed CI tests indeed.<h2 id=planning-the-tests><a class=anchor href=#planning-the-tests>Planning the tests</a></h2><p>What had to be tested though? All the included libraries are already tested, some of them are built using other included libraries, so some sort of <strong>cross testing</strong> was already done. What we were really interested in was always <strong>being sure that scala-cli is always able to compile scripts written using the toolkit</strong>. And what's the best way to ensure that <code>scala-cli</code> can compile a script written with the toolkit if not using <code>scala-cli</code> itself?<p><code>Pause for dramatic effect</code><p>The coarse idea that <a href=https://github.com/armanbilge>Arman</a> and I had in mind was to have a CI doing the following:<ul><li><strong>Locally publishing</strong> the toolkit artifact<li>Passing the artifact's version to a bunch of <strong>pre-baked parametrized scripts</strong><li><strong>Running</strong> the scripts with <code>scala-cli</code><li>Be happy if every exit code is <strong>0</strong></ul><p>The <strong>third step</strong> in particular could have been implemented in a couple of ways:<ol><li>Installing <code>scala-cli</code> in the CI image via GitHub Actions, call it from the tests code, and gather the results<li>Since <code>scala-cli</code> is a <a href=https://scala-cli.virtuslab.org/docs/under-the-hood>native executable generated by GraalVM Native Image</a> and the corresponding jvm artifact <a href=https://repo1.maven.org/maven2/org/virtuslab/scala-cli/cli_3/>is distributed</a>, using it as a dependency and calling its main method in the tests.</ol><p>We decided to follow the latter, as we didn't want to <strong>mangle the GitHub Actions CI file</strong> or relying on the <strong>timely publication of the updated scala-cli GitHub Action</strong>: whenever any continuous integration setting is changed, every developer should apply the same or an equivalent change to its local environment to reflect the testing/building remote environment change. This also means more testing/contributing documentation that needs to be constantly updated (and that risks becoming outdated at every CI setting changed) and that the contributing/developing curve becomes steeper for newcomers (it's easier to ask a Scala developer to have just one build tool installed locally, right?).<p>Also, <a href=https://www.scala-sbt.org/>sbt</a> is a superb tool for implementing this kind of tests: since it downloads automatically the specified scala-cli artifact we didn't need to have scala-cli installed locally, the version we are testing in particular. The build would be more self-contained, the scala-cli artifact version will be managed as every other dependency by <a href=https://github.com/scala-steward-org/scala-steward>scala-steward</a> and developers and contributors could test locally the repository with ease with a simple <code>sbt test</code>.<blockquote><p><strong>BONUS EXAMPLE</strong>: Using <code>scala-cli</code> in <code>scala-cli</code> to run a <code>scala-cli</code> script that runs itself<div class=code-window><div class=code-title style=color:#1a2539;background-color:#a3be8c><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> recursiveScalaCli.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//> using dep org.virtuslab.scala-cli::cli::1.0.4
+</span><span>
+</span><span style=color:#b48ead>import </span><span>scala.cli.</span><span style=color:#ebcb8b>ScalaCli
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>ScalaCliApp </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>App</span><span>:
+</span><span>    </span><span style=color:#ebcb8b>ScalaCli</span><span>.main(</span><span style=color:#ebcb8b>Array</span><span>("</span><span style=color:#a3be8c>run</span><span>", "</span><span style=color:#a3be8c>recursiveScalaCli.scala</span><span>"))
+</span></code></pre></div></div></blockquote><h2 id=first-tentative-using-the-dependency-in-tests><a class=anchor href=#first-tentative-using-the-dependency-in-tests>First tentative: using the dependency in tests</a></h2><p>In order to publish the artifacts locally before testing we needed a new <code>tests</code> project and to establish this relationship:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>lazy </span><span style=color:#b48ead>val </span><span style=color:#bf616a>root </span><span>= tlCrossRootProject.aggregate(
+</span><span>  toolkit, 
+</span><span>  toolkitTest,
+</span><span>  tests
+</span><span>)
+</span><span style=color:#65737e>//...
+</span><span>lazy </span><span style=color:#b48ead>val </span><span style=color:#bf616a>tests </span><span>= project
+</span><span>  .in(file("</span><span style=color:#a3be8c>tests</span><span>"))
+</span><span>  .settings(
+</span><span>    name := "</span><span style=color:#a3be8c>tests</span><span>",
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.jvm / publishLocal).value
+</span><span>  )
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>In this way the <code>test</code> sbt command will always run a <code>publishLocal</code> of the jvm flavor of the toolkit artifact. The project then needed to be set to <strong>not publish its</strong> artifact and to have some dependencies added to actually write the tests. The <code>scala-cli</code> dependency needed some trickery (<code>.cross(CrossVersion.for2_13Use3)</code>) to use the Scala 3 artifact, the only one published, in Scala 2.13 as well.<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>lazy </span><span style=color:#b48ead>val </span><span style=color:#bf616a>tests </span><span>= project
+</span><span>  .in(file("</span><span style=color:#a3be8c>tests</span><span>"))
+</span><span>  .settings(
+</span><span>    name := "</span><span style=color:#a3be8c>tests</span><span>",
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.jvm / publishLocal).value,
+</span><span>    </span><span style=color:#65737e>// Required to use the scala 3 artifact with scala 2.13
+</span><span>    scalacOptions ++= {
+</span><span>      </span><span style=color:#b48ead>if </span><span>(scalaBinaryVersion.value == "</span><span style=color:#a3be8c>2.13</span><span>") </span><span style=color:#ebcb8b>Seq</span><span>("</span><span style=color:#a3be8c>-Ytasty-reader</span><span>") </span><span style=color:#b48ead>else </span><span style=color:#ebcb8b>Nil
+</span><span>    },
+</span><span>    libraryDependencies ++= </span><span style=color:#ebcb8b>Seq</span><span>(
+</span><span>      "</span><span style=color:#a3be8c>org.typelevel</span><span>" %% "</span><span style=color:#a3be8c>munit-cats-effect</span><span>" % "</span><span style=color:#a3be8c>2.0.0-M3</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      </span><span style=color:#65737e>// This is needed to write scripts' body into files
+</span><span>      "</span><span style=color:#a3be8c>co.fs2</span><span>" %% "</span><span style=color:#a3be8c>fs2-io</span><span>" % "</span><span style=color:#a3be8c>3.9.2</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      "</span><span style=color:#a3be8c>org.virtuslab.scala-cli</span><span>" %% "</span><span style=color:#a3be8c>cli</span><span>" % "</span><span style=color:#a3be8c>1.0.4</span><span>" % </span><span style=color:#ebcb8b>Test</span><span> cross (</span><span style=color:#ebcb8b>CrossVersion</span><span>.for2_13Use3)
+</span><span>    )
+</span><span>  )
+</span><span>  .enablePlugins(</span><span style=color:#ebcb8b>NoPublishPlugin</span><span>)
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>The last bit needed was a way to add to the scripts' body <strong>which version of the artifact we were publishing right before the testing step and which Scala version we were running on</strong>, in order to test it properly. The only place were this <strong>(non-static)</strong> information was present was the build itself, but we needed to have them <strong>as an information in the source code</strong>. We definitively needed some sbt trickery to make it happen.<blockquote><p>There is an <strong>unspoken rule</strong> about the Scala community (or in the sbt users community to be precise) that you may already know about:<p><em>If you need some kind of sbt trickery, <strong><a href=https://github.com/eed3si9n>eed3si9n</a></strong> probably wrote a sbt plugin for that</em>.</blockquote><p>This was our case with <a href=https://github.com/sbt/sbt-buildinfo>sbt-buildinfo</a>, a sbt plugin whose punchline is "<em>I know this because build.sbt knows this</em>". As you'll discover later, <strong>sbt-buildinfo has been the corner stone of our second and more exhausting approach</strong>, but what briefly does is generating Scala source from your build definitions, and thus makes build information available in the source code too.<p>As <code>scalaVersion</code> and <code>version</code> are two information that are injected by default, we just needed to add the plugin into <code>project/plugins.sbt</code> and enabling it on <code>tests</code> in the build:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> projects/plugins.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>addSbtPlugin("</span><span style=color:#a3be8c>com.eed3si9n</span><span>" % "</span><span style=color:#a3be8c>sbt-buildinfo</span><span>" % "</span><span style=color:#a3be8c>0.11.0</span><span>")
+</span></code></pre></div></div><div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>lazy </span><span style=color:#b48ead>val </span><span style=color:#bf616a>tests </span><span>= project
+</span><span>  .in(file("</span><span style=color:#a3be8c>tests</span><span>"))
+</span><span>  .settings(
+</span><span>    name := "</span><span style=color:#a3be8c>tests</span><span>",
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.jvm / publishLocal).value,
+</span><span>    </span><span style=color:#65737e>// Required to use the scala 3 artifact with scala 2.13
+</span><span>    scalacOptions ++= {
+</span><span>      </span><span style=color:#b48ead>if </span><span>(scalaBinaryVersion.value == "</span><span style=color:#a3be8c>2.13</span><span>") </span><span style=color:#ebcb8b>Seq</span><span>("</span><span style=color:#a3be8c>-Ytasty-reader</span><span>") </span><span style=color:#b48ead>else </span><span style=color:#ebcb8b>Nil
+</span><span>    },
+</span><span>    libraryDependencies ++= </span><span style=color:#ebcb8b>Seq</span><span>(
+</span><span>      "</span><span style=color:#a3be8c>org.typelevel</span><span>" %% "</span><span style=color:#a3be8c>munit-cats-effect</span><span>" % "</span><span style=color:#a3be8c>2.0.0-M3</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      </span><span style=color:#65737e>// This is needed to write scripts' body into files
+</span><span>      "</span><span style=color:#a3be8c>co.fs2</span><span>" %% "</span><span style=color:#a3be8c>fs2-io</span><span>" % "</span><span style=color:#a3be8c>3.9.2</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      "</span><span style=color:#a3be8c>org.virtuslab.scala-cli</span><span>" %% "</span><span style=color:#a3be8c>cli</span><span>" % "</span><span style=color:#a3be8c>1.0.4</span><span>" % </span><span style=color:#ebcb8b>Test</span><span> cross (</span><span style=color:#ebcb8b>CrossVersion</span><span>.for2_13Use3)
+</span><span>    )
+</span><span>  )
+</span><span>  .enablePlugins(</span><span style=color:#ebcb8b>NoPublishPlugin</span><span>, </span><span style=color:#ebcb8b>BuildInfoPlugin</span><span>)
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p><strong>Time to write the tests!</strong> The first thing that was needed was a way to write on a temporary file the body of the script, including the artifact and Scala version, and then submit the file to scala-cli main method:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> ToolkitTests.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>package </span><span>org.typelevel.toolkit
+</span><span>
+</span><span style=color:#b48ead>import </span><span>munit.</span><span style=color:#ebcb8b>CatsEffectSuite
+</span><span style=color:#b48ead>import </span><span>cats.effect.</span><span style=color:#ebcb8b>IO
+</span><span style=color:#b48ead>import </span><span>fs2.</span><span style=color:#ebcb8b>Stream
+</span><span style=color:#b48ead>import </span><span>fs2.io.file.</span><span style=color:#ebcb8b>Files
+</span><span style=color:#b48ead>import </span><span>scala.cli.</span><span style=color:#ebcb8b>ScalaCli
+</span><span style=color:#b48ead>import </span><span>buildinfo.</span><span style=color:#ebcb8b>BuildInfo</span><span>.{version, scalaVersion}
+</span><span>
+</span><span style=color:#b48ead>class </span><span style=color:#ebcb8b>ToolkitCompilationTest </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>CatsEffectSuite </span><span>{
+</span><span>
+</span><span>  testRun("</span><span style=color:#a3be8c>Toolkit should compile a simple Hello Cats Effect</span><span>") {
+</span><span>    </span><span style=color:#b48ead>s</span><span>"""</span><span style=color:#a3be8c>|import cats.effect._
+</span><span style=color:#a3be8c>        |
+</span><span style=color:#a3be8c>        |object Hello extends IOApp.Simple {
+</span><span style=color:#a3be8c>        |  def run = IO.println("Hello toolkit!")
+</span><span style=color:#a3be8c>        |}</span><span>"""
+</span><span>  }
+</span><span>
+</span><span>  </span><span style=color:#65737e>// We'll describe this method in a later section of the post
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>testRun</span><span>(</span><span style=color:#bf616a>testName</span><span>: </span><span style=color:#ebcb8b>String</span><span>)(</span><span style=color:#bf616a>scriptBody</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>Unit </span><span>= test(testName)(
+</span><span>    </span><span style=color:#ebcb8b>Files</span><span>[</span><span style=color:#ebcb8b>IO</span><span>].tempFile(</span><span style=color:#ebcb8b>None</span><span>, "", "</span><span style=color:#a3be8c>-toolkit.scala</span><span>", </span><span style=color:#ebcb8b>None</span><span>)
+</span><span>      .use { path =>
+</span><span>          </span><span style=color:#b48ead>val </span><span style=color:#bf616a>header </span><span>= </span><span style=color:#ebcb8b>List</span><span>(
+</span><span>            </span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>//> using scala </span><span>${</span><span style=color:#ebcb8b>BuildInfo</span><span>.scalaVersion}",
+</span><span>            </span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>//> using toolkit typelevel:</span><span>${</span><span style=color:#ebcb8b>BuildInfo</span><span>.version}",
+</span><span>          ).mkString("", "</span><span style=color:#96b5b4>\n</span><span>", "</span><span style=color:#96b5b4>\n</span><span>")
+</span><span>        </span><span style=color:#ebcb8b>Stream</span><span>(header, scriptBody.stripMargin)
+</span><span>          .through(</span><span style=color:#ebcb8b>Files</span><span>[</span><span style=color:#ebcb8b>IO</span><span>].writeUtf8(path))
+</span><span>          .compile
+</span><span>          .drain >> </span><span style=color:#ebcb8b>IO</span><span>.delay(
+</span><span>          </span><span style=color:#ebcb8b>ScalaCli</span><span>.main(</span><span style=color:#ebcb8b>Array</span><span>("</span><span style=color:#a3be8c>run</span><span>", path.toString))
+</span><span>        )
+</span><span>      }
+</span><span>  )
+</span><span>}
+</span></code></pre></div></div><p>And with this easy and lean approach we were finally able to <strong>test the toolkit</strong>! 🎉🎉🎉<p><code>Another pause for dramatic effect</code><p>Except we weren't really testing everything: the <code>js</code> and <code>native</code> artifact weren't tested by this approach, as the <code>tests</code> project is a jvm only project depending on <code>toolkit.jvm</code>. Also, the <code>toolkit-test</code> artifact wasn't even taken in consideration. We needed a more general/agnostic solution.<h2 id=second-approach-invoking-java-as-an-external-process><a class=anchor href=#second-approach-invoking-java-as-an-external-process>Second approach: Invoking Java as an external process</a></h2><p>The first tentative was good but not satisfying at all: we had to find a way to test the <code>js</code> and <code>native</code> artifacts too, but how? The <code>scala-cli</code> artifact is <strong>JVM Scala 3 only</strong>, and there's no way to use it as a dependency on other platforms. The only way to use it is just through the jvm, and that's <strong>precisely what we decided to do</strong>.<p>Given that:<ul><li>At least a JVM was present in the testing environment<li><code>fs2.io.process</code> exposes a <strong>cross-platform way to launch and manage external processes</strong><li>we had the scala-cli artifact on our classpath</ul><p>we knew that was possible, there was just some <code>sbt</code><em>-fu</em> needed.<p>The thing we needed to intelligently invoke was a mere <code>java -cp &lt;scala-cli + transitive deps classpath> scala.cli.ScalaCli</code>, pass to it <code>run &lt;scriptFilename>.scala</code> and wait for the exit code, for each <code>(scalaVersion,platform)</code> combination.<h3 id=buildinfo-magic><a class=anchor href=#buildinfo-magic>BuildInfo magic</a></h3><p>To begin we had to transform the <code>tests</code> project in to a cross project (using <a href=https://github.com/portable-scala/sbt-crossproject>sbt-crossproject</a>, that is embedded in <a href=https://github.com/typelevel/sbt-typelevel>sbt-typelevel</a>) and make every subproject <code>test</code> command depend on the publication of the respective artifacts:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>lazy </span><span style=color:#b48ead>val </span><span style=color:#bf616a>tests </span><span>= crossProject(</span><span style=color:#ebcb8b>JVMPlatform</span><span>, </span><span style=color:#ebcb8b>JSPlatform</span><span>, </span><span style=color:#ebcb8b>NativePlatform</span><span>)
+</span><span>  .in(file("</span><span style=color:#a3be8c>tests</span><span>"))
+</span><span>  .settings(
+</span><span>    name := "</span><span style=color:#a3be8c>tests</span><span>",
+</span><span>    scalacOptions ++= {
+</span><span>      </span><span style=color:#b48ead>if </span><span>(scalaBinaryVersion.value == "</span><span style=color:#a3be8c>2.13</span><span>") </span><span style=color:#ebcb8b>Seq</span><span>("</span><span style=color:#a3be8c>-Ytasty-reader</span><span>") </span><span style=color:#b48ead>else </span><span style=color:#ebcb8b>Nil
+</span><span>    },
+</span><span>    libraryDependencies ++= </span><span style=color:#ebcb8b>Seq</span><span>(
+</span><span>      "</span><span style=color:#a3be8c>org.typelevel</span><span>" %%% "</span><span style=color:#a3be8c>munit-cats-effect</span><span>" % "</span><span style=color:#a3be8c>2.0.0-M3</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      "</span><span style=color:#a3be8c>co.fs2</span><span>" %%% "</span><span style=color:#a3be8c>fs2-io</span><span>" % "</span><span style=color:#a3be8c>3.9.2</span><span>" % </span><span style=color:#ebcb8b>Test</span><span>,
+</span><span>      "</span><span style=color:#a3be8c>org.virtuslab.scala-cli</span><span>" %% "</span><span style=color:#a3be8c>cli</span><span>" % "</span><span style=color:#a3be8c>1.0.4</span><span>" cross (</span><span style=color:#ebcb8b>CrossVersion</span><span>.for2_13Use3)
+</span><span>    )
+</span><span>  )
+</span><span>  .jvmSettings(
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.jvm / publishLocal, toolkitTest.jvm / publishLocal).value
+</span><span>  )
+</span><span>  .jsSettings(
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.js / publishLocal, toolkitTest.js / publishLocal).value
+</span><span>    scalaJSLinkerConfig ~= { _.withModuleKind(</span><span style=color:#ebcb8b>ModuleKind</span><span>.</span><span style=color:#ebcb8b>CommonJSModule</span><span>) }
+</span><span>  )
+</span><span>  .nativeSettings(
+</span><span>    </span><span style=color:#ebcb8b>Test </span><span>/ test := (</span><span style=color:#ebcb8b>Test </span><span>/ test).dependsOn(toolkit.native / publishLocal, toolkitTest.native / publishLocal).value
+</span><span>  )
+</span><span>  .enablePlugins(</span><span style=color:#ebcb8b>BuildInfoPlugin</span><span>, </span><span style=color:#ebcb8b>NoPublishPlugin</span><span>)
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>One thing to note is that we deliberately made a "mistake". The <code>munit-cats-effect</code> and <code>fs2-io</code> dependencies are declared using <code>%%%</code> the operator that not only appends <code>_${scalaBinaryVersion}</code> to the end of the artifact name but also the platform name (appending i.e. for a Scala 3 native dependency <code>_native0.4_3</code>), but the <code>scala-cli</code> one was declared using just <code>%%</code> and the <code>% Test</code> modifier was removed. In this way we were sure that, for <strong>every platform</strong>, the <code>Compile / dependencyClasspath</code> would have included just the <strong>jvm version of scala-cli</strong>.<p>To inject the classpath into the source code we leveraged our beloved friend <a href=https://github.com/sbt/sbt-buildinfo>sbt-buildinfo</a>, that <strong>it's not limited to inject just <code>SettingKey[T]</code>s</strong> and/or static information (computed at project load time), but using its own syntax <strong>can inject <code>TaskKey[T]</code>s after they've been evaluated</strong> (and re-evaluated each time at compile). So in the common <code>.settings</code> we added:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>///...
+</span><span>  buildInfoKeys += scalaBinaryVersion,
+</span><span>  buildInfoKeys += </span><span style=color:#ebcb8b>BuildInfoKey</span><span>.map(</span><span style=color:#ebcb8b>Compile </span><span>/ dependencyClasspath) {
+</span><span>      </span><span style=color:#b48ead>case </span><span>(_, v) =>
+</span><span>        "</span><span style=color:#a3be8c>classPath</span><span>" -> v.seq
+</span><span>          .map(_.data.getAbsolutePath)
+</span><span>          .mkString(</span><span style=color:#ebcb8b>File</span><span>.pathSeparator) </span><span style=color:#65737e>// That's the way java -cp accepts classpath info
+</span><span>    },
+</span><span>    buildInfoKeys += </span><span style=color:#ebcb8b>BuildInfoKey</span><span>.action("</span><span style=color:#a3be8c>javaHome</span><span>") {
+</span><span>      </span><span style=color:#b48ead>val </span><span style=color:#bf616a>path </span><span>= sys.env.get("</span><span style=color:#a3be8c>JAVA_HOME</span><span>").orElse(sys.props.get("</span><span style=color:#a3be8c>java.home</span><span>")).get
+</span><span>      </span><span style=color:#b48ead>if </span><span>(path.endsWith("</span><span style=color:#a3be8c>/jre</span><span>")) {
+</span><span>        </span><span style=color:#65737e>// handle JDK 8 installations
+</span><span>        path.replace("</span><span style=color:#a3be8c>/jre</span><span>", "")
+</span><span>      } </span><span style=color:#b48ead>else</span><span> path
+</span><span>    },
+</span><span>    buildInfoKeys += "</span><span style=color:#a3be8c>scala3</span><span>" -> (scalaVersion.value.head == </span><span style=color:#d08770>'3'</span><span>)
+</span><span style=color:#65737e>///...
+</span></code></pre></div></div><p>and in each platform specific section we added to buildInfo the platform's name:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> build.sbt</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>  .jvmSettings(
+</span><span>    </span><span style=color:#65737e>//...
+</span><span>    buildInfoKeys += "</span><span style=color:#a3be8c>platform</span><span>" -> "</span><span style=color:#a3be8c>jvm</span><span>"
+</span><span>  )
+</span><span>  .jsSettings(
+</span><span>    </span><span style=color:#65737e>//...
+</span><span>    buildInfoKeys += "</span><span style=color:#a3be8c>platform</span><span>" -> "</span><span style=color:#a3be8c>js</span><span>",
+</span><span>  )
+</span><span>  .nativeSettings(
+</span><span>    </span><span style=color:#65737e>//...
+</span><span>    buildInfoKeys += "</span><span style=color:#a3be8c>platform</span><span>" -> "</span><span style=color:#a3be8c>native</span><span>"
+</span><span>  )
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>in this way we could leverage in our source code all the information required to run <code>scala-cli</code> and test our snippets:<pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>private val </span><span style=color:#bf616a>classPath</span><span>: </span><span style=color:#ebcb8b>String          </span><span>= </span><span style=color:#ebcb8b>BuildInfo</span><span>.classPath
+</span><span style=color:#b48ead>private val </span><span style=color:#bf616a>javaHome</span><span>: </span><span style=color:#ebcb8b>String           </span><span>= </span><span style=color:#ebcb8b>BuildInfo</span><span>.javaHome
+</span><span style=color:#b48ead>private val </span><span style=color:#bf616a>platform</span><span>: </span><span style=color:#ebcb8b>String           </span><span>= </span><span style=color:#ebcb8b>BuildInfo</span><span>.platform
+</span><span style=color:#b48ead>private val </span><span style=color:#bf616a>scalaBinaryVersion</span><span>: </span><span style=color:#ebcb8b>String </span><span>= </span><span style=color:#ebcb8b>BuildInfo</span><span>.scalaBinaryVersion
+</span><span style=color:#b48ead>private val </span><span style=color:#bf616a>scala3</span><span>: </span><span style=color:#ebcb8b>Boolean            </span><span>= </span><span style=color:#ebcb8b>BuildInfo</span><span>.scala3
+</span></code></pre><h3 id=invoking-java-via-fs2-process><a class=anchor href=#invoking-java-via-fs2-process>Invoking Java via fs2 <code>Process</code></a></h3><p>Once we had all the required components, invoking java was easy, we just created and spawned a <a href="https://fs2.io/#/io?id=processes">Process</a> from the package <code>fs2.io.process</code>, that is implemented for every platform under the very same API:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> ScalaCliTest.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>import </span><span>buildinfo.</span><span style=color:#ebcb8b>BuildInfo
+</span><span style=color:#b48ead>import </span><span>cats.effect.kernel.</span><span style=color:#ebcb8b>Resource
+</span><span style=color:#b48ead>import </span><span>cats.effect.std.</span><span style=color:#ebcb8b>Console
+</span><span style=color:#b48ead>import </span><span>cats.effect.</span><span style=color:#ebcb8b>IO
+</span><span style=color:#b48ead>import </span><span>cats.syntax.parallel.*
+</span><span style=color:#b48ead>import </span><span>fs2.</span><span style=color:#ebcb8b>Stream
+</span><span style=color:#b48ead>import </span><span>fs2.io.file.</span><span style=color:#ebcb8b>Files
+</span><span style=color:#b48ead>import </span><span>fs2.io.process.</span><span style=color:#ebcb8b>ProcessBuilder
+</span><span style=color:#b48ead>import </span><span>munit.</span><span style=color:#ebcb8b>Assertions</span><span>.fail
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>ScalaCliProcess </span><span>{
+</span><span>
+</span><span>  </span><span style=color:#b48ead>private def </span><span style=color:#8fa1b3>scalaCli</span><span>(</span><span style=color:#bf616a>args</span><span>: </span><span style=color:#ebcb8b>List</span><span>[</span><span style=color:#ebcb8b>String</span><span>]): </span><span style=color:#ebcb8b>IO</span><span>[</span><span style=color:#ebcb8b>Unit</span><span>] = </span><span style=color:#ebcb8b>ProcessBuilder</span><span>(
+</span><span>    </span><span style=color:#b48ead>s</span><span>"${</span><span style=color:#ebcb8b>BuildInfo</span><span>.javaHome}</span><span style=color:#a3be8c>/bin/java</span><span>",
+</span><span>    args.prependedAll(</span><span style=color:#ebcb8b>List</span><span>("</span><span style=color:#a3be8c>-cp</span><span>", </span><span style=color:#ebcb8b>BuildInfo</span><span>.classPath, "</span><span style=color:#a3be8c>scala.cli.ScalaCli</span><span>"))
+</span><span>  ).spawn[</span><span style=color:#ebcb8b>IO</span><span>]
+</span><span>    .use(process =>
+</span><span>      (
+</span><span>        process.exitValue,
+</span><span>        process.stdout.through(fs2.text.utf8.decode).compile.string,
+</span><span>        process.stderr.through(fs2.text.utf8.decode).compile.string
+</span><span>      ).parFlatMapN {
+</span><span>        </span><span style=color:#b48ead>case </span><span>(</span><span style=color:#d08770>0</span><span>, _, _) => </span><span style=color:#ebcb8b>IO</span><span>.unit
+</span><span>        </span><span style=color:#b48ead>case </span><span>(exitCode, stdout, stdErr) =>
+</span><span>          </span><span style=color:#ebcb8b>IO</span><span>.println(stdout) >> </span><span style=color:#ebcb8b>Console</span><span>[</span><span style=color:#ebcb8b>IO</span><span>].errorln(stdErr) >> </span><span style=color:#ebcb8b>IO</span><span>.delay(
+</span><span>            fail(</span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>Non zero exit code (</span><span>$exitCode</span><span style=color:#a3be8c>) for </span><span>${args.mkString(" ")}")
+</span><span>          )
+</span><span>      }
+</span><span>    )
+</span><span>
+</span><span>  </span><span style=color:#65737e>//..
+</span><span>
+</span><span>}
+</span></code></pre></div></div><p>Let's dissect this function:<ul><li><code>ProcessBuilder</code> constructor accepts a <code>String</code> command and a list of <code>String</code> arguments, it can then spawn the subprocess using <code>.spawn[IO]</code>, that will return a <code>Resource[IO, Process[IO]]</code>. Resource is a really useful Cats Effect datatype that deserves its own post, but you can find some information in <a href=https://typelevel.org/cats-effect/docs/std/resource>the official documentation</a>.<li>The <code>Process[IO]</code> resource is <code>use</code>d, and its exit code is gathered, <strong>in parallel</strong>, together with its stdout and stderr using <code>parFlatMapN</code>. This will prevent deadlocking, as we won't wait for a process' exit code without consuming its stdout and stderr streams.<li>Once we have the results, if the exit code is 0 we'll simply discard the content of the streams, otherwise we'll print everything that might be useful to debug possible errors, and we'll instruct our testing framework to fail with a specific message.</ul><p>Now we needed a method to write in a temporary file the source of each scala-cli script with all the information needed to correctly test the toolkit. Luckily for us <code>fs2</code> makes it easy:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> ScalaCliTest.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>  </span><span style=color:#b48ead>private def </span><span style=color:#8fa1b3>writeToFile</span><span>(</span><span style=color:#bf616a>scriptBody</span><span>: </span><span style=color:#ebcb8b>String</span><span>)(</span><span style=color:#bf616a>isTest</span><span>: </span><span style=color:#ebcb8b>Boolean</span><span>): </span><span style=color:#ebcb8b>Resource</span><span>[</span><span style=color:#ebcb8b>IO</span><span>, </span><span style=color:#ebcb8b>String</span><span>] =
+</span><span>    </span><span style=color:#ebcb8b>Files</span><span>[</span><span style=color:#ebcb8b>IO</span><span>].tempFile(</span><span style=color:#ebcb8b>None</span><span>,"",</span><span style=color:#b48ead>if </span><span>(isTest) "</span><span style=color:#a3be8c>-toolkit.test.scala</span><span>" </span><span style=color:#b48ead>else </span><span>"</span><span style=color:#a3be8c>-toolkit.scala</span><span>", </span><span style=color:#ebcb8b>None</span><span>)
+</span><span>      .evalTap { path =>
+</span><span>        </span><span style=color:#b48ead>val </span><span style=color:#bf616a>header </span><span>= </span><span style=color:#ebcb8b>List</span><span>(
+</span><span>          </span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>//> using scala </span><span>${</span><span style=color:#ebcb8b>BuildInfo</span><span>.scalaVersion}",
+</span><span>          </span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>//> using toolkit typelevel:</span><span>${</span><span style=color:#ebcb8b>BuildInfo</span><span>.version}",
+</span><span>          </span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>//> using platform </span><span>${</span><span style=color:#ebcb8b>BuildInfo</span><span>.platform}"
+</span><span>        ).mkString("", "</span><span style=color:#96b5b4>\n</span><span>", "</span><span style=color:#96b5b4>\n</span><span>")
+</span><span>        </span><span style=color:#ebcb8b>Stream</span><span>(header, scriptBody.stripMargin)
+</span><span>          .through(</span><span style=color:#ebcb8b>Files</span><span>[</span><span style=color:#ebcb8b>IO</span><span>].writeUtf8(path))
+</span><span>          .compile
+</span><span>          .drain
+</span><span>      }
+</span><span>      .map(_.toString)
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>Dissecting this function too we'll see that:<ul><li><code>Files[IO].tempFile</code> creates a temporary file as a <code>Resource</code>, whose release method will <strong>delete the temporary file</strong>.<li>The <code>isTest</code> parameter is used to determine the extension that the temp file will have, as <code>scala-cli</code> requires a specific extension for both source and test files.<li><code>.evalTap</code> will run an effectful side effect but returning the same <code>Resource</code> it was called on. In this case it will write the script content in the newly created temp file. This effect will run <strong>AFTER</strong> the file creation, but <strong>BEFORE</strong> any other effectful action that can be performed in the <code>use</code> method.<li>In the effect we'll produce a set of <code>scala-cli</code> directives using <code>BuildInfo</code>, we'll prepend them to the script's body and write everything in the temp file.<li>The path of the freshly baked scala-cli script will then be provided as a <code>Resource[IO, String]</code></ul><p>The only thing we needed to do was to <strong>combine the two methods</strong> into a testing method:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> ScalaCliTest.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//...
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>testRun</span><span>(testName:</span><span style=color:#ebcb8b>String</span><span>)(</span><span style=color:#bf616a>body</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>IO</span><span>[</span><span style=color:#ebcb8b>Unit</span><span>] = 
+</span><span>   test(testName)(writeToFile(body)(</span><span style=color:#d08770>false</span><span>).use(f => scalaCli("</span><span style=color:#a3be8c>run</span><span>" :: f :: </span><span style=color:#ebcb8b>Nil</span><span>)))
+</span><span>
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>testTest</span><span>(testName:</span><span style=color:#ebcb8b>String</span><span>)(</span><span style=color:#bf616a>body</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>IO</span><span>[</span><span style=color:#ebcb8b>Unit</span><span>] = 
+</span><span>    test(testName)(writeToFile(body)(</span><span style=color:#d08770>true</span><span>).use(f => scalaCli("</span><span style=color:#a3be8c>test</span><span>" :: f :: </span><span style=color:#ebcb8b>Nil</span><span>)))
+</span><span style=color:#65737e>//...
+</span></code></pre></div></div><p>To recap, each of the two methods will run a munit test that:<ul><li>write the <code>body</code> argument to a temporary file with the correct extension, prepending the correct <code>scala-cli</code> directives<li>run either the command <code>scala-cli run</code> or <code>scala-cli test</code> against the newly created file<li>use the exit code of the process to establish if the test is passed or not<li>delete the temporary file</ul><p>The <strong>produced files</strong> will look, for example, like this:<pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//> using scala 3
+</span><span style=color:#65737e>//> using toolkit typelevel:typelevel:0.1.14-29-d717826-20231004T153011Z-SNAPSHOT
+</span><span style=color:#65737e>//> using platform jvm
+</span><span>
+</span><span style=color:#b48ead>import </span><span>cats.effect.*
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>Hello </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>IOApp</span><span>.</span><span style=color:#ebcb8b>Simple</span><span>:
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>run </span><span>= </span><span style=color:#ebcb8b>IO</span><span>.println("</span><span style=color:#a3be8c>Hello toolkit!</span><span>")
+</span></code></pre><p>where <code>0.1.14-29-d717826-20231004T153011Z-SNAPSHOT</code> is the version of the toolkit that was just <strong>published</strong> locally by sbt.<h2 id=test-writing><a class=anchor href=#test-writing>Test writing</a></h2><p>It was then <strong>Time to write and run the actual tests!</strong><div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> ToolkitTests.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>import </span><span>munit.</span><span style=color:#ebcb8b>CatsEffectSuite
+</span><span style=color:#b48ead>import </span><span>buildinfo.</span><span style=color:#ebcb8b>BuildInfo</span><span>.scala3
+</span><span style=color:#b48ead>import </span><span style=color:#ebcb8b>ScalaCliTest</span><span>.{testRun, testTest}
+</span><span>
+</span><span style=color:#b48ead>class </span><span style=color:#ebcb8b>ToolkitTests </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>CatsEffectSuite </span><span>{
+</span><span>
+</span><span>  testRun("</span><span style=color:#a3be8c>Toolkit should run a simple Hello Cats Effect</span><span>") {
+</span><span>    </span><span style=color:#b48ead>if </span><span>(scala3)
+</span><span>      """</span><span style=color:#a3be8c>|import cats.effect.*
+</span><span style=color:#a3be8c>         |
+</span><span style=color:#a3be8c>         |object Hello extends IOApp.Simple:
+</span><span style=color:#a3be8c>         |  def run = IO.println("Hello toolkit!")</span><span>"""
+</span><span>    </span><span style=color:#b48ead>else
+</span><span>      """</span><span style=color:#a3be8c>|import cats.effect._
+</span><span style=color:#a3be8c>         |
+</span><span style=color:#a3be8c>         |object Hello extends IOApp.Simple {
+</span><span style=color:#a3be8c>         |  def run = IO.println("Hello toolkit!")
+</span><span style=color:#a3be8c>         |}</span><span>"""
+</span><span>  }
+</span><span>
+</span><span>  testTest("</span><span style=color:#a3be8c>Toolkit should execute a simple munit suite</span><span>") {
+</span><span>    </span><span style=color:#b48ead>if </span><span>(scala3)
+</span><span>      """</span><span style=color:#a3be8c>|import cats.effect.*
+</span><span style=color:#a3be8c>         |import munit.*
+</span><span style=color:#a3be8c>         |
+</span><span style=color:#a3be8c>         |class Test extends CatsEffectSuite:
+</span><span style=color:#a3be8c>         |  test("test")(IO.unit)</span><span>"""
+</span><span>    </span><span style=color:#b48ead>else
+</span><span>      """</span><span style=color:#a3be8c>|import cats.effect._
+</span><span style=color:#a3be8c>         |import munit._
+</span><span style=color:#a3be8c>         |
+</span><span style=color:#a3be8c>         |class Test extends CatsEffectSuite {
+</span><span style=color:#a3be8c>         |  test("test")(IO.unit)
+</span><span style=color:#a3be8c>         |}</span><span>"""
+</span><span>  }
+</span><span>  </span><span style=color:#65737e>//...
+</span><span>}
+</span></code></pre></div></div><p>The little testing framework we wrote is now capable of both running and testing <code>scala-cli</code> scripts that use the typelevel toolkit, and it will test it in every platform and scala version. <code>sbt test</code> will now publish both the toolkit and the test toolkit, for every platform, right before running the unit tests, achieving in this way a complete coverage and adding reliability to our releases! 🎉<p>And all of this was done without even touching our GitHub Actions, just with some <code>sbt</code><em>-fu</em>, and <strong>just using the libraries that are included in the toolkit itself</strong> 😎</article><script data-repo-id="MDEwOlJlcG9zaXRvcnkzNzA0MDc0NDc=" async crossorigin data-category=Q&A data-category-id=DIC_kwDOFhP4F84CeeYj data-emit-metadata=1 data-input-position=bottom data-lang=en data-loading=lazy data-mapping=pathname data-reactions-enabled=1 data-repo=TonioGela/blog data-strict=0 data-theme=dark_dimmed src=https://giscus.app/client.js></script>

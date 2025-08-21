@@ -1,0 +1,314 @@
+<!doctype html><html lang=en><head><meta content="IE=edge" http-equiv=X-UA-Compatible><meta content="text/html; charset=utf-8; X-Content-Type-Options=nosniff" http-equiv=Content-Type><meta content="frame-ancestors 'none'; base-uri 'self';" http-equiv=Content-Security-Policy><meta content="index, follow" name=robots><meta content="3 days" name=revisit-after><meta content="Antonio Gelameris" name=author><title>Deploy http4s on your domain with fly.io | TonioGela's</title><meta content="Deploy http4s on your domain with fly.io | TonioGela's" name=title><meta content="Deploy http4s on your domain with fly.io | TonioGela's" property=og:title><meta content="Deploy http4s on your domain with fly.io | TonioGela's" property=twitter:title><meta content="How to write and deploy a server with http4s and scala-cli and deploying it on your own domain with fly.io in 10 minutes.
+" name=description><meta content="How to write and deploy a server with http4s and scala-cli and deploying it on your own domain with fly.io in 10 minutes.
+" property=og:description><meta content="How to write and deploy a server with http4s and scala-cli and deploying it on your own domain with fly.io in 10 minutes.
+" property=twitter:description><meta content=website property=og:type><meta content=https://toniogela.dev/http4s-on-fly-io/ property=og:url><meta content=summary property=twitter:card><meta content=https://toniogela.dev/http4s-on-fly-io/ property=twitter:url><meta content=@toniogela name=twitter:site><meta content=@toniogela name=twitter:creator><meta content="width=device-width,initial-scale=1.0,maximum-scale=3" name=viewport><link href=https://toniogela.dev/rss.xml rel=alternate title=RSS type=application/rss+xml><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel="shortcut icon" type=image/x-icon><link href="https://toniogela.dev/favicon.ico?h=fcd8599b2c3f8e3cb97b" rel=icon type=image/x-icon><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" as=style rel=preload><link href="
+    https://toniogela.dev/avatar.webp?h=bb598620204fd77b7659
+" as=image rel=preload><link crossorigin href=https://giscus.app rel=preconnect><link href="https://toniogela.dev/colors.css?h=ff2263b4ebe229c8bdc6" integrity="sha512-o0dvhjSBealgvuJzmYvFePyVuQvaOn3W76rseE83rvGCQTtaLHrVmd71648TAvmxyTRRKgHUBshRCelRiGIyng==" rel=stylesheet><script integrity="sha512-DKtiGDYXXQYuisRMLzYB5k06+5giy0VlJem3LveN+feK32OGPWVltPBsc7Zuxstr4WQqJhOzQkWpH4QDPhuyLg==" src="https://toniogela.dev/instantpage-5.1.0.js?h=fa5c34371df3acd378bd" async defer type=module></script><body data-instant-allow-external-links><nav class=overlord id=overlord><figure class=mini_logo><a aria-label=Homepage href=https://toniogela.dev style=background-image:url(https://toniogela.dev/avatar.webp)></a></figure><h5><a aria-label=Homepage href=https://toniogela.dev>TonioGela's</a></h5></nav><section class=post_container><article><h1 class=article_title><a href=https://toniogela.dev/http4s-on-fly-io/ id=article_link>Deploy http4s on your domain with fly.io</a></h1><ul class="frontmatter frontmatter_page" id=frontmatter><li><time class=article_time datetime=2023-01-09>January 09, 2023</time><li class=dotDivider><li>1171 words<li class=dotDivider><li>6 min</ul><blockquote><p><strong>DISCLAIMER</strong>: This article assumes some familiarity with the <a href=https://typelevel.org/>Typelevel</a>'s tech stack, <a href=https://http4s.org/>http4s</a> in particular.<p>There's plenty of <strong>good resources</strong> to read online to get started with, some of them being <a href=https://underscore.io/books/scala-with-cats/>Scala with Cats</a>, <a href=https://essentialeffects.dev/>Essential Effects</a> and the <a href=https://typelevel.org/cats-effect/>Cats Effect</a> documentation. The <strong>best and most comprehensive resource</strong> you'll find to develop a microservice using this stack is <a href=https://leanpub.com/pfp-scala>Practical FP in Scala</a>, that I strongly suggest reading.<p>If you need <strong>help</strong> with any of these resources feel free to contact me or better ask questions in the <a href=https://discord.com/invite/XF3CXcMzqD>Typelevel's Discord</a>. You'll find <strong>an amazing and kind community</strong> of really <strong>talented</strong> people that will be glad to answer to your questions 😄</blockquote><p>If you already own a domain, deploying a toy server or any personal <em>server-shaped</em> project on it should not be a complex operation. Using <a href=https://fly.io/>fly.io</a>, <a href=https://scala-cli.virtuslab.org/>scala-cli</a>, <a href=https://http4s.org/>http4s</a> and <a href=https://github.com/casey/just>just</a> can help automatise the process and reduce the friction up to the point it might even be fun.<h2 id=requirements><a class=anchor href=#requirements>Requirements</a></h2><p>Before starting, we'll need to set up a couple of things. Here's the list:<ul><li>Having/buying a <strong>custom domain</strong> and having access to its <strong>DNS settings page</strong>: I'm using <a href=https://domains.google/>Google Domains</a> since the domains are cheap (most of them cost 12$ per year), but sadly it lacks support for ALIAS records.<li>Sign up on <a href=https://fly.io/>fly.io</a>, <a href=https://toniogela.dev/http4s-on-fly-io/(https://fly.io/docs/hands-on/install-flyctl/)>install</a> its command line tool <strong><code>flyctl</code></strong> and log in using <code>flyctl auth login</code><li><strong>Of course</strong>, a local installation of <a href=https://scala-cli.virtuslab.org/>scala-cli</a> (Here's me talking about it on the <a href=https://blog.rockthejvm.com/scala-cli-and-scala-native/>Rock The JVM blog</a>)<li>Optionally the command line tool <a href=https://github.com/casey/just><code>just</code></a> that I <strike>recently</strike> reviewed <a href=https://toniogela.dev/just/>in another article</a></ul><h2 id=writing-the-application><a class=anchor href=#writing-the-application>Writing the application</a></h2><p>Writing a hello-world-spitting server with http4s using <a href=https://github.com/http4s/http4s.g8>its giter8 template</a> and sbt it's a trivial task.<p>Instead, we'll write it manually, using scala-cli and adding a slightly less trivial business logic. To begin, we'll create a file containing a few scala-cli directives to declare the dependencies and the scala version:<pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//> using scala "3.2.1"
+</span><span style=color:#65737e>//> using lib "org.http4s::http4s-ember-server::0.23.17"
+</span><span style=color:#65737e>//> using lib "org.http4s::http4s-dsl::0.23.17"
+</span><span style=color:#65737e>//> using lib "com.monovore::decline-effect::2.4.1"
+</span><span style=color:#65737e>//> using lib "ch.qos.logback:logback-classic:1.4.5"
+</span></code></pre><p>The server will read two environment variables, a mandatory one for the base URL and one for the title of the HTML pages to return. We'll use <a href=https://ben.kirw.in/decline/>decline</a> to define them and use them:<pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>import </span><span>cats.effect.{</span><span style=color:#ebcb8b>ExitCode</span><span>, </span><span style=color:#ebcb8b>IO</span><span>}
+</span><span style=color:#b48ead>import </span><span>cats.syntax.all.*
+</span><span style=color:#b48ead>import </span><span>com.monovore.decline.</span><span style=color:#ebcb8b>Opts
+</span><span style=color:#b48ead>import </span><span>com.monovore.decline.effect.</span><span style=color:#ebcb8b>CommandIOApp
+</span><span style=color:#b48ead>import </span><span>org.http4s.</span><span style=color:#ebcb8b>Uri
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>Server </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>CommandIOApp</span><span>("</span><span style=color:#a3be8c>helloServer</span><span>", "</span><span style=color:#a3be8c>Greets you in HTML</span><span>") {
+</span><span>
+</span><span>  </span><span style=color:#b48ead>val </span><span style=color:#bf616a>titleOpt</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>String</span><span>] =
+</span><span>    </span><span style=color:#ebcb8b>Opts</span><span>.env[</span><span style=color:#ebcb8b>String</span><span>]("</span><span style=color:#a3be8c>TITLE</span><span>", "</span><span style=color:#a3be8c>Page title</span><span>").withDefault("</span><span style=color:#a3be8c>Hello</span><span>")
+</span><span>
+</span><span>  </span><span style=color:#b48ead>val </span><span style=color:#bf616a>baseUrlOpt</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>Uri</span><span>] = </span><span style=color:#ebcb8b>Opts
+</span><span>    .env[</span><span style=color:#ebcb8b>String</span><span>]("</span><span style=color:#a3be8c>BASE_URL</span><span>", "</span><span style=color:#a3be8c>The base url</span><span>")
+</span><span>    .mapValidated(
+</span><span>      </span><span style=color:#ebcb8b>Uri
+</span><span>        .fromString(_)
+</span><span>        .leftMap(_.message)
+</span><span>        .ensure("</span><span style=color:#a3be8c>base url must be absolute</span><span>")(_.path.addEndsWithSlash.absolute)
+</span><span>        .map(uri => uri.withPath(uri.path.dropEndsWithSlash))
+</span><span>        .toValidatedNel
+</span><span>    )
+</span><span>
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>main</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>IO</span><span>[</span><span style=color:#ebcb8b>ExitCode</span><span>]] = (baseUrlOpt, titleOpt).mapN((baseUrl, title) =>
+</span><span>    </span><span style=color:#ebcb8b>IO</span><span>.println(</span><span style=color:#b48ead>s</span><span>"$baseUrl $title").as(</span><span style=color:#ebcb8b>ExitCode</span><span>.</span><span style=color:#ebcb8b>Success</span><span>)
+</span><span>  )
+</span><span>}
+</span></code></pre><p>The application prints the environment variables' content, validates the base URL's content and adds a default for <code>TITLE</code>.<p>To add some business logic to the soon-to-be server, we'll add a pure function that builds a tiny HTML page, and we'll use it in our <code>routes</code> implementation:<pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#b48ead>import </span><span>cats.effect.kernel.</span><span style=color:#ebcb8b>Async
+</span><span style=color:#b48ead>import </span><span>org.http4s.{</span><span style=color:#ebcb8b>HttpRoutes</span><span>, </span><span style=color:#ebcb8b>MediaType</span><span>, </span><span style=color:#ebcb8b>Response</span><span>, </span><span style=color:#ebcb8b>Status</span><span>}
+</span><span style=color:#b48ead>import </span><span>org.http4s.dsl.io.*
+</span><span style=color:#b48ead>import </span><span>org.http4s.headers.`Content-Type`
+</span><span>
+</span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>page</span><span>(</span><span style=color:#bf616a>uri</span><span>: </span><span style=color:#ebcb8b>Uri</span><span>, </span><span style=color:#bf616a>title</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>String </span><span>=
+</span><span>  </span><span style=color:#b48ead>s</span><span>"""</span><span style=color:#a3be8c>|&lt;html>
+</span><span style=color:#a3be8c>      |&lt;head>&lt;title></span><span>$title</span><span style=color:#a3be8c>&lt;/title>&lt;/head>
+</span><span style=color:#a3be8c>      |&lt;body>Hello from </span><span>${uri.toString}</span><span style=color:#a3be8c>&lt;/body>
+</span><span style=color:#a3be8c>      |&lt;/html></span><span>""".stripMargin
+</span><span>
+</span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>routes</span><span>[</span><span style=color:#ebcb8b>F</span><span>[_]: </span><span style=color:#ebcb8b>Async</span><span>](</span><span style=color:#bf616a>baseUrl</span><span>: </span><span style=color:#ebcb8b>Uri</span><span>, </span><span style=color:#bf616a>title</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>HttpRoutes</span><span>[</span><span style=color:#ebcb8b>F</span><span>] =
+</span><span>  </span><span style=color:#ebcb8b>HttpRoutes</span><span>.of[</span><span style=color:#ebcb8b>F</span><span>] {
+</span><span>    </span><span style=color:#b48ead>case </span><span style=color:#ebcb8b>GET </span><span>-> </span><span style=color:#ebcb8b>Root </span><span>/ "</span><span style=color:#a3be8c>health</span><span>" => </span><span style=color:#ebcb8b>Response</span><span>[</span><span style=color:#ebcb8b>F</span><span>](</span><span style=color:#ebcb8b>Status</span><span>.</span><span style=color:#ebcb8b>Ok</span><span>).pure[</span><span style=color:#ebcb8b>F</span><span>]
+</span><span>    </span><span style=color:#b48ead>case </span><span style=color:#ebcb8b>GET </span><span>-> path =>
+</span><span>        </span><span style=color:#ebcb8b>Response</span><span>[</span><span style=color:#ebcb8b>F</span><span>](</span><span style=color:#ebcb8b>Status</span><span>.</span><span style=color:#ebcb8b>Ok</span><span>)
+</span><span>          .withEntity(page(baseUrl.withPath(baseUrl.path.merge(path)), title))
+</span><span>          .withContentType(`Content-Type`(</span><span style=color:#ebcb8b>MediaType</span><span>.text.html))
+</span><span>          .pure[</span><span style=color:#ebcb8b>F</span><span>]
+</span><span>  }
+</span></code></pre><p>The simple logic consists in printing the absolute URL of the page that was requested to the server, plus a health check endpoint.<p>We'll add some logging to our <code>routes</code> leveraging <code>log4cats</code> and <code>slf4j</code>:<pre class=language-diff data-lang=diff style=color:#c0c5ce;background-color:#2b303b><code class=language-diff data-lang=diff><span> import org.typelevel.log4cats.Logger
+</span><span> import org.typelevel.log4cats.slf4j.*
+</span><span>
+</span><span style=color:#a3be8c>+def routes[F[_]: Async: Logger](baseUrl: Uri, title: String): HttpRoutes[F] =
+</span><span style=color:#bf616a>-def routes[F[_]: Async](baseUrl: Uri, title: String): HttpRoutes[F] =
+</span><span>   HttpRoutes.of[F] {
+</span><span>     case GET -> Root / "health" => Response[F](Status.Ok).pure[F]
+</span><span>     case GET -> path =>
+</span><span style=color:#a3be8c>+      Logger[F].info(s"Serving $path") >>
+</span><span>         Response[F](Status.Ok)
+</span><span>           .withEntity(page(baseUrl.withPath(baseUrl.path.merge(path)), title))
+</span><span>           .withContentType(`Content-Type`(MediaType.text.html))
+</span><span>           .pure[F]
+</span><span>   }
+</span></code></pre><p>Our logging backend will be <code>logback</code>, which we'll configure by adding a <code>logback.xml</code> file in our current directory:<div class=code-window><div class=code-title style=color:#1a2539;background-color:#a3be8c><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> logback.xml</div><div class=code-body><pre class=language-xml data-lang=xml style=color:#c0c5ce;background-color:#2b303b><code class=language-xml data-lang=xml><span>&lt;?</span><span style=color:#bf616a>xml </span><span style=color:#d08770>version</span><span>="</span><span style=color:#a3be8c>1.0</span><span>" </span><span style=color:#d08770>encoding</span><span>="</span><span style=color:#a3be8c>UTF-8</span><span>"?>
+</span><span>&lt;</span><span style=color:#bf616a>configuration </span><span style=color:#d08770>debug</span><span>="</span><span style=color:#a3be8c>false</span><span>">
+</span><span>    &lt;</span><span style=color:#bf616a>appender </span><span style=color:#d08770>name</span><span>="</span><span style=color:#a3be8c>STDOUT</span><span>" </span><span style=color:#d08770>class</span><span>="</span><span style=color:#a3be8c>ch.qos.logback.core.ConsoleAppender</span><span>">
+</span><span>        &lt;</span><span style=color:#bf616a>encoder</span><span>>
+</span><span>            &lt;</span><span style=color:#bf616a>pattern</span><span>>
+</span><span>                %d{ISO8601} [%-4level] %logger{0}: %msg%n
+</span><span>            &lt;/</span><span style=color:#bf616a>pattern</span><span>>
+</span><span>        &lt;/</span><span style=color:#bf616a>encoder</span><span>>
+</span><span>    &lt;/</span><span style=color:#bf616a>appender</span><span>>
+</span><span>
+</span><span>    &lt;</span><span style=color:#bf616a>logger </span><span style=color:#d08770>name</span><span>="</span><span style=color:#a3be8c>org.http4s.ember.server</span><span>" </span><span style=color:#d08770>level</span><span>="</span><span style=color:#a3be8c>ERROR</span><span>" />
+</span><span>
+</span><span>    &lt;</span><span style=color:#bf616a>root </span><span style=color:#d08770>level</span><span>="</span><span style=color:#a3be8c>INFO</span><span>">
+</span><span>        &lt;</span><span style=color:#bf616a>appender-ref </span><span style=color:#d08770>ref</span><span>="</span><span style=color:#a3be8c>STDOUT</span><span>" />
+</span><span>    &lt;/</span><span style=color:#bf616a>root</span><span>>
+</span><span>&lt;/</span><span style=color:#bf616a>configuration</span><span>>
+</span></code></pre></div></div><p>What is lacking now is the logger and server instantiation in our <code>main</code> method. Adding it will finally complete our implementation:<div class=code-window><div class=code-title><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> server.scala</div><div class=code-body><pre class=language-scala data-lang=scala style=color:#c0c5ce;background-color:#2b303b><code class=language-scala data-lang=scala><span style=color:#65737e>//> using scala "3.2.1"
+</span><span style=color:#65737e>//> using resourceDir "."
+</span><span style=color:#65737e>//> using packaging.packageType "assembly"
+</span><span style=color:#65737e>//> using lib "org.http4s::http4s-ember-server::0.23.17"
+</span><span style=color:#65737e>//> using lib "org.http4s::http4s-dsl::0.23.17"
+</span><span style=color:#65737e>//> using lib "com.monovore::decline-effect::2.4.1"
+</span><span style=color:#65737e>//> using lib "ch.qos.logback:logback-classic:1.4.5"
+</span><span>
+</span><span style=color:#b48ead>import </span><span>cats.effect.{</span><span style=color:#ebcb8b>ExitCode</span><span>, </span><span style=color:#ebcb8b>IO</span><span>}
+</span><span style=color:#b48ead>import </span><span>cats.effect.kernel.</span><span style=color:#ebcb8b>Async
+</span><span style=color:#b48ead>import </span><span>cats.syntax.all.*
+</span><span style=color:#b48ead>import </span><span>com.comcast.ip4s.{ipv4, port}
+</span><span style=color:#b48ead>import </span><span>com.monovore.decline.</span><span style=color:#ebcb8b>Opts
+</span><span style=color:#b48ead>import </span><span>com.monovore.decline.effect.</span><span style=color:#ebcb8b>CommandIOApp
+</span><span style=color:#b48ead>import </span><span>org.http4s.{</span><span style=color:#ebcb8b>HttpRoutes</span><span>, </span><span style=color:#ebcb8b>MediaType</span><span>, </span><span style=color:#ebcb8b>Response</span><span>, </span><span style=color:#ebcb8b>Status</span><span>, </span><span style=color:#ebcb8b>Uri</span><span>}
+</span><span style=color:#b48ead>import </span><span>org.http4s.dsl.io.*
+</span><span style=color:#b48ead>import </span><span>org.http4s.ember.server.</span><span style=color:#ebcb8b>EmberServerBuilder
+</span><span style=color:#b48ead>import </span><span>org.http4s.headers.`Content-Type`
+</span><span style=color:#b48ead>import </span><span>org.http4s.server.middleware.</span><span style=color:#ebcb8b>CORS
+</span><span style=color:#b48ead>import </span><span>org.typelevel.log4cats.</span><span style=color:#ebcb8b>Logger
+</span><span style=color:#b48ead>import </span><span>org.typelevel.log4cats.slf4j.*
+</span><span>
+</span><span style=color:#b48ead>object </span><span style=color:#ebcb8b>Server </span><span style=color:#b48ead>extends </span><span style=color:#a3be8c>CommandIOApp</span><span>("</span><span style=color:#a3be8c>helloServer</span><span>", "</span><span style=color:#a3be8c>Titles you in HTML</span><span>") {
+</span><span>
+</span><span>  </span><span style=color:#b48ead>val </span><span style=color:#bf616a>titleOpt</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>String</span><span>] =
+</span><span>    </span><span style=color:#ebcb8b>Opts</span><span>.env[</span><span style=color:#ebcb8b>String</span><span>]("</span><span style=color:#a3be8c>TITLE</span><span>", "</span><span style=color:#a3be8c>Page title</span><span>").withDefault("</span><span style=color:#a3be8c>Hello</span><span>")
+</span><span>
+</span><span>  </span><span style=color:#b48ead>val </span><span style=color:#bf616a>baseUrlOpt</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>Uri</span><span>] = </span><span style=color:#ebcb8b>Opts
+</span><span>    .env[</span><span style=color:#ebcb8b>String</span><span>]("</span><span style=color:#a3be8c>BASE_URL</span><span>", "</span><span style=color:#a3be8c>The base url</span><span>")
+</span><span>    .mapValidated(
+</span><span>      </span><span style=color:#ebcb8b>Uri
+</span><span>        .fromString(_)
+</span><span>        .leftMap(_.message)
+</span><span>        .ensure("</span><span style=color:#a3be8c>base url must be absolute</span><span>")(_.path.addEndsWithSlash.absolute)
+</span><span>        .map(uri => uri.withPath(uri.path.dropEndsWithSlash))
+</span><span>        .toValidatedNel
+</span><span>    )
+</span><span>
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>page</span><span>(</span><span style=color:#bf616a>uri</span><span>: </span><span style=color:#ebcb8b>Uri</span><span>, </span><span style=color:#bf616a>title</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>String </span><span>=
+</span><span>    </span><span style=color:#b48ead>s</span><span>"""</span><span style=color:#a3be8c>|&lt;html>
+</span><span style=color:#a3be8c>        |&lt;head>&lt;title></span><span>$title</span><span style=color:#a3be8c>&lt;/title>&lt;/head>
+</span><span style=color:#a3be8c>        |&lt;body>Hello from </span><span>${uri.toString}</span><span style=color:#a3be8c>&lt;/body>
+</span><span style=color:#a3be8c>        |&lt;/html></span><span>""".stripMargin
+</span><span>
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>routes</span><span>[</span><span style=color:#ebcb8b>F</span><span>[_]: </span><span style=color:#ebcb8b>Async</span><span>: </span><span style=color:#ebcb8b>Logger</span><span>](</span><span style=color:#bf616a>baseUrl</span><span>: </span><span style=color:#ebcb8b>Uri</span><span>, </span><span style=color:#bf616a>title</span><span>: </span><span style=color:#ebcb8b>String</span><span>): </span><span style=color:#ebcb8b>HttpRoutes</span><span>[</span><span style=color:#ebcb8b>F</span><span>] =
+</span><span>    </span><span style=color:#ebcb8b>HttpRoutes</span><span>.of[</span><span style=color:#ebcb8b>F</span><span>] {
+</span><span>      </span><span style=color:#b48ead>case </span><span style=color:#ebcb8b>GET </span><span>-> </span><span style=color:#ebcb8b>Root </span><span>/ "</span><span style=color:#a3be8c>health</span><span>" => </span><span style=color:#ebcb8b>Response</span><span>[</span><span style=color:#ebcb8b>F</span><span>](</span><span style=color:#ebcb8b>Status</span><span>.</span><span style=color:#ebcb8b>Ok</span><span>).pure[</span><span style=color:#ebcb8b>F</span><span>]
+</span><span>      </span><span style=color:#b48ead>case </span><span style=color:#ebcb8b>GET </span><span>-> path =>
+</span><span>        </span><span style=color:#ebcb8b>Logger</span><span>[</span><span style=color:#ebcb8b>F</span><span>].info(</span><span style=color:#b48ead>s</span><span>"</span><span style=color:#a3be8c>Serving </span><span>$path") >>
+</span><span>          </span><span style=color:#ebcb8b>Response</span><span>[</span><span style=color:#ebcb8b>F</span><span>](</span><span style=color:#ebcb8b>Status</span><span>.</span><span style=color:#ebcb8b>Ok</span><span>)
+</span><span>            .withEntity(page(baseUrl.withPath(baseUrl.path.merge(path)), title))
+</span><span>            .withContentType(`Content-Type`(</span><span style=color:#ebcb8b>MediaType</span><span>.text.html))
+</span><span>            .pure[</span><span style=color:#ebcb8b>F</span><span>]
+</span><span>    }
+</span><span>
+</span><span>  </span><span style=color:#b48ead>def </span><span style=color:#8fa1b3>main</span><span>: </span><span style=color:#ebcb8b>Opts</span><span>[</span><span style=color:#ebcb8b>IO</span><span>[</span><span style=color:#ebcb8b>ExitCode</span><span>]] = (baseUrlOpt, titleOpt).mapN((baseUrl, title) =>
+</span><span>    </span><span style=color:#b48ead>for </span><span>{
+</span><span>      </span><span style=color:#b48ead>given </span><span style=color:#ebcb8b>Logger</span><span>[</span><span style=color:#ebcb8b>IO</span><span>] &lt;- </span><span style=color:#ebcb8b>Slf4jFactory</span><span>.create[</span><span style=color:#ebcb8b>IO</span><span>]
+</span><span>      exitCode &lt;- </span><span style=color:#ebcb8b>EmberServerBuilder
+</span><span>        .default[</span><span style=color:#ebcb8b>IO</span><span>]
+</span><span>        .withHttp2
+</span><span>        .withHost(ipv4"</span><span style=color:#a3be8c>0.0.0.0</span><span>")
+</span><span>        .withPort(</span><span style=color:#b48ead>port</span><span>"</span><span style=color:#a3be8c>8080</span><span>")
+</span><span>        .withHttpApp(
+</span><span>          </span><span style=color:#ebcb8b>CORS</span><span>.policy.withAllowOriginAll(routes[</span><span style=color:#ebcb8b>IO</span><span>](baseUrl, title)).orNotFound
+</span><span>        )
+</span><span>        .build
+</span><span>        .useForever
+</span><span>        .as(</span><span style=color:#ebcb8b>ExitCode</span><span>.</span><span style=color:#ebcb8b>Success</span><span>)
+</span><span>    } </span><span style=color:#b48ead>yield</span><span> exitCode
+</span><span>  )
+</span><span>}
+</span></code></pre></div></div><p>We added <code>using resourceDir "."</code> to make the file <code>logback.xml</code> discoverable by logback and <code>using packaging.packageType "assembly"</code> to pack our server with all its dependencies to avoid downloading them at every boot.<p>We can now perform a test running the server locally and visiting <code>localhost:8080/foo</code>:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ BASE_URL="https://toniogela.dev" scala-cli run .
+</span><span>2023-01-07 23:46:39,183 [INFO] Server: Serving /foo/
+</span></code></pre><p style=text-align:center;line-height:0><img alt src=local-test.webp style=border-radius:.5rem;width:50%><h3 id=packing-the-server-as-a-docker-application><a class=anchor href=#packing-the-server-as-a-docker-application>Packing the server as a docker application</a></h3><p>Last but not least, since fly.io accepts <a href=https://fly.io/docs/reference/builders/#image>already-built Docker images</a> to run, we should pack our application in a container. Luckily for us, scala-cli can directly package our server as a docker image <a href=https://scala-cli.virtuslab.org/docs/commands/package#building-docker-container-from-base-image>using a custom base image</a>:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ scala-cli package server.scala --docker --docker-image-repository hello-server --docker-image-tag 0.1.0 --docker-from eclipse-temurin:11.0.17_8-jre-alpine 
+</span><span>Compiling project (Scala 3.2.1, JVM)
+</span><span>Compiled project (Scala 3.2.1, JVM)
+</span><span>Started building docker image with your application, it might take some time
+</span><span>Built docker image, run it with
+</span><span>  docker run hello-server:0.1.0
+</span><span style=color:#a3be8c>$ docker run -e BASE_URL="https://toniogela.dev" -p8080:8080 hello-server:0.1.0
+</span><span>2023-01-07 23:06:30,524 [INFO] Server: Serving /foo/ciao
+</span><span>2023-01-07 23:06:30,866 [INFO] Server: Serving /favicon.ico
+</span></code></pre><p>Since we'll need to rebuild the app again and the command is quite long, we'll write down a <code>Justfile</code> for ease:<div class=code-window><div class=code-title style=color:#000;background-color:#6d98ba><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> Justfile</div><div class=code-body><pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#bf616a>docker_image_name </span><span>:= "</span><span style=color:#a3be8c>hello-server</span><span>"
+</span><span style=color:#bf616a>docker_image_tag  </span><span>:= "</span><span style=color:#a3be8c>0.1.0</span><span>"
+</span><span style=color:#bf616a>base_image        </span><span>:= "</span><span style=color:#a3be8c>eclipse-temurin:11.0.17_8-jre-alpine</span><span>"
+</span><span>
+</span><span style=color:#8fa1b3>_default</span><span>:
+</span><span>  </span><span style=color:#b48ead>@</span><span>just --list --unsorted
+</span><span>
+</span><span style=color:#65737e># Runs the app on localhost:8080
+</span><span style=color:#8fa1b3>run</span><span>:
+</span><span>  BASE_URL="</span><span style=color:#a3be8c>https://hello.toniogela.dev</span><span>" scala-cli run .
+</span><span>
+</span><span style=color:#65737e># Build the docker image
+</span><span style=color:#8fa1b3>build</span><span>:
+</span><span>  scala-cli package server.scala --docker \
+</span><span>    --docker-image-repository {{</span><span style=color:#bf616a>docker_image_name</span><span>}} \
+</span><span>    --docker-image-tag {{</span><span style=color:#bf616a>docker_image_tag</span><span>}} \
+</span><span>    --docker-from {{</span><span style=color:#bf616a>base_image</span><span>}}
+</span></code></pre></div></div><p>Now rebuilding the app is as simple as running <code>just build</code><pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ just
+</span><span>Available recipes:
+</span><span>    run                 </span><span style=color:#65737e># Runs the app on localhost:8080
+</span><span>    build               </span><span style=color:#65737e># Build the docker image
+</span><span style=color:#a3be8c>$ just build
+</span><span>scala-cli package server.scala --docker --docker-image-repository hello-server --docker-image-tag 0.1.0 --docker-from eclipse-temurin:11.0.17_8-jre-alpine 
+</span><span>Compiling project (Scala 3.2.1, JVM)
+</span><span>Compiled project (Scala 3.2.1, JVM)
+</span><span>Started building docker image with your application, it might take some time
+</span><span>Built docker image, run it with
+</span><span>  docker run hello-server:0.1.0
+</span></code></pre><h2 id=deploying-the-server-or-fly-io><a class=anchor href=#deploying-the-server-or-fly-io>Deploying the server or fly.io</a></h2><p>Creating our app is as simple as launching a command:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly launch --image hello-server:0.1.0 
+</span><span>Creating app in /Users/toniogela/repo/personal/helloServer
+</span><span>Using image hello-server:0.1.0
+</span><span>? Choose an app name (leave blank to generate one): hello-toniogela
+</span><span>? Choose a region for deployment: Frankfurt, Germany (fra)
+</span><span>Admin URL: https://fly.io/apps/hello-toniogela
+</span><span>Hostname: hello-toniogela.fly.dev
+</span><span>Wrote config file fly.toml
+</span><span>? Would you like to set up a Postgresql database now? No
+</span><span>? Would you like to set up an Upstash Redis database now? No
+</span><span>? Would you like to deploy now? No
+</span><span>Your app is ready! Deploy with `flyctl deploy
+</span></code></pre><p>One of the side effects of the last command execution is that <code>fly.toml</code> configuration file for our application gets generated. The default settings are usually fine, but we need at least to add under <code>env</code> our mandatory variable <code>BASE_URL</code>.<p>I removed the <code>[[services.tcp_checks]]</code> in favour of a <code>[[services.http_checks]]</code> that calls our health check API, increased some concurrency limits and <strong>forced HTTPS traffic</strong>, all by following the <a href=https://fly.io/docs/reference/configuration>configuration reference</a>.<div class=code-window><div class=code-title style=color:#1a2539;background-color:#a3be8c><span class=dot-red></span><span class=dot-yellow></span><span class=dot-green></span> fly.toml</div><div class=code-body><pre class=language-toml data-lang=toml style=color:#c0c5ce;background-color:#2b303b><code class=language-toml data-lang=toml><span style=color:#bf616a>app </span><span>= "</span><span style=color:#a3be8c>hello-toniogela</span><span>"
+</span><span style=color:#bf616a>kill_signal </span><span>= "</span><span style=color:#a3be8c>SIGINT</span><span>"
+</span><span style=color:#bf616a>kill_timeout </span><span>= </span><span style=color:#d08770>120
+</span><span>
+</span><span>[env]
+</span><span>  </span><span style=color:#bf616a>BASE_URL </span><span>= "</span><span style=color:#a3be8c>https://hello.toniogela.dev</span><span>"
+</span><span>
+</span><span>[build]
+</span><span>  </span><span style=color:#bf616a>image </span><span>= "</span><span style=color:#a3be8c>hello-server:0.1.0</span><span>"
+</span><span>
+</span><span>[[services]]
+</span><span>  </span><span style=color:#bf616a>internal_port </span><span>= </span><span style=color:#d08770>8080
+</span><span>  </span><span style=color:#bf616a>processes </span><span>= ["</span><span style=color:#a3be8c>app</span><span>"]
+</span><span>  </span><span style=color:#bf616a>protocol </span><span>= "</span><span style=color:#a3be8c>tcp</span><span>"
+</span><span>
+</span><span>  [services.concurrency]
+</span><span>    </span><span style=color:#bf616a>hard_limit </span><span>= </span><span style=color:#d08770>500
+</span><span>    </span><span style=color:#bf616a>soft_limit </span><span>= </span><span style=color:#d08770>250
+</span><span>    </span><span style=color:#bf616a>type </span><span>= "</span><span style=color:#a3be8c>requests</span><span>"
+</span><span>
+</span><span>  [[services.ports]]
+</span><span>    </span><span style=color:#bf616a>force_https </span><span>= </span><span style=color:#d08770>true
+</span><span>    </span><span style=color:#bf616a>handlers </span><span>= ["</span><span style=color:#a3be8c>http</span><span>"]
+</span><span>    </span><span style=color:#bf616a>port </span><span>= </span><span style=color:#d08770>80
+</span><span>
+</span><span>  [[services.ports]]
+</span><span>    </span><span style=color:#bf616a>handlers </span><span>= ["</span><span style=color:#a3be8c>tls</span><span>", "</span><span style=color:#a3be8c>http</span><span>"]
+</span><span>    </span><span style=color:#bf616a>port </span><span>= </span><span style=color:#d08770>443
+</span><span>
+</span><span>  [[services.http_checks]]
+</span><span>    </span><span style=color:#bf616a>grace_period </span><span>= "</span><span style=color:#a3be8c>10s</span><span>"
+</span><span>    </span><span style=color:#bf616a>interval </span><span>= "</span><span style=color:#a3be8c>5s</span><span>"
+</span><span>    </span><span style=color:#bf616a>method </span><span>= "</span><span style=color:#a3be8c>get</span><span>"
+</span><span>    </span><span style=color:#bf616a>path </span><span>= "</span><span style=color:#a3be8c>/health</span><span>"
+</span><span>    </span><span style=color:#bf616a>protocol </span><span>= "</span><span style=color:#a3be8c>http</span><span>"
+</span><span>    </span><span style=color:#bf616a>restart_limit </span><span>= </span><span style=color:#d08770>5
+</span><span>    </span><span style=color:#bf616a>timeout </span><span>= "</span><span style=color:#a3be8c>2s</span><span>"
+</span></code></pre></div></div><p>Even deploying is just a matter of running a single command:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly deploy --local-only
+</span><span>==> Verifying app config
+</span><span>--> Verified app config
+</span><span>==> Building image
+</span><span>Searching for image 'hello-server:0.1.0' locally...
+</span><span>image found: sha256:9ffc712f96bb61eae722619ad0bd21a752e39b2a0cceca1abdb510bec18820cf
+</span><span>==> Pushing image to fly
+</span><span>The push refers to repository [registry.fly.io/hello-toniogela]
+</span><span>6edf61a11a72: Pushed 
+</span><span>d5ee5e28f5b5: Pushed 
+</span><span>688df10214b7: Pushed 
+</span><span>5ab3fbcbc72f: Pushed 
+</span><span>ded7a220bb05: Pushed 
+</span><span>deployment-01GP7936X7ZMX5VXDS2MYM1C9D: digest: sha256:99b04cf901b057a10f2526e6f973285ffb09777e497cd6abd6d96c6cd73a6114 size: 1371
+</span><span>--> Pushing image done
+</span><span>==> Creating release
+</span><span>--> release v2 created
+</span><span>
+</span><span>--> You can detach the terminal anytime without stopping the deployment
+</span><span>==> Monitoring deployment
+</span><span>Logs: https://fly.io/apps/hello-toniogela/monitoring
+</span><span>
+</span><span> 1 desired, 1 placed, 1 healthy, 0 unhealthy [health checks: 1 total, 1 passing]
+</span><span>--> v0 deployed successfully
+</span></code></pre><p>The <code>--local-only</code> flag was used to perform the build only locally using the local docker daemon and pushing the previously built image. We can now check that our app is reachable under <code>https://{appName}.fly.dev</code>:<p style=text-align:center;line-height:0><img alt src=fly-domain.webp style=border-radius:.5rem;width:50%><h3 id=secrets><a class=anchor href=#secrets>Secrets</a></h3><p>Fly supports secret environment variables, and they can be easily set from the command line, triggering a redeploy:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly secrets set TITLE="Mommy I'm online"
+</span><span>Release v1 created
+</span><span>==> Monitoring deployment
+</span><span>Logs: https://fly.io/apps/hello-toniogela/monitoring
+</span><span>
+</span><span> 1 desired, 1 placed, 1 healthy, 0 unhealthy [health checks: 1 total, 1 passing]
+</span><span>--> v1 deployed successfully
+</span></code></pre><p style=text-align:center;line-height:0><img alt src=custom-title.webp style=border-radius:.5rem;width:50%><p>We can save these commands for later reuse in our <code>Justfile</code>, using dependencies between recipes and default arguments:<pre class=language-just data-lang=just style=color:#c0c5ce;background-color:#2b303b><code class=language-just data-lang=just><span style=color:#65737e># Deploys on fly.io
+</span><span style=color:#8fa1b3>deploy</span><span>: build
+</span><span>    flyctl deploy --local-only
+</span><span>
+</span><span style=color:#65737e># Changes the TITLE secret on fly.io
+</span><span style=color:#8fa1b3>title</span><span> label="Hello":
+</span><span>    flyctl secrets set TITLE="{{</span><span style=color:#bf616a>label</span><span>}}"
+</span><span>
+</span><span style=color:#65737e># Opens the web UI of fly.io
+</span><span style=color:#8fa1b3>open</span><span>:
+</span><span>    open "</span><span style=color:#a3be8c>https://fly.io/apps/hello-toniogela/</span><span>"
+</span></code></pre><h2 id=adding-certificates-and-publishing-on-our-domain><a class=anchor href=#adding-certificates-and-publishing-on-our-domain>Adding certificates and publishing on our domain</a></h2><p>Now that we confirmed that the server is up and running, it's time to make fly.io generate an HTTPS certificate and configure the DNS to expose the app on our domain. By default, fly.io assigns to every new app a shared ipv4 and a dedicated ipv6. This is due to a popularity increase and a global IPv4 scarcity, as <a href=https://community.fly.io/t/announcement-shared-anycast-ipv4/9384>announced on the Fly.io blog</a>.<p>If we still desire a dedicated IPv4, i.e. for using an A record in our DNS server, we can allocate one:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly ips allocate-v4
+</span><span>VERSION	IP           	TYPE  	REGION	CREATED AT
+</span><span>v4     	137.66.63.249	public	global	7s ago
+</span></code></pre><p>To generate an HTTPS certificate, we can always use the command line:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly certs add hello.toniogela.dev
+</span><span>You are creating a certificate for hello.toniogela.dev
+</span><span>We are using Let's Encrypt for this certificate.
+</span><span>
+</span><span>You can configure your DNS for hello.toniogela.dev by:
+</span><span>
+</span><span>1: Adding an CNAME record to your DNS service which reads:
+</span><span>
+</span><span>    CNAME hello. hello-toniogela.fly.dev
+</span></code></pre><p>To speed up the certificate creation, we can visit the dedicated section on our app dashboard and follow the instructions to confirm the domain ownership:<p style=text-align:center;line-height:0><img alt src=certificates-instruction.webp style=border-radius:.5rem;width:90%><p>and setup at our domain's vendor the DNS records as requested:<p style=text-align:center;line-height:0><img alt src=google-domains.webp style=border-radius:.5rem;width:90%><p>After a few minutes, our DNS should be propagated. We can check the status via command line:<pre class=language-cli data-lang=cli style=color:#c0c5ce;background-color:#2b303b><code class=language-cli data-lang=cli><span style=color:#a3be8c>$ fly certs check hello.toniogela.dev
+</span><span>The certificate for hello.toniogela.dev has been issued.
+</span><span>Hostname                  = hello.toniogela.dev
+</span><span>
+</span><span>DNS Provider              = googledomains
+</span><span>
+</span><span>Certificate Authority     = Let's Encrypt
+</span><span>
+</span><span>Issued                    = rsa,ecdsa
+</span><span>
+</span><span>Added to App              = 10 minutes ago
+</span><span>
+</span><span>Source                    = fly
+</span></code></pre><p>Now we can enjoy our app directly from our domain 🎉🎉🎉<p style=text-align:center;line-height:0><img alt src=complete.webp style=border-radius:.5rem;width:50%><h2 id=conclusions><a class=anchor href=#conclusions>Conclusions</a></h2><p>We saw how fast publishing a backend application on a custom domain can be following these instructions.<p>This article is not a comprehensive guide of either <a href=https://http4s.org/>http4s</a>, <a href=https://scala-cli.virtuslab.org/>scala-cli</a> or <a href=https://fly.io/>fly.io</a>, but rather a series of TODO steps that might come in handy when you want to prototype an idea and show it to someone else rapidly.<p>Enjoy!</article><script data-repo-id="MDEwOlJlcG9zaXRvcnkzNzA0MDc0NDc=" async crossorigin data-category=Q&A data-category-id=DIC_kwDOFhP4F84CeeYj data-emit-metadata=1 data-input-position=bottom data-lang=en data-loading=lazy data-mapping=pathname data-reactions-enabled=1 data-repo=TonioGela/blog data-strict=0 data-theme=dark_dimmed src=https://giscus.app/client.js></script>
