@@ -10,10 +10,13 @@ build_search_index = false
 minify_html = true
 
 [markdown]
-highlight_code = true
-extra_syntaxes_and_themes = ["syntaxes"]
-highlight_theme = "base16-ocean-dark"
 render_emoji = true
+
+[markdown.highlighting]
+error_on_missing_language = true
+highlight_code = true
+extra_grammars = [ "syntaxes/just.json", "syntaxes/cli.json", "syntaxes/tree.json" ]
+theme = "nord"
 
 [link_checker]
 skip_prefixes = [
