@@ -20,7 +20,8 @@ theme = "nord"
 
 [link_checker]
 skip_prefixes = [
-    "https://twitter.com", # Twitter returns 403 in most cases
+    "https://twitter.com",        # Twitter returns 403 in most cases
+    "https://github.com/signup",  # 403s too
 ]
 skip_anchor_prefixes = [
     "https://github.com/casey/just", # I'm simply too lazy to fix that post
