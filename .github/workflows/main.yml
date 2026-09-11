@@ -15,7 +15,7 @@ jobs:
         # out of the store, wrangler wants a writable directory
         run: cp -rL --no-preserve=mode,ownership "$(nix-build --no-out-link)" site
       - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
