@@ -5,4 +5,5 @@ let
 in
 pkgs.mkShellNoCC {
   packages = [ pkgs.zola serve ];
+  shellHook = ''echo -e "There's a \033[92;5;1mserve\033[0m command for fast prototyping here"'';
 }
