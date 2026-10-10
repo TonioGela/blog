@@ -41,16 +41,14 @@
   {% endblock %}
   <link rel="shortcut icon" href="{{ get_url(path="favicon.ico", cachebust=true) }}" type="image/x-icon">
   <link rel="icon" href="{{ get_url(path="favicon.ico", cachebust=true) }}" type="image/x-icon">
-  <link rel="preload" as="style" href="{{ get_url(path="colors.css", cachebust=true) }}" />
-  <link rel="preload" as="image" href="{{ macros::urlOf(path=config.extra.profile) }}">
   {% block custom_preload %}{% endblock custom_preload %}
-  <link rel="preconnect" href="https://giscus.app" crossorigin>
-  <link rel="stylesheet" href="{{ get_url(path="colors.css", cachebust=true) }}" integrity="sha512-{{ get_hash(path="colors.css", sha_type=512, base64=true) | safe }}" />
-  <script async="true" defer="true" src="{{ get_url(path="instantpage-5.1.0.js", cachebust=true) }}"  integrity="sha512-{{ get_hash(path="instantpage-5.1.0.js", sha_type=512, base64=true) | safe }}" type="module"></script>
+  <link rel="stylesheet" href="{{ get_url(path="colors.css", cachebust=true) }}" crossorigin integrity="sha512-{{ get_hash(path="colors.css", sha_type=512, base64=true) | safe }}" />
+  <style>@font-face{font-family:'toniogela';src:url({{ get_url(path="toniogela.woff2", cachebust=true) }}) format('woff2');font-display:swap}</style>
+  <script type="speculationrules">{"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": ["/*.pdf", "/rss.xml"]}}]}, "eagerness": "moderate"}]}</script>
   {% endblock head %}
 </head>
 
-<body data-instant-allow-external-links>
+<body>
   {% block content %} {% endblock content %}
 </body>
 

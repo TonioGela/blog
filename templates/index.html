@@ -9,8 +9,7 @@
 <header class="header">
     {% block header %}
     <figure class="user_logo">
-        <a href="{{config.base_url}}" style="background-image: url({{config.base_url}}/{{config.extra.profile}}"
-            aria-label="Homepage"></a>
+        <a href="{{config.base_url}}" aria-label="Homepage">{{ macros::logo_img(path=config.extra.profile, size=115, priority=true) }}</a>
     </figure>
     <h2 class="site_title">{{config.title}}</h2>
     <div>{{config.description | markdown(inline=true) | safe }}</div>
@@ -18,7 +17,7 @@
     {% endblock header %}
 </header>
 
-<section class="post_list">
+<main class="post_list">
     {% for page in paginator.pages %}
     <article id="{{page.title}}" class="post_list_item">
         <h1 class="article_title">
@@ -29,5 +28,5 @@
         <a class="button small" href="{{page.permalink}}">Continue Reading →</a>
     </article>
     {% endfor %}
-</section>
+</main>
 {% endblock content %}

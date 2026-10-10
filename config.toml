@@ -37,6 +37,7 @@ author = "Antonio Gelameris"
 
 [[extra.socials]]
 icon = "github"
+label = "GitHub"
 uri = "https://github.com/TonioGela"
 
 [[extra.socials]]
@@ -51,4 +52,5 @@ blank = false
 
 [[extra.socials]]
 icon = "linkedin"
+label = "LinkedIn"
 uri = "https://www.linkedin.com/in/toniogela/"

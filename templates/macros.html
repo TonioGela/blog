@@ -1,17 +1,17 @@
 {% macro mini_logo(classes, title, siteurl, logourl) %}
 <figure class="mini_logo {{ classes }}">
-    <a href="{{siteurl}}" style="background-image: url({{siteurl}}/{{logourl}})" aria-label="Homepage"></a>
+    <a href="{{siteurl}}" aria-label="Homepage">{{ self::logo_img(path=logourl, size=26) }}</a>
 </figure>
 <h5>
-    <a href="{{siteurl}}" aria-label="Homepage">{{title}}</a>
+    <a href="{{siteurl}}">{{title}}</a>
 </h5>
 {% endmacro mini_logo %}
 
-{% macro social(display, icon, uri, classes, blank) %}
+{% macro social(display, icon, uri, classes, blank, label="") %}
 <li>
     <a rel="me" {% if classes %}class="{{ classes }}" {% endif %} href="{{ uri }}" {% if blank %}target="_blank" {%
-        endif %}>
-        <i class="icon-{{ icon }}"></i> {% if display %}{{ display }}{% endif %}
+        endif %}{% if not display %} aria-label="{{ label }}"{% endif %}>
+        <i class="icon-{{ icon }}" aria-hidden="true"></i> {% if display %}{{ display }}{% endif %}
     </a>
 </li>
 {% endmacro %}
@@ -19,7 +19,7 @@
 {% macro social_common(classes) %}
     {% set extra = config.extra %}
     {% for social in extra.socials %}
-        {{ self::social( display=social.display | default(value=""), icon=social.icon, uri=social.uri, classes=classes, blank=social.blank | default(value=true)) }}
+        {{ self::social( display=social.display | default(value=""), icon=social.icon, uri=social.uri, classes=classes, blank=social.blank | default(value=true), label=social.label | default(value=social.icon | capitalize)) }}
     {% endfor %}
 
     {% if config.generate_feed %}
@@ -29,7 +29,7 @@
         {% else %}
             {% set feed_uri = lang ~ "/" ~ feed_path %}
         {% endif %}
-    {{ self::social(display="",icon="rss",uri=feed_uri,classes=classes,blank=true) }}
+    {{ self::social(display="",icon="rss",uri=feed_uri,classes=classes,blank=true,label="RSS feed") }}
     {% endif %}
 {% endmacro social_common %}
 
@@ -55,6 +55,8 @@
 </ul>
 {% endmacro frontmatter %}
 
-{% macro urlOf(path) %}
-    {{get_url(path=path, cachebust=true)}}
-{% endmacro urlOf %}
+{% macro logo_img(path, size, priority=false) %}
+{%- set a = resize_image(path=path, width=size, height=size, op="fill", format="webp", quality=85) -%}
+{%- set b = resize_image(path=path, width=size * 2, height=size * 2, op="fill", format="webp", quality=85) -%}
+<img src="{{ a.url }}" srcset="{{ a.url }} 1x, {{ b.url }} 2x" width="{{ size }}" height="{{ size }}" alt=""{% if priority %} fetchpriority="high"{% endif %}>
+{%- endmacro logo_img %}

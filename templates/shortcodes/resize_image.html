@@ -1,2 +1,4 @@
-{% set result = resize_image(path=path, width=width, height=height, op=op) %}
-<img src="{{ result.url }}" style="max-width:100%;" />
+{% set a = resize_image(path=path, width=width, height=height, op=op, format="webp", quality=85) %}
+{% set b = resize_image(path=path, width=width * 2, height=height * 2, op=op, format="webp", quality=85) %}
+<img src="{{ a.url }}" srcset="{{ a.url }} 1x, {{ b.url }} 2x" width="{{ a.width }}" height="{{ a.height }}"
+    loading="lazy" decoding="async" alt="{{ alt | default(value='') }}" style="max-width:100%;height:auto">

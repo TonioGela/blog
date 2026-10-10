@@ -12,12 +12,12 @@
   {{ macros::mini_logo(classes="", title=config.title, siteurl=config.base_url, logourl=config.extra.profile) }}
 </nav>
 
-<section class="post_container">
+<main class="post_container">
   <article>
     {% block post %}
     <h1 class="article_title"><a href="{{page.permalink}}" id="article_link">{{ page.title }}</a></h1>
     {{ page.content | safe }}
     {% endblock post %}
   </article>
-</section>
+</main>
 {% endblock content %}

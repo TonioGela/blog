@@ -19,7 +19,7 @@ I'm a former **physicist**, so I sometimes bother people claiming it, and half *
 
 **Also-fun fact**: I own a really serious :cat: called Galileo
 
-{{ resize_image(path="pages/about_me/galileo.png", width=100, height=100, op="fit") }}
+{{ resize_image(path="pages/about_me/galileo.png", width=100, height=100, op="fit", alt="Galileo, the cat") }}
 
 If you want to get in touch with me, the best places are:
 - {{ resize_image(path="pages/about_me/discord.png", width=15, height=15, op="fit") }} [Scala Italy's Discord Server]

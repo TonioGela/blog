@@ -1,19 +1,16 @@
 {% extends "base.html" %}
 {% import "macros.html" as macros %}
 
-{% block extra_head %}
-{% if page.extra.preload %}
-{% for link in page.extra.preload %}
-<link rel="preload" as="image" href="{{page.permalink}}{{link}}">{% endfor %}
-{% endif %}
-{% endblock extra_head %}
+{% block custom_preload %}
+<link rel="preconnect" href="https://giscus.app" crossorigin>
+{% endblock custom_preload %}
 
 {% block content %}
 <nav id="overlord" class="overlord">
   {{ macros::mini_logo(classes="", title=config.title, siteurl=config.base_url, logourl=config.extra.profile) }}
 </nav>
 
-<section class="post_container">
+<main class="post_container">
   <article>
     {% block post %}
     <h1 class="article_title"><a href="{{page.permalink}}" id="article_link">{% if page.draft %}[DRAFT] {% endif %}{{
@@ -28,5 +25,5 @@
     data-reactions-enabled="1" data-emit-metadata="1" data-input-position="bottom" data-theme="dark_dimmed"
     data-lang="en" data-loading="lazy" crossorigin="anonymous" async>
     </script>
-  {% endblock content %}
-</section>
+</main>
+{% endblock content %}

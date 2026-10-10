@@ -1,5 +1,8 @@
+{% set p = page.colocated_path ~ path %}
+{% set a = resize_image(path=p, width=width, height=10000, op="fit", format="webp", quality=85) %}
+{% set b = resize_image(path=p, width=width * 2, height=10000, op="fit", format="webp", quality=85) %}
 <p style="text-align:center;line-height:0">
-    <img src="{{path}}" style="{% if width %}width:{{width}}{% endif %};
-               {% if borderRadius %}border-radius:{{borderRadius}}{% endif %};
-               {% if additional_style %}{{additional_style}}{% endif %}" alt="">
+    <img src="{{ a.url }}" srcset="{{ a.url }} 1x, {{ b.url }} 2x" width="{{ a.width }}" height="{{ a.height }}"
+        loading="lazy" decoding="async" alt="{{ alt | default(value='') }}"
+        style="max-width:100%;height:auto;{% if borderRadius %}border-radius:{{ borderRadius }}{% endif %}">
 </p>

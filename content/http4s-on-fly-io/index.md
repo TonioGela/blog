@@ -227,7 +227,7 @@ $ BASE_URL="https://toniogela.dev" scala-cli run .
 2023-01-07 23:46:39,183 [INFO] Server: Serving /foo/
 ```
 
-{{ center_img(path="local-test.webp", width="50%", borderRadius="0.5rem") }}
+{{ center_img(path="local-test.webp", width=310, alt="The app served locally", borderRadius="0.5rem") }}
 
 ### Packing the server as a docker application
 
@@ -381,7 +381,7 @@ Logs: https://fly.io/apps/hello-toniogela/monitoring
 
 The `--local-only` flag was used to perform the build only locally using the local docker daemon and pushing the previously built image. We can now check that our app is reachable under `https://{appName}.fly.dev`:
 
-{{ center_img(path="fly-domain.webp", width="50%", borderRadius="0.5rem") }}
+{{ center_img(path="fly-domain.webp", width=310, alt="The app served under its fly.dev domain", borderRadius="0.5rem") }}
 
 ### Secrets
 
@@ -397,7 +397,7 @@ Logs: https://fly.io/apps/hello-toniogela/monitoring
 --> v1 deployed successfully
 ```
 
-{{ center_img(path="custom-title.webp", width="50%", borderRadius="0.5rem") }}
+{{ center_img(path="custom-title.webp", width=310, alt="The app showing the customised title", borderRadius="0.5rem") }}
 
 We can save these commands for later reuse in our `Justfile`, using dependencies between recipes and default arguments:
 
@@ -443,11 +443,11 @@ You can configure your DNS for hello.toniogela.dev by:
 
 To speed up the certificate creation, we can visit the dedicated section on our app dashboard and follow the instructions to confirm the domain ownership:
 
-{{ center_img(path="certificates-instruction.webp", width="90%", borderRadius="0.5rem") }}
+{{ center_img(path="certificates-instruction.webp", width=560, alt="Fly.io dashboard with the certificate instructions", borderRadius="0.5rem") }}
 
 and setup at our domain's vendor the DNS records as requested:
 
-{{ center_img(path="google-domains.webp", width="90%", borderRadius="0.5rem") }}
+{{ center_img(path="google-domains.webp", width=560, alt="DNS records at the domain vendor", borderRadius="0.5rem") }}
 
 After a few minutes, our DNS should be propagated. We can check the status via command line:
 
@@ -469,7 +469,7 @@ Source                    = fly
 
 Now we can enjoy our app directly from our domain :tada::tada::tada:
 
-{{ center_img(path="complete.webp", width="50%", borderRadius="0.5rem") }}
+{{ center_img(path="complete.webp", width=310, alt="The app served from the custom domain", borderRadius="0.5rem") }}
 
 ## Conclusions
 

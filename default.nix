@@ -29,15 +29,27 @@ let
   # CSP: giscus is the only third party the pages load; youtube/vimeo are there
   # for the embed shortcodes, unused today but one post away from breaking.
   # style-src allows inline for the same reason: the image shortcodes emit
-  # style attributes. The one inline script zola emits (the /page/1 redirect)
-  # falls back to its own <noscript> meta refresh, so it needs no exception.
+  # style attributes, and base.html inlines @font-face to cachebust the font.
+  # The speculation rules need their own keyword. The one inline script zola
+  # emits (the /page/1 redirect) falls back to its own <noscript> meta refresh,
+  # so it needs no exception.
+  #
+  # immutable: only for files every page references with a content hash
+  # (`cachebust=true` or a processed_images filename). favicon.ico stays out,
+  # browsers also fetch it unhashed.
   headers = pkgs.writeText "_headers" ''
     /*
-      Content-Security-Policy: default-src 'self'; script-src 'self' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://giscus.app; frame-src https://giscus.app https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
+      Content-Security-Policy: default-src 'self'; script-src 'self' 'inline-speculation-rules' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://giscus.app; frame-src https://giscus.app https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
       X-Content-Type-Options: nosniff
       Referrer-Policy: strict-origin-when-cross-origin
       X-Frame-Options: SAMEORIGIN
       Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+    /processed_images/*
+      Cache-Control: public, max-age=31536000, immutable
+    /colors.css
+      Cache-Control: public, max-age=31536000, immutable
+    /toniogela.woff2
+      Cache-Control: public, max-age=31536000, immutable
   '';
 in
 pkgs.stdenvNoCC.mkDerivation {
