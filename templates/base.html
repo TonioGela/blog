@@ -43,7 +43,6 @@
   <link rel="icon" href="{{ get_url(path="favicon.ico", cachebust=true) }}" type="image/x-icon">
   {% block custom_preload %}{% endblock custom_preload %}
   <link rel="stylesheet" href="{{ get_url(path="colors.css", cachebust=true) }}" crossorigin integrity="sha512-{{ get_hash(path="colors.css", sha_type=512, base64=true) | safe }}" />
-  <style>@font-face{font-family:'toniogela';src:url({{ get_url(path="toniogela.woff2", cachebust=true) }}) format('woff2');font-display:swap}</style>
   <script type="speculationrules">{"prerender": [{"where": {"and": [{"href_matches": "/*"}, {"not": {"href_matches": ["/*.pdf", "/rss.xml"]}}]}, "eagerness": "moderate"}]}</script>
   {% endblock head %}
 </head>

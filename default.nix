@@ -29,10 +29,9 @@ let
   # CSP: giscus is the only third party the pages load; youtube/vimeo are there
   # for the embed shortcodes, unused today but one post away from breaking.
   # style-src allows inline for the same reason: the image shortcodes emit
-  # style attributes, and base.html inlines @font-face to cachebust the font.
-  # The speculation rules need their own keyword. The one inline script zola
-  # emits (the /page/1 redirect) falls back to its own <noscript> meta refresh,
-  # so it needs no exception.
+  # style attributes. The speculation rules need their own keyword. The one
+  # inline script zola emits (the /page/1 redirect) falls back to its own
+  # <noscript> meta refresh, so it needs no exception.
   #
   # immutable: only for files every page references with a content hash
   # (`cachebust=true` or a processed_images filename). favicon.ico stays out,
@@ -48,8 +47,6 @@ let
       Cache-Control: public, max-age=31536000, immutable
     /colors.css
       Cache-Control: public, max-age=31536000, immutable
-    /toniogela.woff2
-      Cache-Control: public, max-age=31536000, immutable
   '';
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -60,7 +57,6 @@ pkgs.stdenvNoCC.mkDerivation {
     fileset = lib.fileset.unions [
       ./config.toml
       ./content
-      ./font
       ./sass
       ./syntaxes
       ./templates

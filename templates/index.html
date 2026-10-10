@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% import "macros.html" as macros %}
 
-{% block custom_preload %}
-<link rel="preload" as="font" type="font/woff2" href="{{ get_url(path="toniogela.woff2", cachebust=true) }}" crossorigin>
-{% endblock custom_preload %}
-
 {% block content %}
 <header class="header">
     {% block header %}
