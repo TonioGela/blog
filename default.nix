@@ -69,7 +69,18 @@ pkgs.stdenvNoCC.mkDerivation {
   installPhase = ''
     mkdir -p $out
     cp -r public $out/public
-    cp ${headers} $out/public/_headers
+    # cachebusted stylesheet URL changes with every CSS edit: preload it (sent as Early Hints by Cloudflare).
+    # crossorigin must match the <link>'s, or the browser fetches it twice
+    css=$(grep -o 'colors\.css?h=[0-9a-f]*' public/index.html | head -1)
+    [ -n "$css" ]
+    # own /* block: appending to the file would land under the last rule. Cloudflare merges matching rules
+    # posts have no common prefix: hint the giscus preconnect on every page that already carries it
+    {
+      cat ${headers}
+      printf '/*\n  Link: </%s>; rel=preload; as=style; crossorigin\n' "$css"
+      grep -rl --include=index.html 'rel=preconnect' public | sed 's|^public||; s|index\.html$||' | sort \
+        | while read -r p; do printf '%s\n  Link: <https://giscus.app>; rel=preconnect; crossorigin\n' "$p"; done
+    } > $out/public/_headers
     cp ${wrangler} $out/wrangler.jsonc
   '';
 }
