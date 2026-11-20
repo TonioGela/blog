@@ -42,7 +42,7 @@ let
       X-Content-Type-Options: nosniff
       Referrer-Policy: same-origin
       X-Frame-Options: SAMEORIGIN
-      Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+      Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=()
       Cross-Origin-Opener-Policy: same-origin-allow-popups
     /processed_images/*
       Cache-Control: public, max-age=31536000, immutable
