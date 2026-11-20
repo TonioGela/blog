@@ -38,11 +38,12 @@ let
   # browsers also fetch it unhashed.
   headers = pkgs.writeText "_headers" ''
     /*
-      Content-Security-Policy: default-src 'self'; script-src 'self' 'inline-speculation-rules' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://giscus.app; frame-src https://giscus.app https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
+      Content-Security-Policy: default-src 'none'; script-src 'self' 'inline-speculation-rules' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://giscus.app; frame-src https://giscus.app https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
       X-Content-Type-Options: nosniff
       Referrer-Policy: strict-origin-when-cross-origin
       X-Frame-Options: SAMEORIGIN
       Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+      Cross-Origin-Opener-Policy: same-origin-allow-popups
     /processed_images/*
       Cache-Control: public, max-age=31536000, immutable
     /colors.css
