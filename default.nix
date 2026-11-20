@@ -40,7 +40,7 @@ let
     /*
       Content-Security-Policy: default-src 'none'; script-src 'self' 'inline-speculation-rules' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data:; font-src 'self'; connect-src 'self' https://giscus.app; frame-src https://giscus.app https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
       X-Content-Type-Options: nosniff
-      Referrer-Policy: strict-origin-when-cross-origin
+      Referrer-Policy: same-origin
       X-Frame-Options: SAMEORIGIN
       Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
       Cross-Origin-Opener-Policy: same-origin-allow-popups
