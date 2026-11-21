@@ -14,7 +14,7 @@
 </header>
 
 <main class="post_list">
-    {% for page in paginator.pages %}
+    {% for page in section.pages %}
     <article id="{{page.title}}" class="post_list_item">
         <h1 class="article_title">
             <a href="{{page.permalink}}" id="article_link">{% if page.draft %}[DRAFT] {% endif %}{{page.title}}</a>
